@@ -1,0 +1,11 @@
+var page = require('webpage').create();
+page.open('http://error_331-fitnessdeluxe.jit.su/fitnessdeluxe_js.html', function () {
+
+    var a = page.evaluate(function () {
+
+                return document;
+    });
+  
+   console.log(a);
+    phantom.exit();
+});
