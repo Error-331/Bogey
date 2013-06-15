@@ -1,1 +1,16 @@
+# Image files #
+###################
+*.png
+*.PNG
+*.jpeg
+*.JPEG
+*.jpg
+*.JPG
+*.gif
+*.GIF
+*.pdf
+*.PDF
+
+# Misc #
+########
 /*~

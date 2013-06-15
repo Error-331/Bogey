@@ -5,8 +5,7 @@ var curPageURL = '';
 /* Page event handler methods starts here */
 
 curPage.onUrlChanged = function(targetUrl) {
-    curPageURL = targetUrl;
-    console.log('New URL: ' + targetUrl);
+    curPageURL = targetUrl;       
 };
 
 /* Page event handler methods ends here */
@@ -23,22 +22,16 @@ function onMainMailPageJump(status)
         'operation_status': false,
         'operation_desc': ''
     };
-    
+     
     if (status == 'success') {
-        var link = curPage.evaluate(function() {
-            return document.getElementsByClassName("b-big-button")[0].href;
-        });
-
-        if (typeof link != 'string' && link.length < 0) {
-            response.operation_desc = 'Cannot find link to mail registration'
+        curPage.evaluate(function() {
             
-            console.log(JSON.stringify(response));
-            phantom.exit();
-        }
+            var evt = document.createEvent("MouseEvents");
         
-        curPage.open(link, onMailRegisterPageJump);        
-    } else {
-        
+            evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+            document.getElementsByClassName("b-big-button")[0].dispatchEvent(evt);
+        });           
+    } else {     
         console.log(JSON.stringify(response));
         phantom.exit();
     }
@@ -108,7 +101,30 @@ function onMailRegisterPageJump(status)
     }   
 }
 
+function onUndefinedURLJump(status)
+{
+    var response = {
+        'url': curPageURL,
+        'page_status': status,
+        'operation_status': false,
+        'operation_desc': ''
+    };       
+    
+    response.operation_desc = 'Undefined page';
+    console.log(JSON.stringify(response));
+    phantom.exit();  
+}
+
 /* Page jump handler functions ends here */
 
 curPage.settings.userAgent = 'WebKit/534.46 Mobile/9A405 Safari/7534.48.3';
-curPage.open('http://mail.yandex.ru/', onMainMailPageJump);
+curPage.open('http://mail.yandex.ru/', function(status) {
+
+    if (curPageURL == 'http://mail.yandex.ru/') {
+        onMainMailPageJump(status);
+    } else if (curPageURL.indexOf("https://passport.yandex.ru/") == 0) {
+        onMailRegisterPageJump(status);
+    }  else {
+        onUndefinedURLJump(status);
+    }
+});
