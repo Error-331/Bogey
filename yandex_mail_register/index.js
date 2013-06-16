@@ -1,4 +1,5 @@
-var response = new require('../modules/response');
+var response = require('../modules/response');
+var sandboxutils = require('../modules/sandboxutils');
 var page = require('webpage');
 var curPage = page.create();
 var curPageURL = '';
@@ -24,35 +25,6 @@ curPage.onLoadFinished = function(status) {
 /* Page event handler methods ends here */
 
 /* Core functions starts here */
-
-            function findOffset(obj) 
-            {
-                var obj2 = obj;
-                var curtop = 0;
-                var curleft = 0;
-                
-                if (document.getElementById || document.all) {
-                    do  {
-                        curleft += obj.offsetLeft - obj.scrollLeft;
-                        curtop += obj.offsetTop - obj.scrollTop;
-                        
-                        obj = obj.offsetParent;
-                        obj2 = obj2.parentNode;
-                        
-                        while (obj2 != obj) {
-                            curleft -= obj2.scrollLeft;
-                            curtop -= obj2.scrollTop;
-                            obj2 = obj2.parentNode;
-                        }
-                    } while (obj.offsetParent)
-                } else if (document.layers) {
-                    curtop += obj.y;
-                    curleft += obj.x;
-                }
-
-            return { top: curtop, left: curleft };
-            }
-
 
 /* Core functions ends here */
 
@@ -90,14 +62,9 @@ function onMailRegisterPageJump(status)
     if (status == 'success') {
         
         var captcha = curPage.evaluate(function (findOffset) {                               
-            var img = document.getElementsByClassName("captcha-img");
-            
-            var offset = findOffset(img[0]);
-            offset.width = img[0].offsetWidth;
-            offset.height = img[0].offsetHeight;
-            
-            return offset;
-        }, findOffset);
+            var img = document.getElementsByClassName("captcha-img");                      
+            return findOffset(img[0]);
+        }, sandboxutils.findOffset);
         
         
         curPage.clipRect = {top: captcha.top, left: captcha.left, width: captcha.width, height: captcha.height};
