@@ -1,57 +1,31 @@
+var response = new require('../modules/response');
 var page = require('webpage');
 var curPage = page.create();
 var curPageURL = '';
 
+//phantom.cookiesEnabled = true;
+
 /* Page event handler methods starts here */
 
 curPage.onUrlChanged = function(targetUrl) {
-    curPageURL = targetUrl;       
+    curPageURL = targetUrl; 
+};
+
+curPage.onLoadFinished = function(status) {
+    if (curPageURL == 'http://mail.yandex.ru/') {
+        onMainMailPageJump(status);
+    } else if (curPageURL.indexOf("https://passport.yandex.ru/") == 0) {
+        onMailRegisterPageJump(status);
+    }  else {
+        onUndefinedURLJump(status);
+    }
 };
 
 /* Page event handler methods ends here */
 
-/* Page jump handler functions starts here */
+/* Core functions starts here */
 
-// http://mail.yandex.ru/
-function onMainMailPageJump(status)
-{
-    var response = {
-        'step': 1,
-        'url': curPageURL,
-        'page_status': status,
-        'operation_status': false,
-        'operation_desc': ''
-    };
-     
-    if (status == 'success') {
-        curPage.evaluate(function() {
-            
-            var evt = document.createEvent("MouseEvents");
-        
-            evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-            document.getElementsByClassName("b-big-button")[0].dispatchEvent(evt);
-        });           
-    } else {     
-        console.log(JSON.stringify(response));
-        phantom.exit();
-    }
-}
-
-// https://passport.yandex.ru/...
-function onMailRegisterPageJump(status)
-{
-    var response = {
-        'url': curPageURL,
-        'page_status': status,
-        'operation_status': false,
-        'operation_desc': ''
-    };   
-      
-    if (status == 'success') {
-        
-        var captcha = curPage.evaluate(function () {
-            
-            function getOffset(obj) 
+            function findOffset(obj) 
             {
                 var obj2 = obj;
                 var curtop = 0;
@@ -78,53 +52,76 @@ function onMailRegisterPageJump(status)
 
             return { top: curtop, left: curleft };
             }
-                        
+
+
+/* Core functions ends here */
+
+/* Page jump handler functions starts here */
+
+// http://mail.yandex.ru/
+function onMainMailPageJump(status)
+{
+    var resp = new response.response(curPageURL, 'starting', status, 'unknown', 'Parsing main mail page...');
+    console.log(JSON.stringify(resp));     
+           
+    if (status == 'success') {
+        var coords = curPage.evaluate(function() {
+            var evt = document.createEvent("MouseEvents");
+        
+            evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+            document.getElementsByClassName("b-big-button")[0].dispatchEvent(evt);
+        });
+        
+        resp = new response.response(curPageURL, 'processing', status, 'success', 'Click a link on the main mail page...');
+        console.log(JSON.stringify(resp));           
+    } else {     
+        resp = new response.response(curPageURL, 'finishing', status, 'fail', 'Main mail page is not loading...');
+        console.log(JSON.stringify(resp)); 
+        phantom.exit();
+    }
+}
+
+// https://passport.yandex.ru/...
+function onMailRegisterPageJump(status)
+{
+    var resp = new response.response(curPageURL, 'processing', status, 'unknown', 'Parsing page with captcha...');
+    console.log(JSON.stringify(resp));     
+     
+    if (status == 'success') {
+        
+        var captcha = curPage.evaluate(function (findOffset) {                               
             var img = document.getElementsByClassName("captcha-img");
             
-            var offset = getOffset(img[0]);
+            var offset = findOffset(img[0]);
             offset.width = img[0].offsetWidth;
             offset.height = img[0].offsetHeight;
             
             return offset;
-        });
+        }, findOffset);
         
         
         curPage.clipRect = {top: captcha.top, left: captcha.left, width: captcha.width, height: captcha.height};
         curPage.render("test.png");
         
-        response.operation_status = true;
-        console.log(JSON.stringify(response));
+        resp = new response.response(curPageURL, 'finishing', status, 'success', 'Successfully saved captcha image...');
+        console.log(JSON.stringify(resp));  
         phantom.exit();  
     } else {
-        console.log(JSON.stringify(response));
+        resp = new response.response(curPageURL, 'finishing', status, 'fail', 'Captcha page is not loading...');
+        console.log(JSON.stringify(resp));  
         phantom.exit();
     }   
 }
 
 function onUndefinedURLJump(status)
 {
-    var response = {
-        'url': curPageURL,
-        'page_status': status,
-        'operation_status': false,
-        'operation_desc': ''
-    };       
-    
-    response.operation_desc = 'Undefined page';
-    console.log(JSON.stringify(response));
+    var resp = new response.response(curPageURL, 'finishing', status, 'unknown', 'Undefined page...');
+    console.log(JSON.stringify(resp));     
     phantom.exit();  
 }
 
 /* Page jump handler functions ends here */
 
 curPage.settings.userAgent = 'WebKit/534.46 Mobile/9A405 Safari/7534.48.3';
-curPage.open('http://mail.yandex.ru/', function(status) {
-
-    if (curPageURL == 'http://mail.yandex.ru/') {
-        onMainMailPageJump(status);
-    } else if (curPageURL.indexOf("https://passport.yandex.ru/") == 0) {
-        onMailRegisterPageJump(status);
-    }  else {
-        onUndefinedURLJump(status);
-    }
+curPage.open('http://mail.yandex.ru/', function() {
 });
