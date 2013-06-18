@@ -1,8 +1,13 @@
-var response = require('../modules/response');
-var sandboxutils = require('../modules/sandboxutils');
+var response = require('../modules/io/response');
+var sandboxutils = require('../modules/utils/sandboxutils');
+var captchabot = require('../modules/captchabot/captchabot');
 var page = require('webpage');
 var curPage = page.create();
 var curPageURL = '';
+
+
+curCaptBot = new captchabot.captchabot();
+curCaptBot.openMainPage();
 
 //phantom.cookiesEnabled = true;
 
@@ -90,5 +95,5 @@ function onUndefinedURLJump(status)
 /* Page jump handler functions ends here */
 
 curPage.settings.userAgent = 'WebKit/534.46 Mobile/9A405 Safari/7534.48.3';
-curPage.open('http://mail.yandex.ru/', function() {
-});
+/*curPage.open('http://mail.yandex.ru/', function() {
+});*/

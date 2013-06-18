@@ -22,8 +22,26 @@ response.prototype.url = '';
  */  
 
 response.prototype.status = 'starting';
+
+/**
+ * @access public
+ * @var string status of the page, can take following values: success, fail
+ */  
+
 response.prototype.pageStatus = 'fail';
+
+/**
+ * @access public
+ * @var string status of the current operation, can take following values: success, fail
+ */  
+
 response.prototype.operationStatus = 'fail';
+
+/**
+ * @access public
+ * @var string description of the current response
+ */ 
+
 response.prototype.description = '';
 
 /* Public members ends here */
