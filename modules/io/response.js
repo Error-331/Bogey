@@ -1,5 +1,6 @@
-var response = function(url, status, pageStatus, operationStatus, description)
+var response = function(module, url, status, pageStatus, operationStatus, description)
 {
+    this.setModule(module);
     this.setURL(url);
     this.setStatus(status);
     this.setPageStatus(pageStatus);
@@ -8,6 +9,13 @@ var response = function(url, status, pageStatus, operationStatus, description)
 }
 
 /* Public members starts here */
+
+/**
+ * @access public
+ * @var string current module 
+ */  
+
+response.prototype.module = '';
 
 /**
  * @access public
@@ -22,13 +30,40 @@ response.prototype.url = '';
  */  
 
 response.prototype.status = 'starting';
+
+/**
+ * @access public
+ * @var string status of the page, can take following values: success, fail
+ */  
+
 response.prototype.pageStatus = 'fail';
+
+/**
+ * @access public
+ * @var string status of the current operation, can take following values: success, fail
+ */  
+
 response.prototype.operationStatus = 'fail';
+
+/**
+ * @access public
+ * @var string description of the current response
+ */ 
+
 response.prototype.description = '';
 
 /* Public members ends here */
 
 /* Public set methods starts here */
+
+response.prototype.setModule = function(module)
+{
+    if (typeof module != 'string') {
+        throw 'Module is not a string';        
+    }  
+    
+    this.module = module;
+}
 
 response.prototype.setURL = function(url)
 {
