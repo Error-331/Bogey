@@ -37,11 +37,11 @@ curPage.onLoadFinished = function(status) {
 
 // http://mail.yandex.ru/
 function onMainMailPageJump(status)
-{
-    var resp = new response.response('yandex', curPageURL, 'starting', status, 'unknown', 'Parsing main mail page...');
-    console.log(JSON.stringify(resp));     
-           
+{           
     if (status == 'success') {
+        var resp = new response.response('yandex', curPageURL, 'starting', status, 'unknown', 'Opening main mail page...');
+        console.log(JSON.stringify(resp));  
+        
         var coords = curPage.evaluate(function() {
             var evt = document.createEvent("MouseEvents");
         
