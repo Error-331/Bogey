@@ -38,7 +38,7 @@ curPage.onLoadFinished = function(status) {
 // http://mail.yandex.ru/
 function onMainMailPageJump(status)
 {
-    var resp = new response.response(curPageURL, 'starting', status, 'unknown', 'Parsing main mail page...');
+    var resp = new response.response('yandex', curPageURL, 'starting', status, 'unknown', 'Parsing main mail page...');
     console.log(JSON.stringify(resp));     
            
     if (status == 'success') {
@@ -49,10 +49,10 @@ function onMainMailPageJump(status)
             document.getElementsByClassName("b-big-button")[0].dispatchEvent(evt);
         });
         
-        resp = new response.response(curPageURL, 'processing', status, 'success', 'Click a link on the main mail page...');
+        resp = new response.response('yandex', curPageURL, 'processing', status, 'success', 'Click a link on the main mail page...');
         console.log(JSON.stringify(resp));           
     } else {     
-        resp = new response.response(curPageURL, 'finishing', status, 'fail', 'Main mail page is not loading...');
+        resp = new response.response('yandex', curPageURL, 'finishing', status, 'fail', 'Main mail page is not loading...');
         console.log(JSON.stringify(resp)); 
         phantom.exit();
     }
@@ -61,7 +61,7 @@ function onMainMailPageJump(status)
 // https://passport.yandex.ru/...
 function onMailRegisterPageJump(status)
 {
-    var resp = new response.response(curPageURL, 'processing', status, 'unknown', 'Parsing page with captcha...');
+    var resp = new response.response('yandex', curPageURL, 'processing', status, 'unknown', 'Parsing page with captcha...');
     console.log(JSON.stringify(resp));     
      
     if (status == 'success') {
@@ -75,11 +75,11 @@ function onMailRegisterPageJump(status)
         curPage.clipRect = {top: captcha.top, left: captcha.left, width: captcha.width, height: captcha.height};
         curPage.render("test.png");
         
-        resp = new response.response(curPageURL, 'finishing', status, 'success', 'Successfully saved captcha image...');
+        resp = new response.response('yandex', curPageURL, 'finishing', status, 'success', 'Successfully saved captcha image...');
         console.log(JSON.stringify(resp));  
         phantom.exit();  
     } else {
-        resp = new response.response(curPageURL, 'finishing', status, 'fail', 'Captcha page is not loading...');
+        resp = new response.response('yandex', curPageURL, 'finishing', status, 'fail', 'Captcha page is not loading...');
         console.log(JSON.stringify(resp));  
         phantom.exit();
     }   
@@ -87,7 +87,7 @@ function onMailRegisterPageJump(status)
 
 function onUndefinedURLJump(status)
 {
-    var resp = new response.response(curPageURL, 'finishing', status, 'unknown', 'Undefined page...');
+    var resp = new response.response('yandex', curPageURL, 'finishing', status, 'unknown', 'Undefined page...');
     console.log(JSON.stringify(resp));     
     phantom.exit();  
 }
