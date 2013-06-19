@@ -11,7 +11,7 @@ var deferred = function()
         
     /**
      * @access private
-     * @var string current status of the deferred object, can take following values: fail, done, unknown
+     * @var string current status of the deferred object, can take following values: fail, resolve, unknown
      */       
     
     var status = 'unknown';
@@ -21,7 +21,7 @@ var deferred = function()
      * @var array of callback functions which will be executed when the current deferred object is resolved
      */       
     
-    var doneFunctions = new Array();
+    var resolveFunctions = new Array();
     
     /**
      * @access private
@@ -54,9 +54,9 @@ var deferred = function()
         var j = 0;
         
         for(i = 0; i < arguments.length; i++){            
-            if (typeof arguments[i] == 'function') {
+            if (typeof arguments[i] == 'resolve') {
                 if (this.status == 'unknown') {
-                    doneFunctions.push(arguments[i]);
+                    resolveFunctions.push(arguments[i]);
                 } else if (this.status == 'done') {
                     arguments[i]();
                 }                             
@@ -64,8 +64,8 @@ var deferred = function()
                 for (j = 0; j < arguments[i].length; j++) {
                     if (typeof arguments[i][j] == 'function') {
                         if (this.status == 'unknown') {
-                            doneFunctions.push(arguments[i][j]);
-                        } else if (this.status == 'done') {
+                            resolveFunctions.push(arguments[i][j]);
+                        } else if (this.status == 'resolve') {
                             arguments[i][j]();
                         }   
                     }
@@ -112,6 +112,52 @@ var deferred = function()
                 }
             }
         }               
+    };  
+    
+    /**
+     * Resolve a deferred object and call any 'resolve' callbacks with the given args.
+     *
+     * You can resolve deferred object once, any subsequent method calls will be ignored.
+     *
+     * @access privileged
+     *
+     * @param mixed callback function parameters
+     *
+     */     
+    
+    this.resolve = function() {
+        if (this.status == 'unknown') {
+            var i = 0;
+            
+            for (i = 0; i < this.resolveFunctions.length; i++) {
+                this.resolveFunctions[i]();
+            }
+            
+            this.status = 'resolve';
+        }
+    };
+    
+    /**
+     * Reject a deferred object and call any 'reject' callbacks with the given args.
+     *
+     * You can reject deferred object once, any subsequent method calls will be ignored.
+     *
+     * @access privileged
+     *
+     * @param mixed callback function parameters
+     *
+     */      
+    
+    this.reject = function() {   
+        if (this.status == 'unknown') {
+            var i = 0;
+            
+            for (i = 0; i < this.failFunctions.length; i++) {
+                this.failFunctions[i]();
+            }
+            
+            this.status = 'fail';
+        }           
     };    
     
     this.when = function() {
