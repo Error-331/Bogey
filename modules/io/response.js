@@ -40,7 +40,7 @@ response.prototype.pageStatus = 'fail';
 
 /**
  * @access public
- * @var string status of the current operation, can take following values: success, fail
+ * @var string status of the current operation, can take following values: success, fail, unknown
  */  
 
 response.prototype.operationStatus = 'fail';

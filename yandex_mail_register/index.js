@@ -7,7 +7,7 @@ var curPageURL = '';
 
 
 curCaptBot = new captchabot.captchabot();
-curCaptBot.openMainPage();
+curCaptBot.checkBalance();
 
 //phantom.cookiesEnabled = true;
 

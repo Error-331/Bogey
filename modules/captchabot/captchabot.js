@@ -6,12 +6,21 @@ var captchabot = function()
 {
     /* Private members starts here */
     
+    var obj = this;
+    
     var mainPageURL = 'http://captchabot.com/rpc/xml.php';
 
     var moduleName = 'captchabot';
 
     var curPage = page.create();
     var curPageURL = '';    
+    
+    /**
+     * @access private
+     * @var string previous status of the page, can take following values: success, fail, unknown
+     */      
+    
+    var prevPageStatus = 'unknown'
     
     /* Private members starts here */
     
@@ -53,6 +62,10 @@ var captchabot = function()
     this.openMainPage = function () {
         curPage.open(mainPageURL, function() {          
         });
+    };
+    
+    this.checkBalance = function() {
+        this.openMainPage();
     };
     
     /* Privileged core methods ends here */
