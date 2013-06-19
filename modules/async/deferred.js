@@ -30,6 +30,20 @@ var deferred = function()
     
     var failFunctions = new Array();
     
+    /**
+     * @access private
+     * @var array arguments that will be passed to the callback functions when the deferred object is resolved
+     */      
+    
+    var resolveArgs = new Array();
+    
+    /**
+     * @access private
+     * @var array arguments that will be passed to the callback functions when the deferred object is rejected
+     */       
+    
+    var failArgs = new Array();
+    
     /* Private members ends here */
     
     /* Privileged core methods starts here */
@@ -37,7 +51,8 @@ var deferred = function()
     /**
      * Add handlers to be called when the deferred object is resolved.
      *
-     * Simple method that adds handlers to be called when the deferred object is resolved.
+     * Simple method that adds handlers to be called when the deferred object is resolved. If the deferred object already been resolved, passed callback 
+     * functions will be called instantly upon calling done() method (with arguments previously passed to the resolve() method).
      *
      * @access privileged
      *
@@ -58,7 +73,7 @@ var deferred = function()
                 if (this.status == 'unknown') {
                     resolveFunctions.push(arguments[i]);
                 } else if (this.status == 'done') {
-                    arguments[i]();
+                    arguments[i].aplly(null, this.resolveArgs);
                 }                             
             } else if (typeof arguments[i] == 'object') {
                 for (j = 0; j < arguments[i].length; j++) {
@@ -66,7 +81,7 @@ var deferred = function()
                         if (this.status == 'unknown') {
                             resolveFunctions.push(arguments[i][j]);
                         } else if (this.status == 'resolve') {
-                            arguments[i][j]();
+                            arguments[i][j].apply(null, this.resolveArgs);
                         }   
                     }
                 }
@@ -77,7 +92,8 @@ var deferred = function()
     /**
      * Add handlers to be called when the deferred object is rejected.
      *
-     * Simple method that adds handlers to be called when the deferred object is rejected.
+     * Simple method that adds handlers to be called when the deferred object is rejected. If the deferred object already been rejected, passed callback 
+     * functions will be called instantly upon calling fail() method (with arguments previously passed to the reject() method).
      *
      * @access privileged
      *
@@ -98,7 +114,7 @@ var deferred = function()
                 if (this.status == 'unknown') {
                     failFunctions.push(arguments[i]);
                 } else if (this.status == 'fail') {
-                    arguments[i]();
+                    arguments[i].apply(null, this.failArgs);
                 }                             
             } else if (typeof arguments[i] == 'object') {
                 for (j = 0; j < arguments[i].length; j++) {
@@ -106,7 +122,7 @@ var deferred = function()
                         if (this.status == 'unknown') {
                             failFunctions.push(arguments[i][j]);
                         } else if (this.status == 'fail') {
-                            arguments[i][j]();
+                            arguments[i][j].apply(null, this.failArgs);
                         }   
                     }
                 }
@@ -129,8 +145,9 @@ var deferred = function()
         if (this.status == 'unknown') {
             var i = 0;
             
+            this.resolveArgs = arguments;
             for (i = 0; i < this.resolveFunctions.length; i++) {
-                this.resolveFunctions[i]();
+                this.resolveFunctions[i].apply(null, arguments);
             }
             
             this.status = 'resolve';
@@ -152,8 +169,9 @@ var deferred = function()
         if (this.status == 'unknown') {
             var i = 0;
             
+            this.failArgs = arguments;
             for (i = 0; i < this.failFunctions.length; i++) {
-                this.failFunctions[i]();
+                this.failFunctions[i].apply(null, arguments);
             }
             
             this.status = 'fail';
