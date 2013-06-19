@@ -1,6 +1,7 @@
 // Modules include
 var page = require('webpage');
 var response = require('../io/response');
+var deferred = require('../async/deferred');
 
 var captchabot = function()
 {
@@ -29,10 +30,10 @@ var captchabot = function()
     function onMainPageJump(status)
     {
         if (status == 'success') {
-            var resp = new response.response(moduleName, curPageURL, 'starting', status, 'unknown', 'Main page opened successfully...');
+            var resp = response.create(moduleName, curPageURL, 'starting', status, 'unknown', 'Main page opened successfully...');
             console.log(JSON.stringify(resp));              
         } else {
-            var resp = new response.response(moduleName, curPageURL, 'starting', status, 'unknown', 'Fail to open main page...');
+            var resp = response.create(moduleName, curPageURL, 'starting', status, 'unknown', 'Fail to open main page...');
             console.log(JSON.stringify(resp));              
         }
     }
@@ -65,7 +66,9 @@ var captchabot = function()
     };
     
     this.checkBalance = function() {
-        this.openMainPage();
+        var def = new deferred.create();
+        
+        //this.openMainPage();
     };
     
     /* Privileged core methods ends here */
@@ -80,4 +83,8 @@ var captchabot = function()
 /* Public members starts here */
 /* Public members ends here */
 
-exports.captchabot = captchabot;
+exports.create = function create() {
+    "use strict";
+    
+    return new captchabot();
+};

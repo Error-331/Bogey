@@ -134,4 +134,8 @@ response.prototype.setDescription = function(description)
 
 /* Public set methods ends here */
 
-exports.response = response;
+exports.create = function create(module, url, status, pageStatus, operationStatus, description) {
+    "use strict";
+    
+    return new response(module, url, status, pageStatus, operationStatus, description);
+};

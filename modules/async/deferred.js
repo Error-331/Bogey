@@ -1,5 +1,6 @@
 var deferred = function()
 {
+    console.log('331');
     /* Private members starts here */
     
     var obj = this;
@@ -22,4 +23,8 @@ var deferred = function()
     /* Privileged core methods ends here */
 }
 
-exports.deferred = deferred;
+exports.create = function create() {
+    "use strict";
+    
+    return new deferred();
+};
