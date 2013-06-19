@@ -8,6 +8,8 @@ var deferred = function()
     var status = 'unknown';
     
     var doneFunctions = new Array();
+    var failFunctions = new Array();
+    var rejectFunctions = new Array();
     
     /* Private members ends here */
     
@@ -39,10 +41,37 @@ var deferred = function()
                     }
                 }
             }
-        } 
-        
-        
+        }               
     };
+    
+    this.fail = function() {
+        if (arguments.length == 0) {
+            return;
+        }
+
+        var i = 0;
+        var j = 0;
+        
+        for(i = 0; i < arguments.length; i++){            
+            if (typeof arguments[i] == 'function') {
+                if (this.status == 'unknown') {
+                    failFunctions.push(arguments[i]);
+                } else if (this.status == 'fail') {
+                    arguments[i]();
+                }                             
+            } else if (typeof arguments[i] == 'object') {
+                for (j = 0; j < arguments[i].length; j++) {
+                    if (typeof arguments[i][j] == 'function') {
+                        if (this.status == 'unknown') {
+                            failFunctions.push(arguments[i][j]);
+                        } else if (this.status == 'fail') {
+                            arguments[i][j]();
+                        }   
+                    }
+                }
+            }
+        }               
+    };    
     
     this.when = function() {
         
