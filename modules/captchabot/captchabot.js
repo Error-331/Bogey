@@ -68,12 +68,41 @@ var captchabot = function(usrSystemKey)
         
         var resp = response.create(moduleName, rpcURL, 'starting', 'unknown', 'unknown', 'Checking balance status...');
         console.log(JSON.stringify(resp));  
-
+                
         curPage.open(rpcURL, 'post', data, function (status) {
             if (status == 'success') {
                 resp = response.create(moduleName, rpcURL, 'processing', status, 'success', 'Parsing balance response...');
                 console.log(JSON.stringify(resp));  
+                               
+                var evalResult = curPage.evaluate(function(){
+                    var params = document.getElementsByTagName('param');
                             
+                    if (params.length == 1) {                              
+                        var intVal = document.getElementsByTagName('int');
+                                 
+                        if (intVal.length != 0) {
+                            intVal =  parseInt(intVal.item(0).textContent);
+                                    
+                            if (intVal == 401) {
+                                return {'is_error': true, desc: "Server error: " + intVal};
+                            } else if (intVal == 402) {
+                                return {'is_error': true, desc: "Not enough cash: " + intVal};
+                            } else {
+                                return {'is_error': true, desc: "Unknown error: " + intVal};
+                            }
+                        } else {
+                                        
+                        }
+                                
+                    } else {
+                                
+                    }
+                });
+
+                if (evalResult.is_error == true) {
+                    console.log(evalResult.value);
+                }
+
                 def.resolve(curPage.content);     
             } else {
                 resp = response.create(moduleName, rpcURL, 'finishing', status, 'fail', 'Cannot check balance...');
