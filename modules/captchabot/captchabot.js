@@ -32,14 +32,18 @@ var captchabot = function()
     
     /* Private event handlers starts here */
     
-    function onMainPageJump(status)
+    function onMainPageJump(status, def)
     {
         if (status == 'success') {
             var resp = response.create(moduleName, curPageURL, 'starting', status, 'unknown', 'Main page opened successfully...');
-            console.log(JSON.stringify(resp));              
+            console.log(JSON.stringify(resp));   
+            
+            def.resolve();
         } else {
             var resp = response.create(moduleName, curPageURL, 'starting', status, 'unknown', 'Fail to open main page...');
-            console.log(JSON.stringify(resp));              
+            console.log(JSON.stringify(resp));     
+            
+            def.reject();
         }
     }
     
@@ -53,9 +57,6 @@ var captchabot = function()
 
     curPage.onLoadFinished = function(status) {
         switch(curPageURL) {
-            case mainPageURL:
-                onMainPageJump(status);
-                break;
             default:
                 break;
         }
@@ -66,14 +67,16 @@ var captchabot = function()
     /* Privileged core methods starts here */
     
     this.openMainPage = function () {
-        curPage.open(mainPageURL, function() {          
-        });
+        var def = new deferred.create();
+     
+        curPage.open(mainPageURL, function(status) {onMainPageJump(status, def)});    
+        return def;
     };
     
     this.checkBalance = function() {
-        var def = new deferred.create();
-        def.done(function(){});
-        //this.openMainPage();
+        var def = this.openMainPage();
+        
+        def.done(function(){console.log('fuck');});
     };
     
     /* Privileged core methods ends here */

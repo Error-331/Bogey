@@ -68,20 +68,20 @@ var deferred = function()
         var i = 0;
         var j = 0;
         
-        for(i = 0; i < arguments.length; i++){            
-            if (typeof arguments[i] == 'resolve') {
-                if (this.status == 'unknown') {
+        for(i = 0; i < arguments.length; i++){                
+            if (typeof arguments[i] == 'function') {
+                if (status == 'unknown') {
                     resolveFunctions.push(arguments[i]);
-                } else if (this.status == 'done') {
-                    arguments[i].aplly(null, this.resolveArgs);
+                } else if (status == 'resolve') {
+                    arguments[i].apply(null, resolveArgs);
                 }                             
             } else if (typeof arguments[i] == 'object') {
                 for (j = 0; j < arguments[i].length; j++) {
                     if (typeof arguments[i][j] == 'function') {
-                        if (this.status == 'unknown') {
+                        if (status == 'unknown') {
                             resolveFunctions.push(arguments[i][j]);
-                        } else if (this.status == 'resolve') {
-                            arguments[i][j].apply(null, this.resolveArgs);
+                        } else if (status == 'resolve') {
+                            arguments[i][j].apply(null, resolveArgs);
                         }   
                     }
                 }
@@ -111,18 +111,18 @@ var deferred = function()
         
         for(i = 0; i < arguments.length; i++){            
             if (typeof arguments[i] == 'function') {
-                if (this.status == 'unknown') {
+                if (status == 'unknown') {
                     failFunctions.push(arguments[i]);
-                } else if (this.status == 'fail') {
-                    arguments[i].apply(null, this.failArgs);
+                } else if (status == 'fail') {
+                    arguments[i].apply(null, failArgs);
                 }                             
             } else if (typeof arguments[i] == 'object') {
                 for (j = 0; j < arguments[i].length; j++) {
                     if (typeof arguments[i][j] == 'function') {
-                        if (this.status == 'unknown') {
+                        if (status == 'unknown') {
                             failFunctions.push(arguments[i][j]);
                         } else if (this.status == 'fail') {
-                            arguments[i][j].apply(null, this.failArgs);
+                            arguments[i][j].apply(null, failArgs);
                         }   
                     }
                 }
@@ -142,15 +142,15 @@ var deferred = function()
      */     
     
     this.resolve = function() {
-        if (this.status == 'unknown') {
+        if (status == 'unknown') {
             var i = 0;
-            
-            this.resolveArgs = arguments;
-            for (i = 0; i < this.resolveFunctions.length; i++) {
-                this.resolveFunctions[i].apply(null, arguments);
+
+            resolveArgs = arguments;
+            for (i = 0; i < resolveFunctions.length; i++) {
+                resolveFunctions[i].apply(null, arguments);
             }
             
-            this.status = 'resolve';
+            status = 'resolve';
         }
     };
     
@@ -166,22 +166,18 @@ var deferred = function()
      */      
     
     this.reject = function() {   
-        if (this.status == 'unknown') {
+        if (status == 'unknown') {
             var i = 0;
             
-            this.failArgs = arguments;
-            for (i = 0; i < this.failFunctions.length; i++) {
-                this.failFunctions[i].apply(null, arguments);
+            failArgs = arguments;
+            for (i = 0; i < failFunctions.length; i++) {
+                failFunctions[i].apply(null, arguments);
             }
             
-            this.status = 'fail';
+            status = 'fail';
         }           
     };    
-    
-    this.when = function() {
         
-    };
-    
     /* Privileged core methods ends here */
 }
 
