@@ -2,18 +2,48 @@ var deferred = function()
 {
     /* Private members starts here */
     
-    var obj = this;
+    /**
+     * @access private
+     * @var object link to the current object
+     */      
     
-    // reject, fail, done, unknown
+    var obj = this;
+        
+    /**
+     * @access private
+     * @var string current status of the deferred object, can take following values: fail, done, unknown
+     */       
+    
     var status = 'unknown';
     
+    /**
+     * @access private
+     * @var array of callback functions which will be executed when the current deferred object is resolved
+     */       
+    
     var doneFunctions = new Array();
+    
+    /**
+     * @access private
+     * @var array of callback functions which will be executed when the current deferred object is rejected
+     */      
+    
     var failFunctions = new Array();
-    var rejectFunctions = new Array();
     
     /* Private members ends here */
     
     /* Privileged core methods starts here */
+    
+    /**
+     * Add handlers to be called when the deferred object is resolved.
+     *
+     * Simple method that adds handlers to be called when the deferred object is resolved.
+     *
+     * @access privileged
+     *
+     * @param function|array can take functions as arguments or arrays with functions
+     *
+     */     
     
     this.done = function() {
         if (arguments.length == 0) {
@@ -43,6 +73,17 @@ var deferred = function()
             }
         }               
     };
+    
+    /**
+     * Add handlers to be called when the deferred object is rejected.
+     *
+     * Simple method that adds handlers to be called when the deferred object is rejected.
+     *
+     * @access privileged
+     *
+     * @param function|array can take functions as arguments or arrays with functions
+     *
+     */       
     
     this.fail = function() {
         if (arguments.length == 0) {

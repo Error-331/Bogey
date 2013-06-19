@@ -7,6 +7,11 @@ var captchabot = function()
 {
     /* Private members starts here */
     
+    /**
+     * @access private
+     * @var object link to the current object
+     */        
+    
     var obj = this;
     
     var mainPageURL = 'http://captchabot.com/rpc/xml.php';
