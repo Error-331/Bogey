@@ -67,7 +67,7 @@ var captchabot = function()
     
     this.checkBalance = function() {
         var def = new deferred.create();
-        
+        def.done(function(){});
         //this.openMainPage();
     };
     
