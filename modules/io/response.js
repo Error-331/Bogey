@@ -33,7 +33,7 @@ response.prototype.status = 'starting';
 
 /**
  * @access public
- * @var string status of the page, can take following values: success, fail
+ * @var string status of the page, can take following values: success, fail, unknown
  */  
 
 response.prototype.pageStatus = 'fail';
@@ -101,7 +101,7 @@ response.prototype.setPageStatus = function(status)
     
     status = status.toLowerCase();
     
-    if (status != 'success' && status != 'fail') {
+    if (status != 'success' && status != 'fail' && status != 'unknown') {
         throw 'Unknown page status: ' + status;
     }
     

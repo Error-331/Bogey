@@ -6,8 +6,10 @@ var curPage = page.create();
 var curPageURL = '';
 
 
-curCaptBot = captchabot.create();
-curCaptBot.checkBalance();
+curCaptBot = captchabot.create('');
+var def = curCaptBot.checkBalance();
+
+def.done(function(data){console.log(data);});
 
 //phantom.cookiesEnabled = true;
 
