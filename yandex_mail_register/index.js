@@ -6,10 +6,10 @@ var curPage = page.create();
 var curPageURL = '';
 
 
-curCaptBot = captchabot.create('');
+curCaptBot = captchabot.create('8f7fc1c96990c14cc3ebdbf752405140');
 var def = curCaptBot.checkBalance();
 
-//def.done(function(data){console.log(data);});
+def.done(function(data){console.log(data);});
 
 //phantom.cookiesEnabled = true;
 
