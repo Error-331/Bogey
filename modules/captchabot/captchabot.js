@@ -87,7 +87,7 @@ var Captchabot = function(usrSystemKey)
         
         this.logProcess(rpcURL, 'starting', 'unknown', 'unknown', 'Checking balance status...'); 
                 
-        curPage.open(rpcURL, 'post', data, function (status) {
+        curPage.open(rpcURL, 'post', data, function(status) {
             if (status == 'success') {
                 obj.logProcess(rpcURL, 'processing', status, 'success', 'Parsing balance response...');
                                

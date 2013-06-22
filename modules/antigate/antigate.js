@@ -1,10 +1,11 @@
 // Modules include
-var page = require('webpage');
-var response = require('../io/response');
 var deferred = require('../async/deferred');
+var service = require('../core/service');
 
-var antigate = function(usrSystemKey)
+var Antigate = function(usrSystemKey)
 {
+    service.constFunc.call(this, usrSystemKey, 'antigate');
+    
     /* Private members starts here */
     
     /**
@@ -13,8 +14,63 @@ var antigate = function(usrSystemKey)
      */        
     
     var obj = this;
-
-    var rpcURL = 'http://captchabot.com/rpc/xml.php';
+    
+    var restURL = 'http://antigate.com/res.php';
+    var uploadURL = 'http://antigate.com/in.php';
     
     /* Private members ends here */
+    
+    /* Privileged core methods starts here */
+    
+    this.checkBalance = function() { 
+        var def = new deferred.create();
+        var curPage = this.getPage();
+        var url = restURL + '?key=' + this.getSystemKey() + '&action=getbalance';
+        
+        this.logProcess(url, 'starting', 'unknown', 'unknown', 'Checking balance status...'); 
+
+        curPage.open(url, function(status) {
+            if (status == 'success') {
+                obj.logProcess(url, 'processing', status, 'success', 'Parsing balance response...');
+                               
+                var evalResult = curPage.evaluate(function(){   
+                    if (document.body.innerText.length < 0) {
+                        return {'is_error': true, desc: "Response is empty"}; 
+                    }
+                    
+                    var re = /^[0-9]+\.[0-9]+/;
+                    
+                    if (re.test(document.body.innerText)) {
+                        return parseFloat(document.body.innerText);
+                    } else {
+                        return {'is_error': true, desc: "Incorrect response"};
+                    }                  
+                });
+
+                if (evalResult.is_error == true) {
+                    obj.logProcess(url, 'finishing', status, 'fail', evalResult.desc);                                                  
+                    def.reject(evalResult); 
+                } else {
+                    obj.logProcess(url, 'finishing', status, 'success', 'Balance check successful...');                                      
+                    def.resolve(evalResult); 
+                }
+         
+            } else {
+                this.logProcess(url, 'finishing', status, 'fail', 'Cannot check balance...');                                           
+                def.reject();
+            }        
+        });
+        
+        
+        return def;
+    };
+    
+    /* Privileged core methods ends here */
 }
+
+exports.create = function create(systemKey) {
+    "use strict";
+    
+    Antigate.prototype = service.create(systemKey, 'antigate');
+    return new Antigate(systemKey, 'antigate');
+};

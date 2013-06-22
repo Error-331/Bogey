@@ -1,18 +1,23 @@
 var response = require('../modules/io/response');
 var sandboxutils = require('../modules/utils/sandboxutils');
 var captchabot = require('../modules/captchabot/captchabot');
+var antigate = require('../modules/antigate/antigate');
 var page = require('webpage');
 var curPage = page.create();
 var curPageURL = '';
 
 
-curCaptBot = captchabot.create('8f7fc1c96990c14cc3ebdbf752405140');
-var def = curCaptBot.checkBalance();
+//curCaptBot = captchabot.create('8f7fc1c96990c14cc3ebdbf752405140');
+//var def = curCaptBot.checkBalance();
 
-def.done(function(data){console.log(data);});
+//def.done(function(data){console.log(data);});
 
 //phantom.cookiesEnabled = true;
 
+curAntigateBot = antigate.create('');
+var def = curAntigateBot.checkBalance();
+
+def.done(function(data){console.log(data);});
 /* Page event handler methods starts here */
 
 curPage.onUrlChanged = function(targetUrl) {
