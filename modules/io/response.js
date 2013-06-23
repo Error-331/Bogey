@@ -1,4 +1,4 @@
-var response = function(module, url, status, pageStatus, operationStatus, description)
+var Response = function(module, url, status, pageStatus, operationStatus, description)
 {
     this.setModule(module);
     this.setURL(url);
@@ -15,48 +15,48 @@ var response = function(module, url, status, pageStatus, operationStatus, descri
  * @var string current module 
  */  
 
-response.prototype.module = '';
+Response.prototype.module = '';
 
 /**
  * @access public
  * @var string current page URL
  */  
 
-response.prototype.url = '';
+Response.prototype.url = '';
 
 /**
  * @access public
  * @var string status of the script, can take following values: starting, processing, finishing
  */  
 
-response.prototype.status = 'starting';
+Response.prototype.status = 'starting';
 
 /**
  * @access public
  * @var string status of the page, can take following values: success, fail, unknown
  */  
 
-response.prototype.pageStatus = 'fail';
+Response.prototype.pageStatus = 'fail';
 
 /**
  * @access public
  * @var string status of the current operation, can take following values: success, fail, unknown
  */  
 
-response.prototype.operationStatus = 'fail';
+Response.prototype.operationStatus = 'fail';
 
 /**
  * @access public
  * @var string description of the current response
  */ 
 
-response.prototype.description = '';
+Response.prototype.description = '';
 
 /* Public members ends here */
 
 /* Public set methods starts here */
 
-response.prototype.setModule = function(module)
+Response.prototype.setModule = function(module)
 {
     if (typeof module != 'string') {
         throw 'Module is not a string';        
@@ -65,20 +65,16 @@ response.prototype.setModule = function(module)
     this.module = module;
 }
 
-response.prototype.setURL = function(url)
+Response.prototype.setURL = function(url)
 {
     if (typeof url != 'string') {
         throw 'URL is not a string';        
     }
-    
-    if (url.length <= 0) {
-        throw 'URL length is equal or less than zero';
-    }
-    
+        
     this.url = url;
 }
 
-response.prototype.setStatus = function(status)
+Response.prototype.setStatus = function(status)
 {
     if (typeof status != 'string') {
         throw 'Status is not a string';
@@ -93,7 +89,7 @@ response.prototype.setStatus = function(status)
     this.status = status;
 }
 
-response.prototype.setPageStatus = function(status)
+Response.prototype.setPageStatus = function(status)
 {
     if (typeof status != 'string') {
         throw 'Page status is not a string';
@@ -108,7 +104,7 @@ response.prototype.setPageStatus = function(status)
     this.pageStatus = status;
 }
 
-response.prototype.setOperationStatus = function(status)
+Response.prototype.setOperationStatus = function(status)
 {
     if (typeof status != 'string') {
         throw 'Operation status is not a string';
@@ -123,7 +119,7 @@ response.prototype.setOperationStatus = function(status)
     this.operationStatus = status;
 }
 
-response.prototype.setDescription = function(description)
+Response.prototype.setDescription = function(description)
 {
     if (typeof description != 'string') {
         throw 'Description is not a string';
@@ -137,5 +133,5 @@ response.prototype.setDescription = function(description)
 exports.create = function create(module, url, status, pageStatus, operationStatus, description) {
     "use strict";
     
-    return new response(module, url, status, pageStatus, operationStatus, description);
+    return new Response(module, url, status, pageStatus, operationStatus, description);
 };
