@@ -63,6 +63,13 @@ var Service = function(usrSystemKey, usrServiceName)
     
     var opFuncArgsStack = new Array();
     
+    /**
+     * @access private
+     * @var string current page URL
+     */       
+    
+    var curPageURL = '';
+    
     /* Private members ends here */
     
     /* Private core methods starts here */
@@ -209,6 +216,14 @@ var Service = function(usrSystemKey, usrServiceName)
     
     /* Pirvate core methods ends here */
     
+    /* Private event handlers starts here */
+    
+    curPage.onUrlChanged = function(targetUrl) {
+        curPageURL = targetUrl; 
+    };    
+    
+    /* Pirvate event handlers ends here */
+    
     /* Privileged core methods starts here */
     
     /**
@@ -228,7 +243,7 @@ var Service = function(usrSystemKey, usrServiceName)
     
     this.logProcess = function(url, status, pageStatus, operationStatus, description)
     {
-        var resp = response.create(moduleName, url, status, pageStatus, operationStatus, description);
+        var resp = response.create(serviceName, url, status, pageStatus, operationStatus, description);
         console.log(JSON.stringify(resp));   
     }
     
@@ -312,6 +327,11 @@ var Service = function(usrSystemKey, usrServiceName)
     this.getPage = function()
     {
         return curPage;
+    }
+    
+    this.getCurPageURL = function()
+    {
+        return curPageURL;
     }
         
     /* Privileged get methods ends here */
