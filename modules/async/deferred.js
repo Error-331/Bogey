@@ -1,4 +1,4 @@
-var deferred = function()
+var Deferred = function()
 {
     /* Private members starts here */
     
@@ -181,8 +181,9 @@ var deferred = function()
     /* Privileged core methods ends here */
 }
 
+exports.constFunc = Deferred;
 exports.create = function create() {
     "use strict";
     
-    return new deferred();
+    return new Deferred();
 };
