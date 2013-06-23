@@ -57,6 +57,8 @@ var Deferred = function()
      * @access privileged
      *
      * @param function|array can take functions as arguments or arrays with functions
+     * 
+     * @return object current deferred object.
      *
      */     
     
@@ -86,7 +88,9 @@ var Deferred = function()
                     }
                 }
             }
-        }               
+        } 
+        
+        return this;
     };
     
     /**
@@ -98,6 +102,8 @@ var Deferred = function()
      * @access privileged
      *
      * @param function|array can take functions as arguments or arrays with functions
+     * 
+     * @return object current deferred object.
      *
      */       
     
@@ -127,7 +133,9 @@ var Deferred = function()
                     }
                 }
             }
-        }               
+        }   
+        
+        return this;
     };  
     
     /**
