@@ -62,6 +62,13 @@ var Service = function(usrSystemKey, usrServiceName)
      */      
     
     var opFuncArgsStack = new Array();
+       
+    /**
+     * @access private
+     * @var array stack of callback functions which can be called when URL of the page is changed
+     */      
+    
+    var urlChangeFuncStack = new Array();
     
     /**
      * @access private
@@ -177,7 +184,7 @@ var Service = function(usrSystemKey, usrServiceName)
     {
         return opFuncArgsStack.pop();
     }
-    
+        
     /**
      * Method that executes first operation from the stack.
      *
@@ -218,8 +225,28 @@ var Service = function(usrSystemKey, usrServiceName)
     
     /* Private event handlers starts here */
     
+    /**
+     * PhantomJS event handler method that is called when the address URL is changed.
+     *
+     * Method saves new URL to the internal variable for later use. If there is a callback function on the 'urlChangeFuncStack' it
+     * will be executed.
+     *
+     * @access private
+     * 
+     * @param string targetUrl current page URL
+     * 
+     * @see getCurPageURL()
+     * @see pushURLChangeFunc()
+     * @see popURLChangeFunc()
+     * 
+     */      
+    
     curPage.onUrlChanged = function(targetUrl) {
         curPageURL = targetUrl; 
+        
+        if (urlChangeFuncStack.length > 0) {
+            obj.popURLChangeFunc()();
+        }
     };    
     
     /* Pirvate event handlers ends here */
@@ -277,6 +304,43 @@ var Service = function(usrSystemKey, usrServiceName)
         return def;
     }
     
+    /**
+     * Method that pushes 'onURLchange' callback function to the stack.
+     *
+     * Simple method that pushes 'onURLchange' callback function to the stack.
+     *
+     * @access privileged
+     *
+     * @param function func callback function
+     *
+     */    
+    
+    this.pushURLChangeFunc = function(func)
+    {
+        if (typeof func != 'function') {
+            throw 'Passed operation is not a function';
+        }
+        
+        urlChangeFuncStack.push(func);
+    }  
+    
+    
+    /**
+     * Method that pulls 'onURLchange' callback function from the stack.
+     *
+     * Simple method that pulls 'onURLchange' callback function from the stack.
+     *
+     * @access privileged
+     *
+     * @return object first 'onURLchange' callback function from the stack.
+     * 
+     */      
+    
+    this.popURLChangeFunc = function()
+    {
+        return urlChangeFuncStack.pop();
+    }        
+    
     /* Privileged core methods ends here */
     
     /* Privileged get methods starts here */
@@ -328,6 +392,17 @@ var Service = function(usrSystemKey, usrServiceName)
     {
         return curPage;
     }
+    
+    /**
+     * Method that returns current page URL.
+     *
+     * Simple method that returns current page URL.
+     *
+     * @access privileged
+     * 
+     * @return string page URL.
+     * 
+     */      
     
     this.getCurPageURL = function()
     {
