@@ -95,7 +95,7 @@ var Mail = function(usrSystemKey)
         return def;
     }
     
-    function extractRegPageCaptcha()
+    function extractRegPageCaptcha(savePath, fileName)
     {    
         var curPage = this.getPage();
         var def = deferred.create();
@@ -104,6 +104,7 @@ var Mail = function(usrSystemKey)
         obj.openRegPage().done(function(){        
             obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Extracting captcha image position...');    
             
+            // getting coordinates of the image (captcha)
             var captchaCoords = curPage.evaluate(function (findOffset) {                               
                 var img = document.getElementById("captcha-img");  
                 if (img === null) {
@@ -116,9 +117,22 @@ var Mail = function(usrSystemKey)
             if (typeof captchaCoords != 'object') {             
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot extract captcha image position...'); 
                 def.reject();
-            } else {
+            } else {                
+                // saving captcha
+                if (savePath === undefined) {
+                    savePath = '';
+                }
+
+                if (typeof savePath != 'string') {
+                    throw 'Invalid "savePath"';
+                }
+        
+                if (typeof fileName != 'string' || fileName.length == 0) {
+                    throw 'Invalid "savePath"';
+                }
+                
                 curPage.clipRect = {top: captchaCoords.top, left: captchaCoords.left, width: captchaCoords.width, height: captchaCoords.height};
-                curPage.render("test.png");
+                curPage.render(savePath + fileName + ".png");
         
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Captcha image successfully extracted...'); 
                 def.resolve();   
@@ -151,9 +165,9 @@ var Mail = function(usrSystemKey)
         return this.startOp(openRegPage);
     }
     
-    this.extractRegPageCaptcha = function()
+    this.extractRegPageCaptcha = function(savePath, fileName)
     {
-        return this.startOp(extractRegPageCaptcha);
+        return this.startOp(extractRegPageCaptcha, savePath, fileName);
     }
     
     /* Privileged core methods ends here */

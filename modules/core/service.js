@@ -96,6 +96,8 @@ var Service = function(usrSystemKey, usrServiceName)
      * @access private
      *
      * @param object usrDeferred deferred object
+     * 
+     * @throws string    
      *
      */      
     
@@ -132,6 +134,8 @@ var Service = function(usrSystemKey, usrServiceName)
      * @access private
      *
      * @param function func operation function
+     * 
+     * @throws string 
      *
      */    
     
@@ -318,13 +322,19 @@ var Service = function(usrSystemKey, usrServiceName)
      * 
      */       
     
-    this.startOp = function(func)
+    this.startOp = function()
     {        
         var def = new deferred.create();
+        var args = new Array();
+        var i = 0;
         
+        for (i = 1; i < arguments.length; i++) {
+            args.push(arguments[i]);
+        }
+
         pushOpDef(def);
-        pushOpFunc(func);
-        pushOpArgs(arguments);
+        pushOpFunc(arguments[0]);
+        pushOpArgs(args);
         
         execOp();
                 
@@ -339,6 +349,8 @@ var Service = function(usrSystemKey, usrServiceName)
      * @access privileged
      *
      * @param function func callback function
+     * 
+     * @throws string 
      *
      */    
     
@@ -375,6 +387,8 @@ var Service = function(usrSystemKey, usrServiceName)
      * @access privileged
      *
      * @param function func callback function
+     * 
+     * @throws string 
      *
      */       
 
@@ -484,6 +498,8 @@ var Service = function(usrSystemKey, usrServiceName)
      * 
      * @param string usrSystemKey current API key
      * 
+     * @throws string 
+     * 
      */     
     
     this.setSystemKey = function(usrSystemKey)
@@ -503,6 +519,8 @@ var Service = function(usrSystemKey, usrServiceName)
      * @access privileged
      * 
      * @param string usrServiceName service name
+     * 
+     * @throws string 
      * 
      */       
     

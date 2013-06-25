@@ -66,6 +66,18 @@ var Antigate = function(usrSystemKey)
         return def;          
     }
     
+    function uploadImage(imagePath) 
+    {
+        var def = new deferred.create();
+        var curPage = this.getPage();
+        
+        if (typeof imagePath != 'string' || imagePath.length < 0) {
+            throw 'Invalid "imagePath"';
+        }
+        
+        return def;
+    }
+    
     /* Private core methods ends here */
     
     /* Privileged core methods starts here */
@@ -74,6 +86,11 @@ var Antigate = function(usrSystemKey)
     { 
         return this.startOp(checkBalance);
     };
+    
+    this.uploadImage = function(imagePath)
+    {
+        return this.startOp(uploadImage, imagePath);
+    }
     
     /* Privileged core methods ends here */
 }
