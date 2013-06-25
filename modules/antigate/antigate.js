@@ -20,14 +20,15 @@ var Antigate = function(usrSystemKey)
     
     /* Private members ends here */
     
-    /* Privileged core methods starts here */
+    /* Private core methods starts here */
     
-    this.checkBalance = function() { 
+    function checkBalance()
+    {
         var def = new deferred.create();
         var curPage = this.getPage();
         var url = restURL + '?key=' + this.getSystemKey() + '&action=getbalance';
         
-        this.logProcess(url, 'starting', 'unknown', 'unknown', 'Checking balance status...'); 
+        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Checking balance status...'); 
 
         curPage.open(url, function(status) {
             if (status == 'success') {
@@ -62,7 +63,16 @@ var Antigate = function(usrSystemKey)
         });
         
         
-        return def;
+        return def;          
+    }
+    
+    /* Private core methods ends here */
+    
+    /* Privileged core methods starts here */
+    
+    this.checkBalance = function() 
+    { 
+        return this.startOp(checkBalance);
     };
     
     /* Privileged core methods ends here */
