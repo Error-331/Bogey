@@ -72,6 +72,13 @@ var Service = function(usrSystemKey, usrServiceName)
     
     /**
      * @access private
+     * @var array stack of callback functions which can be called when page content is loaded
+     */      
+    
+    var pageLoadFuncStack = new Array();
+    
+    /**
+     * @access private
      * @var string current page URL
      */       
     
@@ -243,11 +250,31 @@ var Service = function(usrSystemKey, usrServiceName)
     
     curPage.onUrlChanged = function(targetUrl) {
         curPageURL = targetUrl; 
-        
+           
         if (urlChangeFuncStack.length > 0) {
-            obj.popURLChangeFunc()();
+            obj.popURLChangeFunc()(targetUrl);
         }
     };    
+        
+    /**
+     * PhantomJS event handler method that is called when the page is loaded.
+     *
+     * If there is a callback function on the 'pageLoadFuncStack' it will be executed.
+     *
+     * @access private
+     * 
+     * @param string status of the page
+     * 
+     * @see pushPageLoadFunc()
+     * @see popURLChangeFunc()
+     * 
+     */     
+    
+    curPage.onLoadFinished = function(status) {        
+        if (pageLoadFuncStack.length > 0) {
+            obj.popURLChangeFunc()(status);
+        }
+    };
     
     /* Pirvate event handlers ends here */
     
@@ -323,8 +350,7 @@ var Service = function(usrSystemKey, usrServiceName)
         
         urlChangeFuncStack.push(func);
     }  
-    
-    
+ 
     /**
      * Method that pulls 'onURLchange' callback function from the stack.
      *
@@ -339,7 +365,43 @@ var Service = function(usrSystemKey, usrServiceName)
     this.popURLChangeFunc = function()
     {
         return urlChangeFuncStack.pop();
-    }        
+    } 
+    
+    /**
+     * Method that pushes 'onPageLoad' callback function to the stack.
+     *
+     * Simple method that pushes 'onPageLoad' callback function to the stack.
+     *
+     * @access privileged
+     *
+     * @param function func callback function
+     *
+     */       
+
+    this.pushPageLoadFunc = function(func)
+    {
+        if (typeof func != 'function') {
+            throw 'Passed operation is not a function';
+        }
+        
+        pageLoadFuncStack.push(func);
+    }  
+    
+    /**
+     * Method that pulls 'onPageLoad' callback function from the stack.
+     *
+     * Simple method that pulls 'onPageLoad' callback function from the stack.
+     *
+     * @access privileged
+     *
+     * @return object first 'onPageLoad' callback function from the stack.
+     * 
+     */      
+    
+    this.popURLChangeFunc = function()
+    {
+        return pageLoadFuncStack.pop();
+    }     
     
     /* Privileged core methods ends here */
     
