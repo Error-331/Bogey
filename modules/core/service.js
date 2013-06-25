@@ -212,8 +212,8 @@ var Service = function(usrSystemKey, usrServiceName)
             var funcDef = func.apply(obj, args);
             isOpFinish = false;
 
-            funcDef.done(function(){              
-                def.resolve();
+            funcDef.done(function(){  
+                def.resolve.apply(def, arguments);
                 
                 isOpFinish = true;
                 execOp();
