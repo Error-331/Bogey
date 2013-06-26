@@ -1,7 +1,10 @@
 // Modules include
 var page = require('webpage');
+
 var response = require('../io/response');
 var deferred = require('../async/deferred');
+
+var fileUtils = require('../utils/fileutils');
 
 var Service = function(usrSystemKey, usrServiceName)
 {
@@ -416,6 +419,11 @@ var Service = function(usrSystemKey, usrServiceName)
     {
         return pageLoadFuncStack.pop();
     }     
+    
+    this.renderToImage = function(dir, name, format)
+    {
+        
+    }
     
     /* Privileged core methods ends here */
     
