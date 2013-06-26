@@ -1,28 +1,28 @@
 var fs = require('fs');
 
-exports.checkImgFormat = function(imgFormat, defFormat)
+exports.checkImgExt = function(imgExt, defExt)
 {
-    if (typeof imgFormat != 'string' && typeof defFormat != 'string') {
-        throw 'Cannot determine file format';
-    } else if (typeof imgFormat != 'string' && typeof defFormat == 'string') {
-        imgFormat = defFormat;
+    if (typeof imgExt != 'string' && typeof defExt != 'string') {
+        throw 'Cannot determine file extension';
+    } else if (typeof imgExt != 'string' && typeof defExt == 'string') {
+        imgExt = defExt;
     }
      
-    if (imgFormat.length == 0) {
-        throw 'File format length is zero';      
+    if (imgExt.length == 0) {
+        throw 'File extension length is zero';      
     }
     
-    imgFormat = imgFormat.toLowerCase();
+    imgExt = imgExt.toLowerCase();
     
-    switch(imgFormat) {
+    switch(imgExt) {
         case 'png':
         case 'jpeg':
         case 'gif':
         case 'pdf':
-            return imgFormat;
+            return imgExt;
             break;
         default:
-            throw 'Unrecognised file format: "' + imgFormat + '"';
+            throw 'Unrecognised file format: "' + imgExt + '"';
             break;
     }    
 }
@@ -53,4 +53,16 @@ exports.isReadable = function(path)
     }
     
     return this.isReadable(path);
+}
+
+exports.extractPath = function(path)
+{
+    
+}
+
+exports.extractExtension = function(path)
+{
+    if (typeof path != 'string') {
+        
+    }
 }

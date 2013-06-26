@@ -420,7 +420,7 @@ var Service = function(usrSystemKey, usrServiceName)
         return pageLoadFuncStack.pop();
     }     
     
-    this.renderToImage = function(dir, name, format)
+    this.renderToImage = function(path)
     {
         
     }
