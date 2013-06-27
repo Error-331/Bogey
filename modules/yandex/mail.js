@@ -95,10 +95,11 @@ var Mail = function(usrSystemKey)
         return def;
     }
     
-    function extractRegPageCaptcha(savePath, fileName)
+    function extractRegPageCaptcha(path, name, ext)
     {    
         var curPage = this.getPage();
         var def = deferred.create();
+        var res = '';
         
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Trying to extract captcha from registration page...');    
         obj.openRegPage().done(function(){        
@@ -118,24 +119,18 @@ var Mail = function(usrSystemKey)
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot extract captcha image position...'); 
                 def.reject();
             } else {                
-                // saving captcha
-                if (savePath === undefined) {
-                    savePath = '';
-                }
-
-                if (typeof savePath != 'string') {
-                    throw 'Invalid "savePath"';
-                }
-        
-                if (typeof fileName != 'string' || fileName.length == 0) {
-                    throw 'Invalid "savePath"';
-                }
-                
+                // saving captcha                
                 curPage.clipRect = {top: captchaCoords.top, left: captchaCoords.left, width: captchaCoords.width, height: captchaCoords.height};
-                curPage.render(savePath + fileName + ".png");
+                
+                try {                            
+                    res = obj.renderPageToImage(path, name, ext); 
+                } catch(e) {
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', e); 
+                    def.reject();
+                }               
         
-                obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Captcha image successfully extracted...'); 
-                def.resolve();   
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Captcha image successfully extracted: "' + res + '"'); 
+                def.resolve(res);   
             } 
         }).fail(function(){
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot extract captcha from registration page...'); 
@@ -165,9 +160,9 @@ var Mail = function(usrSystemKey)
         return this.startOp(openRegPage);
     }
     
-    this.extractRegPageCaptcha = function(savePath, fileName)
+    this.extractRegPageCaptcha = function(path, name, ext)
     {
-        return this.startOp(extractRegPageCaptcha, savePath, fileName);
+        return this.startOp(extractRegPageCaptcha, path, name, ext);
     }
     
     /* Privileged core methods ends here */
