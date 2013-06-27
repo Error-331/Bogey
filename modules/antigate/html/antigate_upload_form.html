@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>Antigate upload form</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+ </head>
+ 
+ <body>
+     
+  <form method="post" action="http://antigate.com/in.php" enctype="multipart/form-data">
+   <input type="hidden" name="method" value="post">
+   
+   Ключ от учетной записи:
+   <input type="text" name="key" value="123">
+   
+   Файл капчи:
+   <input type="file" name="file">
+   <input type="submit" id="submitBtn" value="загрузить и получить ID">
+  </form>
+     
+ </body>
+</html>
