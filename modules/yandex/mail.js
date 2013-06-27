@@ -147,22 +147,38 @@ var Mail = function(usrSystemKey)
     
     this.logOut = function()
     {
-        return this.startOp(logOut);
+        try {
+            return this.startOp(logOut);
+        } catch(e) {
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "logOut"...');
+        }        
     }    
     
     this.openMainPage = function()
     {
-        return this.startOp(openMainPage);
+        try {
+            return this.startOp(openMainPage);
+        } catch(e) {
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "openMainPage"...');
+        }           
     }    
     
     this.openRegPage = function()
     {
-        return this.startOp(openRegPage);
+        try {
+            return this.startOp(openRegPage);
+        } catch(e) {
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "openRegPage"...');
+        }          
     }
     
     this.extractRegPageCaptcha = function(path, name, ext)
     {
-        return this.startOp(extractRegPageCaptcha, path, name, ext);
+        try {
+            return this.startOp(extractRegPageCaptcha, path, name, ext);
+        } catch(e) {
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "extractRegPageCaptcha"...');
+        }            
     }
     
     /* Privileged core methods ends here */
