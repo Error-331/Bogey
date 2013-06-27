@@ -421,16 +421,16 @@ var Service = function(usrSystemKey, usrServiceName)
     }   
     
     /**
-     * Method that renders page (or part of the page) to the image file.
+     * Method that renders page (or part of the page) into the image file.
      *
-     * Method can accep to sets of parameters: if only a full path to the image is given or if path to the image directory is given, as well as image name and
-     * file extension.
+     * Method can accept two sets of parameters: if only a full path to the image is given or if path to the image directory is given, as well as image 
+     * name and file extension.
      *
      * @access privileged
      * 
      * @param string full path to the image or path to the directory where image will be saved
      * @param string name of the file
-     * @param string extenstion of the file
+     * @param string extension of the file
      * 
      * @throws string 
      *

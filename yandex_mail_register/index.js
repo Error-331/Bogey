@@ -1,11 +1,11 @@
 var antigate = require('../modules/antigate/antigate');
 var yandexMail = require('../modules/yandex/mail');
 
-var curAntigate = antigate.create('bfd936a2bd18bb817df7e95d3621a7c8');
+//var curAntigate = antigate.create('bfd936a2bd18bb817df7e95d3621a7c8');
 var curYandexMail = yandexMail.create('');
 
-curYandexMail.extractRegPageCaptcha('', 'test').done(function(){
-    
+curYandexMail.extractRegPageCaptcha('captchas', 'test', 'jpeg').done(function(){
+    phantom.exit();
 }).fail(function(){
     phantom.exit();
 });
