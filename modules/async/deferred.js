@@ -184,8 +184,27 @@ var Deferred = function()
             
             status = 'fail';
         }           
-    };    
+    };  
+    
+    /**
+     * Checks if deferred object has been resolved.
+     *
+     * Simple method that checks if deferred object has been resolved.
+     *
+     * @access privileged
+     *
+     * @return boolean true if deferred object has been resolved and false if not.
+     *
+     */       
         
+    this.isDone = function() {
+        if (status == 'resolve') {
+            return true;
+        } else {
+            return false;
+        }
+    }    
+            
     /* Privileged core methods ends here */
 }
 
