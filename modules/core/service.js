@@ -418,13 +418,66 @@ var Service = function(usrSystemKey, usrServiceName)
     this.popURLChangeFunc = function()
     {
         return pageLoadFuncStack.pop();
-    }     
+    }   
     
-    this.renderToImage = function(path)
-    {
+    /**
+     * Method that renders page (or part of the page) to the image file.
+     *
+     * Method can accep to sets of parameters: if only a full path to the image is given or if path to the image directory is given, as well as image name and
+     * file extension.
+     *
+     * @access privileged
+     * 
+     * @param string full path to the image or path to the directory where image will be saved
+     * @param string name of the file
+     * @param string extenstion of the file
+     * 
+     * @throws string 
+     *
+     * @return string full path to the rendered page.
+     * 
+     */     
         
+    this.renderPageToImage = function()
+    {        
+        var path = '';
+        var ext = '';
+        var name = '';
+        var curPage = null;
+        
+        if (arguments.length == 1) {
+            // Full path is given
+            path = fileUtils.extractPath(arguments[0]);
+            ext = fileUtils.extractExtension(arguments[0]);
+            
+            if (fileUtils.isPathWritable(path) === false) {
+                throw 'Path is not writable';
+            }
+            
+            ext = fileUtils.checkImgExt(ext);
+            obj.getPage().render(path);
+            return path;
+        } else if (arguments.length == 3) {
+            // Path, image name and image extension is given
+            path = arguments[0];
+            name = arguments[1];
+            ext = arguments[2];
+            
+            if (fileUtils.isPathWritable(path) === false) {
+                throw 'Path is not writable';
+            }  
+
+            name = fileUtils.checkImgName(name);
+            ext = fileUtils.checkImgExt(ext);
+            path = fileUtils.addSeparator(path)  + name + '.' + ext;
+            
+            obj.getPage().render(path);
+            return path;
+        } else {
+            throw 'Invalid parameters set';
+        }
     }
-    
+        
     /* Privileged core methods ends here */
     
     /* Privileged get methods starts here */
