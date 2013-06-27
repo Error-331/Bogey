@@ -1,5 +1,18 @@
 var fs = require('fs');
 
+function checkPathLength(path)
+{
+    if (typeof path != 'string') {
+        throw 'Given path is not a string';
+    }    
+    
+    if (path.length == 0) {
+        throw 'Given path is zero length';
+    }     
+   
+    return;
+}
+
 exports.checkImgExt = function(imgExt, defExt)
 {
     if (typeof imgExt != 'string' && typeof defExt != 'string') {
@@ -43,14 +56,8 @@ exports.checkImgName = function(imgName, defName)
 }
 
 exports.extractPath = function(path)
-{
-    if (typeof path != 'string') {
-        throw 'Given path is not a string';
-    }    
-    
-    if (path.length == 0) {
-        throw 'Given path is zero length';
-    }    
+{   
+    checkPathLength(path);
     
     var sep = path.lastIndexOf(fs.separator);
      
@@ -75,13 +82,7 @@ exports.extractPath = function(path)
 
 exports.extractExtension = function(path)
 {    
-    if (typeof path != 'string') {
-        throw 'Given path is not a string';
-    }
-    
-    if (path.length == 0) {
-        throw 'Given path is zero length';
-    }
+    checkPathLength(path);
     
     var dot = path.lastIndexOf('.');
     
@@ -94,13 +95,7 @@ exports.extractExtension = function(path)
 
 exports.addSeparator = function(path)
 {
-    if (typeof path != 'string') {
-        throw 'Given path is not a string';
-    }
-    
-    if (path.length == 0) {
-        throw 'Given path is zero length';
-    }
+    checkPathLength(path);
     
     var sep = path.lastIndexOf(fs.separator);
 
@@ -118,6 +113,8 @@ exports.addSeparator = function(path)
 
 exports.isPathReadable = function(path)
 {
+    checkPathLength(path);
+    
     var path = exports.extractPath(path); 
     
     if (fs.isDirectory(path) === true) {
@@ -129,6 +126,8 @@ exports.isPathReadable = function(path)
 
 exports.isPathWritable = function(path)
 {
+    checkPathLength(path);
+    
     var path = exports.extractPath(path); 
     
     if (fs.isDirectory(path) === true) {
@@ -138,7 +137,31 @@ exports.isPathWritable = function(path)
     }    
 } 
 
+exports.isReadable = function(path)
+{
+    checkPathLength(path);
+    return fs.isReadable(path);
+}
+
+exports.isWritable = function(path)
+{
+    checkPathLength(path);
+    return fs.isWritable(path);  
+} 
+
+exports.isValidImage = function(path)
+{
+    checkPathLength(path);  
+    exports.checkImgExt(exports.extractExtension(path));
+    return fs.isReadable(path);
+}
+
 exports.getDirSeparator = function()
 {
     return fs.separator;
+}
+
+exports.getCurWorkDir = function()
+{
+    return fs.workingDirectory;
 }
