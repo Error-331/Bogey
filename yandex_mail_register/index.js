@@ -1,8 +1,8 @@
 var antigate = require('../modules/antigate/antigate');
 var yandexMail = require('../modules/yandex/mail');
 
-var curAntigate = antigate.create('bfd936a2bd18bb817df7e95d3621a7c8');
-var curYandexMail = yandexMail.create('');
+var curAntigate = antigate.create({'systemKey':'bfd936a2bd18bb817df7e95d3621a7c8'});
+var curYandexMail = yandexMail.create();
 
 curYandexMail.extractRegPageCaptcha('captchas', 'test', 'jpeg').done(function(){
     curAntigate.uploadImage('captchas/test.jpeg').done(function(id){

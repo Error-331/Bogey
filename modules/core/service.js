@@ -6,7 +6,7 @@ var deferred = require('../async/deferred');
 
 var fileUtils = require('../utils/fileutils');
 
-var Service = function(usrSystemKey, usrServiceName)
+var Service = function(configObj, usrServiceName)
 {
     /* Private members starts here */
     
@@ -16,14 +16,7 @@ var Service = function(usrSystemKey, usrServiceName)
      */        
     
     var obj = this;     
-    
-    /**
-     * @access private
-     * @var string API key
-     */        
-    
-    var systemKey = '';
-    
+        
     /**
      * @access private
      * @var string current service name
@@ -90,7 +83,7 @@ var Service = function(usrSystemKey, usrServiceName)
     /* Private members ends here */
     
     /* Private core methods starts here */
-    
+       
     /**
      * Method that pushes deferred object of the operation to the stack.
      *
@@ -288,6 +281,23 @@ var Service = function(usrSystemKey, usrServiceName)
     /* Privileged core methods starts here */
     
     /**
+     * Method that configures current service.
+     *
+     * Every new service must overload this method to configure only necessary options.
+     *
+     * @access privileged
+     *
+     * @param object configObj object with configuration options
+     *
+     */     
+    
+    this.configureService = function(configObj) {
+        if (typeof configObj != 'object') {
+            return;
+        }
+    }      
+
+    /**
      * Method that logs service execution process.
      *
      * Method creates response object, stringify it and passes it to the console.log() method. 
@@ -481,23 +491,7 @@ var Service = function(usrSystemKey, usrServiceName)
     /* Privileged core methods ends here */
     
     /* Privileged get methods starts here */
-    
-    /**
-     * Method that returns current API key.
-     *
-     * Simple method that returns current API key.
-     *
-     * @access privileged
-     * 
-     * @return string API key.
-     * 
-     */      
-    
-    this.getSystemKey = function()
-    {
-        return systemKey;
-    }
-    
+        
     /**
      * Method that returns current service name.
      *
@@ -549,29 +543,7 @@ var Service = function(usrSystemKey, usrServiceName)
     /* Privileged get methods ends here */
     
     /* Privileged set methods starts here */
-    
-    /**
-     * Method that sets current API key.
-     *
-     * Simple method that sets current API key.
-     *
-     * @access privileged
-     * 
-     * @param string usrSystemKey current API key
-     * 
-     * @throws string 
-     * 
-     */     
-    
-    this.setSystemKey = function(usrSystemKey)
-    {
-        if (typeof usrSystemKey != 'string') {
-            throw 'System key is not a string'
-        }
         
-        systemKey = usrSystemKey;
-    }
-    
     /**
      * Method that sets current service name.
      *
@@ -599,9 +571,9 @@ var Service = function(usrSystemKey, usrServiceName)
     }
     
     /* Privileged set methods ends here */  
-    
-    this.setSystemKey(usrSystemKey); 
+
     this.setServiceName(usrServiceName);
+    this.configureService(configObj);
 }
 
 exports.constFunc = Service;

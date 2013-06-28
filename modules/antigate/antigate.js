@@ -3,9 +3,9 @@ var deferred = require('../async/deferred');
 var service = require('../core/service');
 var fileutils = require('../utils/fileutils');
 
-var Antigate = function(usrSystemKey)
-{
-    service.constFunc.call(this, usrSystemKey, 'antigate');
+var Antigate = function(configObj)
+{ 
+    service.constFunc.call(this, configObj, 'antigate');
     
     /* Private members starts here */
     
@@ -15,6 +15,13 @@ var Antigate = function(usrSystemKey)
      */        
     
     var obj = this;
+    
+    /**
+     * @access private
+     * @var string API key
+     */        
+    
+    var systemKey = '';    
 
     var restURL = 'http://antigate.com/res.php';
     var uploadURL = 'http://antigate.com/in.php';
@@ -31,7 +38,7 @@ var Antigate = function(usrSystemKey)
     /* Private members ends here */
     
     /* Private core methods starts here */
-    
+        
     function checkBalance()
     {
         var def = new deferred.create();
@@ -134,7 +141,6 @@ var Antigate = function(usrSystemKey)
                         def.reject('ERROR_CAPTCHA_UNSOLVABLE'); 
                         return;                                               
                     } else {
-                        console.log(response);
                         obj.logProcess(obj.getCurPageURL(), 'processing', status, 'unknown', 'Unidentified error...');
                     }   
                     
@@ -242,6 +248,25 @@ var Antigate = function(usrSystemKey)
     
     /* Privileged core methods starts here */
     
+    /**
+     * Method that configures current service.
+     *
+     * Every new service must overload this method to configure only necessary options.
+     *
+     * @access privileged
+     *
+     * @param object configObj object with configuration options
+     *
+     */     
+    
+    this.configureService = function(configObj) {
+        if (typeof configObj != 'object') {
+            return;
+        }
+        
+        obj.setSystemKey(configObj.systemKey);
+    }      
+    
     this.checkBalance = function() 
     { 
         try {        
@@ -270,11 +295,59 @@ var Antigate = function(usrSystemKey)
     }
     
     /* Privileged core methods ends here */
+    
+    /* Privileged get methods starts here */
+    
+    /**
+     * Method that returns current API key.
+     *
+     * Simple method that returns current API key.
+     *
+     * @access privileged
+     * 
+     * @return string API key.
+     * 
+     */      
+    
+    this.getSystemKey = function()
+    {
+        return systemKey;
+    }    
+    
+    /* Privileged get methods ends here */
+    
+    /* Privileged set methods starts here */
+    
+    /**
+     * Method that sets current API key.
+     *
+     * Simple method that sets current API key.
+     *
+     * @access privileged
+     * 
+     * @param string usrSystemKey current API key
+     * 
+     * @throws string 
+     * 
+     */     
+    
+    this.setSystemKey = function(usrSystemKey)
+    {
+        if (typeof usrSystemKey != 'string') {
+            throw 'System key is not a string'
+        }
+        
+        systemKey = usrSystemKey;
+    }
+      
+    /* Privileged set methods ends here */  
+
+    this.configureService(configObj);
 }
 
-exports.create = function create(systemKey) {
+exports.create = function create(configObj) {
     "use strict";
     
-    Antigate.prototype = service.create(systemKey, 'antigate');
-    return new Antigate(systemKey, 'antigate');
+    Antigate.prototype = service.create(configObj, 'antigate');
+    return new Antigate(configObj, 'antigate');
 };

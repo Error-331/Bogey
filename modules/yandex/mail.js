@@ -3,9 +3,9 @@ var service = require('../core/service');
 var deferred = require('../async/deferred');
 var sandboxutils = require('../utils/sandboxutils');
 
-var Mail = function(usrSystemKey)
-{
-    service.constFunc.call(this, usrSystemKey, 'yandex_mail');
+var Mail = function(configObj)
+{ 
+    service.constFunc.call(this, configObj, 'yandex_mail');
     
     /* Private members starts here */
     
@@ -27,7 +27,7 @@ var Mail = function(usrSystemKey)
       
     /* Private members ends here */
     
-    /* Private core methods starts here */
+    /* Private core methods starts here */      
     
     function logOut()
     {
@@ -182,8 +182,25 @@ var Mail = function(usrSystemKey)
     }
     
     /* Private core methods ends here */
-    
+      
     /* Privileged core methods starts here */
+    
+    /**
+     * Method that configures current service.
+     *
+     * Every new service must overload this method to configure only necessary options.
+     *
+     * @access privileged
+     *
+     * @param object configObj object with configuration options
+     *
+     */     
+    
+    this.configureService = function(configObj) {
+        if (typeof configObj != 'object') {
+            return;
+        }
+    }     
     
     this.logOut = function()
     {
@@ -222,12 +239,14 @@ var Mail = function(usrSystemKey)
     }
     
     /* Privileged core methods ends here */
+   
+    this.configureService(configObj);
 }
 
 exports.constFunc = Mail;
-exports.create = function create(systemKey) {
+exports.create = function create(configObj) {
     "use strict";
     
-    Mail.prototype = service.create(systemKey, 'yandex_mail');
-    return new Mail(systemKey, 'yandex_mail');
+    Mail.prototype = service.create(configObj, 'yandex_mail');
+    return new Mail(configObj, 'yandex_mail');
 };

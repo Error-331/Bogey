@@ -2,10 +2,10 @@
 var deferred = require('../async/deferred');
 var service = require('../core/service');
 
-var Captchabot = function(usrSystemKey)
+var Captchabot = function(configObj)
 {
-    service.constFunc.call(this, usrSystemKey, 'captchabot');
-
+    service.constFunc.call(this, configObj, 'captchabot');
+    
     /* Private members starts here */
     
     /**
@@ -15,12 +15,19 @@ var Captchabot = function(usrSystemKey)
     
     var obj = this;
     
+    /**
+     * @access private
+     * @var string API key
+     */        
+    
+    var systemKey = '';    
+    
     var rpcURL = 'http://captchabot.com/rpc/xml.php';
-        
+           
     /* Private members starts here */
     
     /* Private core methods starts here */
-          
+              
     function checkIfResponseError(opName)
     {
         var params = document.getElementsByTagName('param');
@@ -70,9 +77,28 @@ var Captchabot = function(usrSystemKey)
     
     /* Private (phantomJS) event handlers starts here */
     /* Private (phantomJS) event handlers ends here */
-    
-    /* Privileged core methods starts here */
         
+    /* Privileged core methods starts here */
+    
+    /**
+     * Method that configures current service.
+     *
+     * Every new service must overload this method to configure only necessary options.
+     *
+     * @access privileged
+     *
+     * @param object configObj object with configuration options
+     *
+     */     
+    
+    this.configureService = function(configObj) {
+        if (typeof configObj != 'object') {
+            return;
+        }
+        
+        obj.setSystemKey(configObj.systemKey);
+    }  
+
     this.checkBalance = function() {    
         var def = new deferred.create();
         var curPage = this.getPage();
@@ -127,15 +153,60 @@ var Captchabot = function(usrSystemKey)
     /* Privileged core methods ends here */
     
     /* Privileged get methods starts here */
+    
+    /**
+     * Method that returns current API key.
+     *
+     * Simple method that returns current API key.
+     *
+     * @access privileged
+     * 
+     * @return string API key.
+     * 
+     */      
+    
+    this.getSystemKey = function()
+    {
+        return systemKey;
+    }    
+    
     /* Privileged get methods ends here */
+    
+    /* Privileged set methods starts here */
+    
+    /**
+     * Method that sets current API key.
+     *
+     * Simple method that sets current API key.
+     *
+     * @access privileged
+     * 
+     * @param string usrSystemKey current API key
+     * 
+     * @throws string 
+     * 
+     */     
+    
+    this.setSystemKey = function(usrSystemKey)
+    {
+        if (typeof usrSystemKey != 'string') {
+            throw 'System key is not a string'
+        }
+        
+        systemKey = usrSystemKey;
+    }
+      
+    /* Privileged set methods ends here */
+    
+    this.configureService(configObj);
 }
 
 /* Public members starts here */
 /* Public members ends here */
 
-exports.create = function create(systemKey) {
+exports.create = function create(configObj) {
     "use strict";
     
-    Captchabot.prototype = service.create(systemKey, 'captchabot');
-    return new Captchabot(systemKey, 'captchabot');
+    Captchabot.prototype = service.create(configObj, 'captchabot');
+    return new Captchabot(configObj, 'captchabot');
 };
