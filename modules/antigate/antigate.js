@@ -20,7 +20,13 @@ var Antigate = function(usrSystemKey)
     var uploadURL = 'http://antigate.com/in.php';
     var uploadFormPath = '../modules/antigate/html/antigate_upload_form.html';
     
-    var uploadImageOpDelay = 3000;
+    var uploadImageOpTimeout = 3000;
+    var checkBalanceTimeout = 2000;
+    var checkCaptchaTimeout = 2000;
+    
+    var checkCaptchaTries = 5;
+    
+    var checkCaptchaDelay = 5000;
     
     /* Private members ends here */
     
@@ -33,6 +39,14 @@ var Antigate = function(usrSystemKey)
         var url = restURL + '?key=' + this.getSystemKey() + '&action=getbalance';
         
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Checking balance status...'); 
+        
+        // reject if timeout
+        setTimeout(function(){
+            if (!def.isDone()) {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Balance check takes too long...');
+                def.reject();
+            }
+        }, checkBalanceTimeout)        
 
         curPage.open(url, function(status) {
             if (status == 'success') {
@@ -70,6 +84,89 @@ var Antigate = function(usrSystemKey)
         return def;          
     }
     
+    function checkCaptchaStatus(id)
+    {        
+        var def = new deferred.create();
+        var curPage = this.getPage();
+        var url = restURL + '?key=' + this.getSystemKey() + '&action=get&id=' + id;        
+        
+        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting captcha check process...');
+        
+        // check id
+        if (typeof id != 'string' || id.length <= 0) {
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Captcha id is not valid...');
+            def.reject();
+            return def;
+        }
+        
+        // trying to check captcha result
+        var tries = 0;     
+        var response = 0;
+        
+        var re = /^OK\|/;
+        
+        var checkFunc = function(){                           
+            tries += 1;
+            obj.logProcess(obj.getCurPageURL(), 'processing', 'unknown', 'unknown', 'Captcha check try - ' + tries);
+            
+            // send request to antigate
+            curPage.open(url, function(status) {
+                if (status == 'success'){
+                    obj.logProcess(obj.getCurPageURL(), 'processing', status, 'unknown', 'Received response from Antigate...');
+                    
+                    // parsing response
+                    response = curPage.evaluate(function(){
+                        return document.body.innerText;
+                    });
+                    
+                    
+                    if (re.test(response)) {            
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'success', 'Captcha successfully parsed...');
+                        def.resolve(response.substr(response.indexOf('|') + 1));
+                        return;                       
+                    } else if (response.indexOf('CAPCHA_NOT_READY') != -1) {
+                        obj.logProcess(obj.getCurPageURL(), 'processing', status, 'unknown', 'Captcha is not parsed yet...');
+                    } else if (response.indexOf('ERROR_KEY_DOES_NOT_EXIST') != -1) {
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Captcha key ('+ id +') does not exist...');
+                        def.reject('ERROR_KEY_DOES_NOT_EXIST');
+                        return;                        
+                    } else if (response.indexOf('ERROR_NO_SUCH_CAPCHA_ID') != -1) {
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Captcha key ('+ id +') does not exist...');
+                        def.reject('ERROR_NO_SUCH_CAPCHA_ID'); 
+                        return;                        
+                    } else if (response.indexOf('ERROR_WRONG_ID_FORMAT') != -1) {  
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Captcha key ('+ id +') has wrong format...');
+                        def.reject('ERROR_WRONG_ID_FORMAT');
+                        return; 
+                    } else if (response.indexOf('ERROR_CAPTCHA_UNSOLVABLE') != -1) {
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Captcha is unsolvable...');
+                        def.reject('ERROR_CAPTCHA_UNSOLVABLE'); 
+                        return;                                               
+                    } else {
+                        console.log(response);
+                        obj.logProcess(obj.getCurPageURL(), 'processing', status, 'unknown', 'Unidentified error...');
+                    }   
+                    
+                } else {
+                    obj.logProcess(obj.getCurPageURL(), 'processing', status, 'unknown', 'Cannot receive response from Antigate...');
+                } 
+                
+                // cannot get captcha result, exceeded number of tries
+                if (tries >= checkCaptchaTries) {           
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot get captcha result, exceeded number of tries...');
+                    def.reject();    
+                    return;
+                } 
+                
+                // initiate check after delay
+                setTimeout(checkFunc, checkCaptchaDelay);   
+            });         
+        }        
+        
+        checkFunc();             
+        return def;
+    }
+     
     function uploadImage(imagePath) 
     {
         var def = new deferred.create();
@@ -81,11 +178,11 @@ var Antigate = function(usrSystemKey)
         
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting captcha uploading process...');
         
+        // check image path
         try {
             fileutils.isValidImage(imagePath);
             fileutils.isReadable(uploadFormPath);
         } catch(e) {
-            console.log(e);
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', e);
             def.reject();
             return def;
@@ -107,13 +204,13 @@ var Antigate = function(usrSystemKey)
                     document.getElementById('submitBtn').dispatchEvent(evt);                   
                 }, obj.getSystemKey());
 
-                // delay
+                // reject if timeout
                 setTimeout(function(){
                     if (!def.isDone()) {
                         obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Uploading takes too long...');
                         def.reject();
                     }
-                },uploadImageOpDelay)
+                }, uploadImageOpTimeout)
 
                 // on new page load
                 obj.pushPageLoadFunc(function(status){
@@ -127,7 +224,6 @@ var Antigate = function(usrSystemKey)
                         
                         if (re.test(response)) {
                             id = response.substr(response.indexOf('|') + 1);
-                            response = response.substr(response.indexOf('|') + 1);
                             
                             obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'success', 'Response: "' + response + '"');
                             def.resolve(id);                            
@@ -163,6 +259,15 @@ var Antigate = function(usrSystemKey)
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "checkBalance"...');
         }
     };
+    
+    this.checkCaptchaStatus = function(id)
+    {
+        try {        
+            return this.startOp(checkCaptchaStatus, id);
+        } catch(e) {
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "checkBalance"...');
+        }           
+    }    
     
     this.uploadImage = function(imagePath)
     {
