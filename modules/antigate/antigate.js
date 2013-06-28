@@ -24,9 +24,9 @@ var Antigate = function(usrSystemKey)
     var checkBalanceTimeout = 2000;
     var checkCaptchaTimeout = 2000;
     
-    var checkCaptchaTries = 5;
+    var checkCaptchaTries = 8;
     
-    var checkCaptchaDelay = 5000;
+    var checkCaptchaDelay = 7000;
     
     /* Private members ends here */
     
@@ -48,7 +48,7 @@ var Antigate = function(usrSystemKey)
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Balance check takes too long...');
                 def.reject();
             }
-        }, checkBalanceTimeout)        
+        }, checkBalanceTimeout);        
 
         curPage.open(url, function(status) {
             if (status == 'success') {
@@ -110,8 +110,7 @@ var Antigate = function(usrSystemKey)
                     response = curPage.evaluate(function(){
                         return document.body.innerText;
                     });
-                    
-                    
+                                        
                     if (re.test(response)) {            
                         obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'success', 'Captcha successfully parsed...');
                         def.resolve(response.substr(response.indexOf('|') + 1));
@@ -202,7 +201,7 @@ var Antigate = function(usrSystemKey)
                         obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Uploading takes too long...');
                         def.reject();
                     }
-                }, uploadImageOpTimeout)
+                }, uploadImageOpTimeout);
 
                 // on new page load
                 obj.pushPageLoadFunc(function(status){
