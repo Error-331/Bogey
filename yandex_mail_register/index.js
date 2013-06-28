@@ -3,9 +3,28 @@ var yandexMail = require('../modules/yandex/mail');
 
 var curAntigate = antigate.create('bfd936a2bd18bb817df7e95d3621a7c8');
 var curYandexMail = yandexMail.create('');
-curAntigate.uploadImage('captchas/test.jpeg').done(function(id){
-    console.log(id);
+
+curYandexMail.extractRegPageCaptcha('captchas', 'test', 'jpeg').done(function(){
+    curAntigate.uploadImage('captchas/test.jpeg').done(function(id){
+        curAntigate.checkCaptchaStatus(id).done(function(captcha){
+            console.log('Captcha is:' + captcha);
+            phantom.exit();
+        }).fail(function(){
+            phantom.exit();
+        });
+    }).fail(function(){
+        phantom.exit();
+    });
+}).fail(function(){
+    phantom.exit();
 });
+
+
+/*curAntigate.uploadImage('captchas/test.jpeg').done(function(id){
+    console.log(id);
+});*/
+
+//curAntigate.checkCaptchaStatus('196075922');
 
 /*curYandexMail.extractRegPageCaptcha('captchas', 'test', 'jpeg').done(function(){
     phantom.exit();
