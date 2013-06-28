@@ -38,6 +38,8 @@ var Antigate = function(usrSystemKey)
         var curPage = this.getPage();
         var url = restURL + '?key=' + this.getSystemKey() + '&action=getbalance';
         
+        var re = /^[0-9]+\.[0-9]+/;
+        
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Checking balance status...'); 
         
         // reject if timeout
@@ -52,26 +54,16 @@ var Antigate = function(usrSystemKey)
             if (status == 'success') {
                 obj.logProcess(obj.getCurPageURL(), 'processing', status, 'success', 'Parsing balance response...');
                                
-                var evalResult = curPage.evaluate(function(){   
-                    if (document.body.innerText.length < 0) {
-                        return {'is_error': true, desc: "Response is empty"}; 
-                    }
-                    
-                    var re = /^[0-9]+\.[0-9]+/;
-                    
-                    if (re.test(document.body.innerText)) {
-                        return parseFloat(document.body.innerText);
-                    } else {
-                        return {'is_error': true, desc: "Incorrect response"};
-                    }                  
+                var evalResult = curPage.evaluate(function(){ 
+                    return document.body.innerText;            
                 });
 
-                if (evalResult.is_error == true) {
-                    obj.logProcess(url, 'finishing', status, 'fail', evalResult.desc);                                                  
-                    def.reject(evalResult); 
-                } else {
+                if (re.test(document.body.innerText)) {
                     obj.logProcess(url, 'finishing', status, 'success', 'Balance check successful...');                                      
                     def.resolve(evalResult); 
+                } else {
+                    obj.logProcess(url, 'finishing', status, 'fail', 'Response: "' + evalResult + '"');                                                  
+                    def.reject(evalResult); 
                 }
          
             } else {
@@ -229,7 +221,7 @@ var Antigate = function(usrSystemKey)
                             def.resolve(id);                            
                         } else {
                             obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Response: "' + response + '"');
-                            def.reject();
+                            def.reject(response);
                         } 
                     } else {
                         obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Upload fail...');
