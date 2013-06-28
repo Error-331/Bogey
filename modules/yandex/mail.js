@@ -18,6 +18,13 @@ var Mail = function(usrSystemKey)
     
     var mainPageURL = 'http://mail.yandex.ru/';
     
+    var logOutTimeout = 5000;
+    var openMainPageTimeout = 3000;
+    var openRegPageTimeout = 3000;
+    var extractRegPageCaptchaTimeout = 3500;
+    
+    var mainPageMainLinkClickDelay = 3000;
+      
     /* Private members ends here */
     
     /* Private core methods starts here */
@@ -26,6 +33,14 @@ var Mail = function(usrSystemKey)
     {
         var curPage = this.getPage();
         var def = deferred.create();
+        
+        // reject if timeout
+        setTimeout(function(){
+            if (!def.isDone()) {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Logout takes too long...');
+                def.reject();
+            }
+        }, logOutTimeout);           
         
         def.resolve();
         
@@ -36,6 +51,14 @@ var Mail = function(usrSystemKey)
     {
         var curPage = this.getPage();
         var def = deferred.create();
+        
+        // reject if timeout
+        setTimeout(function(){
+            if (!def.isDone()) {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Opening main page takes too long...');
+                def.reject();
+            }
+        }, openMainPageTimeout);          
         
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Opening main page...'); 
         curPage.open(mainPageURL, function(status) {
@@ -57,18 +80,26 @@ var Mail = function(usrSystemKey)
         var def = deferred.create();
                     
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Opening registration page...');          
-        obj.logOut().done(function() {
+        obj.logOut().done(function() {                               
             if (obj.getCurPageURL() != mainPageURL) {
                 obj.openMainPage().done(function(){
+                    
+                    // reject if timeout
+                    setTimeout(function(){
+                        if (!def.isDone()) {
+                            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Opening registration page takes too long...');
+                            def.reject();
+                        }
+                    }, openRegPageTimeout + mainPageMainLinkClickDelay);                       
 
-                    curPage.evaluate(function() {
+                    curPage.evaluate(function(clickDelay) {
                         var evt = document.createEvent("MouseEvents");      
 
                         evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
                         setTimeout(function(){
                             document.getElementsByClassName("b-big-button")[0].dispatchEvent(evt);
-                        }, 3000);
-                    });
+                        }, clickDelay);
+                    }, mainPageMainLinkClickDelay);
 
                     obj.pushPageLoadFunc(function(status){
                         obj.logProcess(obj.getCurPageURL(), 'processing', 'unknown', 'unknown', 'Click a "registration" link on main page...');  
@@ -103,6 +134,15 @@ var Mail = function(usrSystemKey)
         
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Trying to extract captcha from registration page...');    
         obj.openRegPage().done(function(){        
+            
+            // reject if timeout
+            setTimeout(function(){
+                if (!def.isDone()) {
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Extracting captcha image takes too long...');
+                    def.reject();
+                }
+            }, extractRegPageCaptchaTimeout);             
+            
             obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Extracting captcha image position...');    
             
             // getting coordinates of the image (captcha)
