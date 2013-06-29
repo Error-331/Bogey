@@ -1,7 +1,20 @@
 var antigate = require('../modules/antigate/antigate');
 var yandexMail = require('../modules/yandex/mail');
 
-var curAntigate = antigate.create({'systemKey':'bfd936a2bd18bb817df7e95d3621a7c8'});
+var curAntigate = antigate.create({
+    'systemKey':'bfd936a2bd18bb817df7e95d3621a7c8',
+    'phrase': 0,
+    'regsense': 0,
+    'numeric': 0,
+    'calc': 0,
+    'minLen': 0,
+    'maxLen': 0,
+    'isRussian': 1,
+    'maxBid': 0,
+    'softId': '',
+    'headerAcao': 0
+});
+
 var curYandexMail = yandexMail.create();
 
 curYandexMail.extractRegPageCaptcha('captchas', 'test', 'jpeg').done(function(){
@@ -18,31 +31,3 @@ curYandexMail.extractRegPageCaptcha('captchas', 'test', 'jpeg').done(function(){
 }).fail(function(){
     phantom.exit();
 });
-
-
-/*curAntigate.uploadImage('captchas/test.jpeg').done(function(id){
-    console.log(id);
-});*/
-
-//curAntigate.checkCaptchaStatus('196075922');
-
-/*curYandexMail.extractRegPageCaptcha('captchas', 'test', 'jpeg').done(function(){
-    phantom.exit();
-}).fail(function(){
-    phantom.exit();
-});*/
-
-//curAntigate.checkBalance().done(function(val){
-  //  console.log(val);
-//})
-
-//curCaptBot = captchabot.create('8f7fc1c96990c14cc3ebdbf752405140');
-//var def = curCaptBot.checkBalance();
-
-/*
-curYandexMail.extractRegPageCaptcha().done(function(){
-    //phantomjs.exit();
-}).fail(function(){
-    //phantomjs.exit();
-});*/
-
