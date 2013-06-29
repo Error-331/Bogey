@@ -7,11 +7,20 @@
  
  <body>
      
-  <form method="post" action="http://antigate.com/in.php" enctype="multipart/form-data">
+  <form method="post" action="http://antigate.com/in.php" enctype="multipart/form-data" id="mainForm">
    <input type="hidden" name="method" value="post">
    
+   <input type="hidden" name="phrase" value="0">
+   <input type="hidden" name="regsense" value="0">
+   <input type="hidden" name="numeric" value="0">
+   <input type="hidden" name="calc" value="0">   
+   <input type="hidden" name="min_len" value="0">     
+   <input type="hidden" name="max_len" value="0">     
+   <input type="hidden" name="is_russian" value="0">    
+   <input type="hidden" name="header_acao" value="0">
+  
    Ключ от учетной записи:
-   <input type="text" name="key" value="123">
+   <input type="text" name="key" value="">
    
    Файл капчи:
    <input type="file" name="file">
