@@ -21,33 +21,166 @@ var Antigate = function(configObj)
      * @var string API key
      */        
     
-    var systemKey = '';    
+    var systemKey = '';  
+    
+    /**
+     * @access private
+     * @var string URL to which common requests will be made
+     */      
 
     var restURL = 'http://antigate.com/res.php';
+    
+    /**
+     * @access private
+     * @var string URL to which captcha image will be uploaded
+     */      
+    
     var uploadURL = 'http://antigate.com/in.php';
+    
+    /**
+     * @access private
+     * @var string path to the HTML file with captcha-image upload form
+     */      
+    
     var uploadFormPath = '../modules/antigate/html/antigate_upload_form.html';
     
+    /**
+     * @access private
+     * @var integer timeout in milliseconds after which captcha upload process will be canceled
+     */          
+    
     var uploadImageOpTimeout = 3000;
+    
+    /**
+     * @access private
+     * @var integer timeout in milliseconds after which balanc checking operation will be canceled
+     */       
+    
     var checkBalanceTimeout = 2000;
+    
+    /**
+     * @access private
+     * @var integer timeout in milliseconds after which captcha checking operation will be canceled
+     */       
+    
     var checkCaptchaTimeout = 2000;
+    
+    /**
+     * @access private
+     * @var integer number of tries after which captcha checking operation will be canceled
+     */       
     
     var checkCaptchaTries = 8;
     
+    /**
+     * @access private
+     * @var integer delay in milliseconds before each captcha check try 
+     */     
+    
     var checkCaptchaDelay = 7000;
+    
+    /**
+     * @access private
+     * @var integer indicates whether captcha consist of one word or multiple
+     */     
+    
+    var phraseParam = 0;
+    
+    /**
+     * @access private
+     * @var integer indicates whether captcha is case sensitive or not
+     */     
+    
+    var regsenseParam = 0;
+    
+    /**
+     * @access private
+     * @var integer indicates whether captcha consist entirely of numbers or not
+     */      
+    
+    var numericParam = 0;
+    
+    /**
+     * @access private
+     * @var integer indicates whether captcha presume mathematical operation or not
+     */        
+    
+    var calcParam = 0;
+    
+    /**
+     * @access private
+     * @var integer minimum captcha text length
+     */      
+    
+    var minLenParam = 0;
+    
+    /**
+     * @access private
+     * @var integer maximum captcha text length
+     */       
+  
+    var maxLenParam = 0;
+    
+    /**
+     * @access private
+     * @var integer indicates whether captcha contains only russian letters or not
+     */       
+    
+    var isRussianParam = 0;
+    
+    /**
+     * @access private
+     * @var integer bid value
+     */     
+    
+    var maxBidParam = 0;
+    
+    /**
+     * @access private
+     * @var string software id
+     */     
+    
+    var softIdParam = '';
+    
+    /**
+     * @access private
+     * @var integer indicates whether antigate service will send 'Access-Control-Allow-Origin: *' header in response on captcha upload
+     */     
+    
+    var headerAcaoParam = 0;
     
     /* Private members ends here */
     
     /* Private core methods starts here */
+    
+    /**
+     * Method that implements 'checkBalance' operation.
+     *
+     * Method makes request to the antigate service for balance status. API key must be set prior to executing this method.
+     *
+     * @access private
+     *
+     * @return object deferred object
+     *
+     */      
         
     function checkBalance()
-    {
+    {        
         var def = new deferred.create();
         var curPage = this.getPage();
         var url = restURL + '?key=' + this.getSystemKey() + '&action=getbalance';
         
         var re = /^[0-9]+\.[0-9]+/;
-        
+                
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Checking balance status...'); 
+        
+        // API key check
+        if (this.getSystemKey().length <= 0) {
+            this.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot check balance - API key is not set...');   
+            
+            def.reject();
+            return def;
+        }            
         
         // reject if timeout
         setTimeout(function(){
@@ -66,15 +199,15 @@ var Antigate = function(configObj)
                 });
 
                 if (re.test(document.body.innerText)) {
-                    obj.logProcess(url, 'finishing', status, 'success', 'Balance check successful...');                                      
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'success', 'Balance check successful...');                                      
                     def.resolve(evalResult); 
                 } else {
-                    obj.logProcess(url, 'finishing', status, 'fail', 'Response: "' + evalResult + '"');                                                  
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Response: "' + evalResult + '"');                                                  
                     def.reject(evalResult); 
                 }
          
             } else {
-                this.logProcess(url, 'finishing', status, 'fail', 'Cannot check balance...');                                           
+                this.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Cannot check balance...');                                           
                 def.reject();
             }        
         });
@@ -83,6 +216,19 @@ var Antigate = function(configObj)
         return def;          
     }
     
+    /**
+     * Method that implements 'checkCaptchaStatus' operation.
+     *
+     * Method makes request to the antigate service for captcha status. API key must be set prior to executing this method.
+     *
+     * @access private
+     * 
+     * @param string id of the captcha that must be checked
+     *
+     * @return object deferred object
+     *
+     */     
+    
     function checkCaptchaStatus(id)
     {        
         var def = new deferred.create();
@@ -90,6 +236,14 @@ var Antigate = function(configObj)
         var url = restURL + '?key=' + this.getSystemKey() + '&action=get&id=' + id;        
         
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting captcha check process...');
+        
+        // API key check
+        if (this.getSystemKey().length <= 0) {
+            this.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot get captcha result - API key is not set...');   
+            
+            def.reject();
+            return def;
+        }            
         
         // check id
         if (typeof id != 'string' || id.length <= 0) {
@@ -163,6 +317,19 @@ var Antigate = function(configObj)
         checkFunc();             
         return def;
     }
+    
+    /**
+     * Method that implements 'uploadImage' operation.
+     *
+     * Method uploads captcha image to the antigate service. API key must be set prior to executing this method.
+     *
+     * @access private
+     * 
+     * @param string imagePath path to the captcha image
+     *
+     * @return object deferred object
+     *
+     */       
      
     function uploadImage(imagePath) 
     {
@@ -174,6 +341,14 @@ var Antigate = function(configObj)
         var re = /^OK\|[0-9]+/;
         
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting captcha uploading process...');
+        
+        // API key check
+        if (this.getSystemKey().length <= 0) {
+            this.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot upload captcha - API key is not set...');   
+            
+            def.reject();
+            return def;
+        }            
         
         // check image path
         try {
@@ -264,8 +439,24 @@ var Antigate = function(configObj)
             return;
         }
         
+        
+        
+        
+        
         obj.setSystemKey(configObj.systemKey);
-    }      
+        obj.setPhraseParam(configObj.phrase);
+    }  
+
+    /**
+     * Method that launches 'checkBalance' operation.
+     *
+     * Method will push 'checkBalance' operation to the stack if another operation was executed previously.
+     *
+     * @access privileged
+     *
+     * @return object deferred object
+     *
+     */  
     
     this.checkBalance = function() 
     { 
@@ -276,6 +467,19 @@ var Antigate = function(configObj)
         }
     };
     
+    /**
+     * Method that launches 'checkCaptchaStatus' operation.
+     *
+     * Method will push 'checkCaptchaStatus' operation to the stack if another operation was executed previously.
+     *
+     * @access privileged
+     * 
+     * @param string id of the captcha that must be checked
+     *
+     * @return object deferred object
+     *
+     */      
+      
     this.checkCaptchaStatus = function(id)
     {
         try {        
@@ -283,7 +487,20 @@ var Antigate = function(configObj)
         } catch(e) {
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "checkBalance"...');
         }           
-    }    
+    }  
+    
+    /**
+     * Method that launches 'uploadImage' operation.
+     *
+     * Method will push 'uploadImage' operation to the stack if another operation was executed previously.
+     *
+     * @access privileged
+     * 
+     * @param string imagePath path to the captcha image
+     *
+     * @return object deferred object
+     *
+     */      
     
     this.uploadImage = function(imagePath)
     {
