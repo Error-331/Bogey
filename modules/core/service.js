@@ -1,7 +1,45 @@
+/**
+ * Phantasm
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE (Version 3)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl.html
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to red331@mail.ru so we can send you a copy immediately.
+ *
+ * Module service is a part of PhantomJS framework - Phantasm.
+ *
+ * @package Phantasm
+ * @author Selihov Sergei Stanislavovich <red331@mail.ru>
+ * @copyright Copyright (c) 2013 Selihov Sergei Stanislavovich.
+ * @license http://www.gnu.org/licenses/gpl.html GNU GENERAL PUBLIC LICENSE (Version 3)
+ *
+ */
+
+/**
+ * Core modules of the framework.
+ *
+ * @subpackage core
+ * @author Selihov Sergei Stanislavovich <red331@mail.ru>
+ */
+
+/**
+ * Documents the Service class.
+ *
+ * Following class is a base class for all services (e.q. wrappers classes for different sites and APIs).
+ *
+ * @subpackage Service
+ * @author Selihov Sergei Stanislavovich <red331@mail.ru>
+ */
+
 // Modules include
 var page = require('webpage');
 
-var response = require('../io/response');
+var logmessage = require('../io/logmessage');
 var deferred = require('../async/deferred');
 
 var fileUtils = require('../utils/fileutils');
@@ -314,8 +352,8 @@ var Service = function(configObj, usrServiceName)
     
     this.logProcess = function(url, status, pageStatus, operationStatus, description)
     {
-        var resp = response.create(serviceName, url, status, pageStatus, operationStatus, description);
-        console.log(JSON.stringify(resp));   
+        var resp = logmessage.create(serviceName, url, status, pageStatus, operationStatus, description);
+        console.log(JSON.stringify(resp)); 
     }
     
     /**

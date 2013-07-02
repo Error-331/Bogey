@@ -1,3 +1,41 @@
+/**
+ * Phantasm
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE (Version 3)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl.html
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to red331@mail.ru so we can send you a copy immediately.
+ *
+ * Module captchabot is a part of PhantomJS framework - Phantasm.
+ *
+ * @package Phantasm
+ * @author Selihov Sergei Stanislavovich <red331@mail.ru>
+ * @copyright Copyright (c) 2013 Selihov Sergei Stanislavovich.
+ * @license http://www.gnu.org/licenses/gpl.html GNU GENERAL PUBLIC LICENSE (Version 3)
+ *
+ */
+
+/**
+ * Modules for Captchabot service (http://captchabot.com/).
+ *
+ * @subpackage captchabot
+ * @author Selihov Sergei Stanislavovich <red331@mail.ru>
+ */
+
+/**
+ * Documents the Captchabot class.
+ *
+ * Following code represents a wrapper class for Captchabot service.
+ *
+ * @subpackage Captchabot
+ * @author Selihov Sergei Stanislavovich <red331@mail.ru>
+ */
+
 // Modules include
 var deferred = require('../async/deferred');
 var service = require('../core/service');

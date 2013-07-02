@@ -1,3 +1,41 @@
+/**
+ * Phantasm
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE (Version 3)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl.html
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to red331@mail.ru so we can send you a copy immediately.
+ *
+ * Module fileutils is a part of PhantomJS framework - Phantasm.
+ *
+ * @package Phantasm
+ * @author Selihov Sergei Stanislavovich <red331@mail.ru>
+ * @copyright Copyright (c) 2013 Selihov Sergei Stanislavovich.
+ * @license http://www.gnu.org/licenses/gpl.html GNU GENERAL PUBLIC LICENSE (Version 3)
+ *
+ */
+
+/**
+ * Utilities module.
+ *
+ * @subpackage utils
+ * @author Selihov Sergei Stanislavovich <red331@mail.ru>
+ */
+
+/**
+ * Documents the fileutils module.
+ *
+ * Following module contains common files manipulation methods.
+ *
+ * @subpackage fileutils
+ * @author Selihov Sergei Stanislavovich <red331@mail.ru>
+ */
+
 var fs = require('fs');
 
 function checkPathLength(path)
