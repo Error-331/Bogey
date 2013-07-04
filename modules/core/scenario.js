@@ -41,7 +41,108 @@ var deferred = require('../async/deferred');
 
 var Scenario = function(configObj, usrScenarioName)
 {
+    /* Private members starts here */
+    
+    /**
+     * @access private
+     * @var object link to the current object
+     */        
+    
+    var obj = this;     
+        
+    /**
+     * @access private
+     * @var string current service name
+     */      
+    
+    var scenarioName = 'scenario';       
+    
+    /* Private members ends here */
+    
+    /* Private core methods starts here */  
+    /* Private core methods ends here */
+    
+    /* Privileged core methods starts here */
+    
+    /**
+     * Method that configures current Scenario.
+     *
+     * Every new scenario must overload this method to configure only necessary options.
+     *
+     * @access privileged
+     *
+     * @param object configObj object with configuration options
+     *
+     */     
+    
+    this.configureScenario = function(configObj) {
+        if (typeof configObj != 'object') {
+            return;
+        }
+    }     
+    
+    this.start = function() {
 
+    }   
+    
+    this.stop = function() {
+
+    }  
+
+    this.setScenarioName(usrScenarioName);
+    this.configureScenario(configObj);
+    
+    /* Privileged core methods starts here */
+    
+    /* Privileged get methods starts here */
+    
+    /**
+     * Method that returns current scenario name.
+     *
+     * Simple method that returns current scenario name.
+     *
+     * @access privileged
+     * 
+     * @return string scenario name.
+     * 
+     */     
+
+    this.getScenarioName = function()
+    {
+        return scenarioName;
+    }     
+    
+    /* Privileged get methods ends here */
+    
+    /* Privileged set methods starts here */
+    
+    /**
+     * Method that sets current scenario name.
+     *
+     * Simple method that sets current scenario name.
+     *
+     * @access privileged
+     * 
+     * @param string usrScenarioName scenario name
+     * 
+     * @throws string 
+     * 
+     */       
+    
+    this.setScenarioName = function(usrScenarioName)
+    {
+        if (typeof usrServiceName != 'string') {
+            throw 'Scenario name is not a string';
+        }
+        
+        if (usrScenarioName.length <= 0) {
+            throw 'Scenario name length cannot be zero';
+        }
+        
+        scenarioName = usrScenarioName;        
+    }    
+    
+    /* Privileged set methods ends here */    
 }
 
 exports.constFunc = Scenario;
