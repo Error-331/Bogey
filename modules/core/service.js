@@ -615,8 +615,8 @@ var Service = function(configObj, usrServiceName)
 }
 
 exports.constFunc = Service;
-exports.create = function create(systemKey, moduleName) {
+exports.create = function create(configObj, serviceName) {
     "use strict";
     
-    return new Service(systemKey, moduleName);
+    return new Service(configObj, serviceName);
 };
