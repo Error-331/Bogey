@@ -55,7 +55,7 @@ var Scenario = function(configObj, usrScenarioName)
      * @var string current service name
      */      
     
-    var scenarioName = 'scenario';       
+    var scenarioName = 'scenario';     
     
     /* Private members ends here */
     
@@ -63,6 +63,11 @@ var Scenario = function(configObj, usrScenarioName)
     /* Private core methods ends here */
     
     /* Privileged core methods starts here */
+    
+    this.createDefered = function()
+    {
+        return deferred.create();
+    }
     
     /**
      * Method that configures current Scenario.
@@ -75,22 +80,20 @@ var Scenario = function(configObj, usrScenarioName)
      *
      */     
     
-    this.configureScenario = function(configObj) {
-        if (typeof configObj != 'object') {
+    this.configureScenario = function(configObj) 
+    {
+        if (typeof configObj != 'object') {         
             return;
         }
     }     
     
-    this.start = function() {
-
+    this.start = function() 
+    {
     }   
     
-    this.stop = function() {
-
+    this.stop = function() 
+    {
     }  
-
-    this.setScenarioName(usrScenarioName);
-    this.configureScenario(configObj);
     
     /* Privileged core methods starts here */
     
@@ -131,7 +134,7 @@ var Scenario = function(configObj, usrScenarioName)
     
     this.setScenarioName = function(usrScenarioName)
     {
-        if (typeof usrServiceName != 'string') {
+        if (typeof usrScenarioName != 'string') {
             throw 'Scenario name is not a string';
         }
         
@@ -143,11 +146,14 @@ var Scenario = function(configObj, usrScenarioName)
     }    
     
     /* Privileged set methods ends here */    
+
+    this.setScenarioName(usrScenarioName);
+    this.configureScenario(configObj);
 }
 
 exports.constFunc = Scenario;
-exports.create = function create(scenarioName) {
+exports.create = function create(configObj, scenarioName) {
     "use strict";
-    
-    return new Scenario(scenarioName);
+
+    return new Scenario(configObj, scenarioName);
 };
