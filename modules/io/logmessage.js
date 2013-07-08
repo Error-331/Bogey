@@ -50,6 +50,13 @@ var LogMessage = function(service, url, status, pageStatus, operationStatus, des
 
 /**
  * @access public
+ * @var string value that indicates that this object represents log message
+ */  
+
+LogMessage.prototype.type = 'log_message';
+
+/**
+ * @access public
  * @var string current service
  */  
 
@@ -64,21 +71,21 @@ LogMessage.prototype.url = '';
 
 /**
  * @access public
- * @var string status of the script, can take following values: starting, processing, finishing
+ * @var string status of the service, can take following values: 'starting', 'processing', 'finishing'
  */  
 
 LogMessage.prototype.status = 'starting';
 
 /**
  * @access public
- * @var string status of the page, can take following values: success, fail, unknown
+ * @var string status of the page, can take following values: 'success', 'fail', 'unknown'
  */  
 
 LogMessage.prototype.pageStatus = 'fail';
 
 /**
  * @access public
- * @var string status of the current operation, can take following values: success, fail, unknown
+ * @var string status of the current operation, can take following values: 'success', 'fail', 'unknown'
  */  
 
 LogMessage.prototype.operationStatus = 'fail';
@@ -94,6 +101,19 @@ LogMessage.prototype.description = '';
 
 /* Public set methods starts here */
 
+/**
+ * Method that sets current service name.
+ *
+ * Simple method that sets current service name.
+ *
+ * @access public
+ * 
+ * @param string service name
+ * 
+ * @throws string 
+ * 
+ */ 
+
 LogMessage.prototype.setService = function(service)
 {
     if (typeof service != 'string') {
@@ -103,6 +123,19 @@ LogMessage.prototype.setService = function(service)
     this.service = service;
 }
 
+/**
+ * Method that sets current URL of the service.
+ *
+ * Simple method that sets current URL of the service.
+ *
+ * @access public
+ * 
+ * @param string url current URL of the service
+ * 
+ * @throws string 
+ * 
+ */ 
+
 LogMessage.prototype.setURL = function(url)
 {
     if (typeof url != 'string') {
@@ -111,6 +144,19 @@ LogMessage.prototype.setURL = function(url)
         
     this.url = url;
 }
+
+/**
+ * Method that sets current status of the service.
+ *
+ * Simple method that sets current status of the service.
+ *
+ * @access public
+ * 
+ * @param string status of the service, can take following values: 'starting', 'processing', 'finishing'
+ * 
+ * @throws string 
+ * 
+ */ 
 
 LogMessage.prototype.setStatus = function(status)
 {
@@ -127,6 +173,19 @@ LogMessage.prototype.setStatus = function(status)
     this.status = status;
 }
 
+/**
+ * Method that sets current page status of the service.
+ *
+ * Simple method that sets current page status of the service.
+ *
+ * @access public
+ * 
+ * @param string page status of the service, can take following values: 'success', 'fail', 'unknown'
+ * 
+ * @throws string 
+ * 
+ */ 
+
 LogMessage.prototype.setPageStatus = function(status)
 {
     if (typeof status != 'string') {
@@ -142,6 +201,19 @@ LogMessage.prototype.setPageStatus = function(status)
     this.pageStatus = status;
 }
 
+/**
+ * Method that sets current operation status of the service.
+ *
+ * Simple method that sets current operation status of the service.
+ *
+ * @access public
+ * 
+ * @param string operation status of the service, can take following values: 'success', 'fail', 'unknown'
+ * 
+ * @throws string 
+ * 
+ */
+
 LogMessage.prototype.setOperationStatus = function(status)
 {
     if (typeof status != 'string') {
@@ -156,6 +228,19 @@ LogMessage.prototype.setOperationStatus = function(status)
     
     this.operationStatus = status;
 }
+
+/**
+ * Method that sets current operation description of the service.
+ *
+ * Simple method that sets current operation description of the service.
+ *
+ * @access public
+ * 
+ * @param string operation description
+ * 
+ * @throws string 
+ * 
+ */
 
 LogMessage.prototype.setDescription = function(description)
 {
