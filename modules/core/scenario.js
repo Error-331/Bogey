@@ -38,8 +38,9 @@
 
 // Modules include
 var deferred = require('../async/deferred');
+var respmessage = require('../io/respmessage');
 
-var Scenario = function(configObj, usrScenarioName)
+var Scenario = function(usrScenarioName)
 {
     /* Private members starts here */
     
@@ -63,30 +64,57 @@ var Scenario = function(configObj, usrScenarioName)
     /* Private core methods ends here */
     
     /* Privileged core methods starts here */
-    
-    this.createDefered = function()
-    {
-        return deferred.create();
-    }
-    
+        
     /**
-     * Method that configures current Scenario.
+     * Method that sends response message.
      *
-     * Every new scenario must overload this method to configure only necessary options.
+     * Method creates response object, stringify it and passes it to the console.log() method. 
      *
      * @access privileged
-     *
-     * @param object configObj object with configuration options
-     *
+     * 
+     * @param object data that will be sent as response
+     * 
      */     
     
-    this.configureScenario = function(configObj) 
+    this.sendResponse = function(data)
     {
-        if (typeof configObj != 'object') {         
-            return;
+        if (typeof data != 'object') {
+            if (data === undefined) {
+                data = {};
+            } else {
+                data = {'data': data};
+            }
         }
-    }     
+             
+        var resp = respmessage.create(scenarioName, false, data);
+        console.log(JSON.stringify(resp)); 
+    }    
     
+    /**
+     * Method that sends response message with error flag.
+     *
+     * Method creates response object, stringify it and passes it to the console.log() method. 
+     *
+     * @access privileged
+     * 
+     * @param object data that will be sent as response
+     * 
+     */      
+    
+    this.sendErrorResponse = function(data)
+    {
+        if (typeof data != 'object') {
+            if (data === undefined) {
+                data = {};
+            } else {
+                data = {'data': data};
+            }
+        }
+             
+        var resp = respmessage.create(scenarioName, true, data);
+        console.log(JSON.stringify(resp)); 
+    }      
+        
     this.start = function() 
     {
     }   
@@ -148,12 +176,11 @@ var Scenario = function(configObj, usrScenarioName)
     /* Privileged set methods ends here */    
 
     this.setScenarioName(usrScenarioName);
-    this.configureScenario(configObj);
 }
 
 exports.constFunc = Scenario;
-exports.create = function create(configObj, scenarioName) {
+exports.create = function create(scenarioName) {
     "use strict";
 
-    return new Scenario(configObj, scenarioName);
+    new Scenario(scenarioName).start();
 };
