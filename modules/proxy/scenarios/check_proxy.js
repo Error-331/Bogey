@@ -6,7 +6,7 @@ var page = require('webpage').create();
 
 var CheckProxy = function(configObj)
 { 
-    scenario.constFunc.call(this, configObj, 'check_proxy');
+    scenario.constFunc.call(this, 'check_proxy');
     
     /* Private members starts here */
     
@@ -15,25 +15,112 @@ var CheckProxy = function(configObj)
      * @var object link to the current object
      */        
     
-    var obj = this;       
+    var obj = this;  
+    
+    /**
+     * @access private
+     * @var string URL of the service which is used to test proxy server
+     */     
     
     var checkURL = 'http://whatismyipaddress.com/proxy-check';
     
-    var proxyAddr = null;
-    var proxyPort = null;
+    /**
+     * @access private
+     * @var string IP address of the proxy server
+     */      
+    
+    var proxyAddr = '';
+    
+    /**
+     * @access private
+     * @var string port of the proxy
+     */       
+    
+    var proxyPort = '';
+    
+    /**
+     * @access private
+     * @var string proxy server type (http, socks5, none)
+     */      
+    
     var proxyType = 'none';
-    var proxyLogin = null;
+    
+    /**
+     * @access private
+     * @var string login for the proxy server
+     */       
+    
+    var proxyLogin = '';
+    
+    /**
+     * @access private
+     * @var string password for the proxy server
+     */     
+    
     var proxyPassword = null;
     
+    /**
+     * @access private
+     * @var boolean rDNS test result
+     */     
+    
     var rDNSTest = false;
+    
+    /**
+     * @access private
+     * @var boolean WIMIA test result
+     */     
+    
     var wimiaTest = false;
+    
+    /**
+     * @access private
+     * @var boolean TOR test result
+     */     
+    
     var torTest = false;
+    
+    /**
+     * @access private
+     * @var boolean LOC test result
+     */        
+    
     var locTest = false;
+    
+    /**
+     * @access private
+     * @var boolean HEADER test result
+     */      
+    
     var headerTest = false;
+    
+    /**
+     * @access private
+     * @var boolean DNSBL test result
+     */      
+    
     var dnsblTest = false;
     
-    var realAddr = null;
+    /**
+     * @access private
+     * @var string real IP address (if proxy is not working)
+     */     
+    
+    var realAddr = '';
+    
+    /**
+     * @access private
+     * @var boolean indicates whether proxy is working or not
+     */      
+    
     var isProxy = false;   
+    
+    /**
+     * @access private
+     * @var boolean error flag
+     */      
+    
+    var isError = false;
         
     /* Private members ends here */
     
@@ -70,9 +157,7 @@ var CheckProxy = function(configObj)
     }
     
     function checkProxy()
-    {
-        var def = obj.createDefered();
-        
+    {        
         page.onLoadFinished = function(status) {
             if (status == 'success') {               
                 // page evalute
@@ -148,19 +233,27 @@ var CheckProxy = function(configObj)
                     
                     return JSON.stringify(result);
                 });
+                             
+                result = JSON.parse(result);
+                rDNSTest = result['rdns'];
+                wimiaTest = result['wimia'];
+                torTest = result['tor'];
+                locTest = result['loc'];
+                headerTest = result['header'];
+                dnsblTest = result['dnsbl'];
+    
+                realAddr = result['ip'];
+                isProxy = result['is_proxy'];              
                
-                console.log(result);
-               
+                isError = false;              
                 obj.stop();
-                def.resolve();
             } else {
+                isError = true;              
                 obj.stop();
-                def.reject();
             }
         }
 
         page.open(checkURL);
-        return def;
     }
     
     /* Private core methods ends here */
@@ -258,19 +351,44 @@ var CheckProxy = function(configObj)
     /* Privileged core methods starts here */
     
     this.start = function() 
-    {
-        var def = obj.createDefered();
-        
+    {   
         try {
             extractDataFromArgs();
-            return checkProxy();            
+            checkProxy();            
         } catch(e) {
-            return def.reject();
+            isError = true;
+            obj.stop();
         }      
     }  
     
     this.stop = function() 
     {
+        var result = {
+            'url': checkURL,
+            
+            'proxy_address': proxyAddr,
+            'proxy_port': proxyPort,
+            'proxy_type': proxyType,
+            'proxy_login': proxyLogin,
+            'proxy_password': proxyPassword,
+            
+            'rdns': rDNSTest,
+            'wimia': wimiaTest,
+            'tor': torTest,
+            'loc': locTest,
+            'header': headerTest,
+            'dnsbl': dnsblTest,
+            
+            'real_address': realAddr,
+            'is_proxy': isProxy
+        }
+    
+        if (isError == true) {
+            obj.sendErrorResponse({});
+        } else {
+            obj.sendResponse(result);
+        }
+
         phantom.exit();
     }      
         
@@ -294,14 +412,7 @@ var CheckProxy = function(configObj)
     }    
     
     /* Privileged get methods ends here */
-    
-    this.configureScenario(configObj);
 }
 
-exports.constFunc = CheckProxy;
-exports.create = function create(configObj) {
-    "use strict";
-
-    CheckProxy.prototype = scenario.create(configObj, 'check_proxy');
-    new CheckProxy(configObj, 'check_proxy').start();
-};
+CheckProxy.prototype = scenario.create('check_proxy');
+new CheckProxy('check_proxy').start();
