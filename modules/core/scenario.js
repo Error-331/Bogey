@@ -113,11 +113,30 @@ var Scenario = function(usrScenarioName)
              
         var resp = respmessage.create(scenarioName, true, data);
         console.log(JSON.stringify(resp)); 
-    }      
+    }   
+    
+    /**
+     * Method that starts current scenario.
+     *
+     * Every new scenario must overload this method to utilizy its own launching mechanics.
+     *
+     * @access privileged
+     * 
+     */        
         
     this.start = function() 
     {
     }   
+    
+    /**
+     * Method that stops current scenario.
+     *
+     * Every new scenario must overload this method to utilize its own mechanics. Presumably this method must call phantom.exit()
+     * at the end of the code.
+     *
+     * @access privileged
+     * 
+     */      
     
     this.stop = function() 
     {
