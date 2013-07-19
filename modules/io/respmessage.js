@@ -50,7 +50,7 @@ var RespMessage = function(scenario, isError, data)
  * @var string value that indicates that this object represents response message
  */  
 
-RespMessage.prototype.type = 'log_message';
+RespMessage.prototype.type = 'resp_message';
 
 /**
  * @access public
@@ -144,3 +144,9 @@ RespMessage.prototype.setData = function(data)
 }
 
 /* Public set methods ends here */
+
+exports.create = function create(scenario, isError, data) {
+    "use strict";
+
+    return new RespMessage(scenario, isError, data);
+};
