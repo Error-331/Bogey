@@ -126,8 +126,15 @@ var CheckProxy = function(configObj)
     
     /* Private core methods starts here */
 
-    // --proxy=62.109.18.90:1080 --proxy-type=[http|socks5|none] --proxy-auth=PrsRUSY8BAHVL3GF:J13rAh76AU
-    // --proxy=62.109.18.90:1080 --proxy-type=http --proxy-auth=PrsRUSY8BAHVL3GF:J13rAh76AU
+    /**
+     * Method that extracts arguments from the command line.
+     *
+     * Method extracts all arguments connected with proxy, validates them and stores them.
+     *
+     * @access private
+     * 
+     */ 
+
     function extractDataFromArgs()
     {
         var key = null;
@@ -155,6 +162,15 @@ var CheckProxy = function(configObj)
             }
         }
     }
+    
+    /**
+     * Method that actually checks proxy server via remote service.
+     *
+     * Current method make request through the proxy server to the remote server to test proxy parameters.
+     *
+     * @access private
+     * 
+     */     
     
     function checkProxy()
     {        
@@ -263,6 +279,19 @@ var CheckProxy = function(configObj)
     
     /* Private set methods starts here */
     
+    /**
+     * Method that sets current proxy server address.
+     *
+     * Simple method that sets current proxy server address.
+     *
+     * @access private
+     * 
+     * @param string addr proxy server address
+     * 
+     * @throws string 
+     * 
+     */      
+    
     function setProxyAddr(addr) 
     {
         if (typeof addr != 'string') {
@@ -281,6 +310,19 @@ var CheckProxy = function(configObj)
 
         proxyAddr = addr;
     }
+    
+    /**
+     * Method that sets current proxy server port.
+     *
+     * Simple method that sets current proxy server port.
+     *
+     * @access private
+     * 
+     * @param string port proxy server port
+     * 
+     * @throws string 
+     * 
+     */      
     
     function setProxyPort(port)
     {
@@ -301,6 +343,19 @@ var CheckProxy = function(configObj)
         proxyPort = port;
     }
     
+    /**
+     * Method that sets current proxy server type.
+     *
+     * Simple method that sets current proxy server type.
+     *
+     * @access private
+     * 
+     * @param string type proxy server type
+     * 
+     * @throws string 
+     * 
+     */      
+    
     function setProxyType(type)
     {
         if (typeof type != 'string') {
@@ -320,6 +375,19 @@ var CheckProxy = function(configObj)
         proxyType = type;
     }
     
+    /**
+     * Method that sets login to current proxy server.
+     *
+     * Simple method that sets login to current proxy server.
+     *
+     * @access private
+     * 
+     * @param string login proxy server login
+     * 
+     * @throws string 
+     * 
+     */      
+    
     function setProxyLogin(login)
     {
         if (typeof login != 'string') {
@@ -332,6 +400,19 @@ var CheckProxy = function(configObj)
         
         proxyLogin = login;
     }
+    
+    /**
+     * Method that sets password to current proxy server.
+     *
+     * Simple method that sets password to current proxy server.
+     *
+     * @access private
+     * 
+     * @param string password proxy server password
+     * 
+     * @throws string 
+     * 
+     */      
     
     function setProxyPassword(password)
     {
@@ -350,6 +431,15 @@ var CheckProxy = function(configObj)
     
     /* Privileged core methods starts here */
     
+    /**
+     * Method that starts current scenario.
+     *
+     * Method extracts arguments from the command line and uses them to check proxy server.
+     *
+     * @access privileged
+     * 
+     */      
+    
     this.start = function() 
     {   
         try {
@@ -360,6 +450,15 @@ var CheckProxy = function(configObj)
             obj.stop();
         }      
     }  
+    
+    /**
+     * Method that stops current scenario.
+     *
+     * Method sends response based on the information stored in the current object and calls phantom.exit().
+     *
+     * @access privileged
+     * 
+     */    
     
     this.stop = function() 
     {
@@ -396,15 +495,48 @@ var CheckProxy = function(configObj)
       
     /* Privileged get methods starts here */
     
+    /**
+     * Method that returns current proxy address.
+     *
+     * Simple method that returns current proxy address.
+     *
+     * @access privileged
+     * 
+     * @return string proxy address.
+     * 
+     */      
+    
     this.getProxyAddr = function()
     {
         return proxyAddr;
     }
     
+    /**
+     * Method that returns current proxy port.
+     *
+     * Simple method that returns current proxy port.
+     *
+     * @access privileged
+     * 
+     * @return string proxy port.
+     * 
+     */     
+    
     this.getProxyPort = function()
     {
         return proxyPort;
     }    
+    
+    /**
+     * Method that returns current proxy type.
+     *
+     * Simple method that returns current proxy type.
+     *
+     * @access privileged
+     * 
+     * @return string proxy type.
+     * 
+     */      
     
     this.getProxyType = function()
     {
