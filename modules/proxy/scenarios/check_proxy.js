@@ -4,7 +4,7 @@ var args = require('system').args;
 
 var page = require('webpage').create();
 
-var CheckProxy = function(configObj)
+var CheckProxy = function()
 { 
     scenario.constFunc.call(this, 'check_proxy');
     
@@ -114,14 +114,7 @@ var CheckProxy = function(configObj)
      */      
     
     var isProxy = false;   
-    
-    /**
-     * @access private
-     * @var boolean error flag
-     */      
-    
-    var isError = false;
-        
+            
     /* Private members ends here */
     
     /* Private core methods starts here */
@@ -261,10 +254,10 @@ var CheckProxy = function(configObj)
                 realAddr = result['ip'];
                 isProxy = result['is_proxy'];              
                
-                isError = false;              
+                obj.setIsError(false);           
                 obj.stop();
             } else {
-                isError = true;              
+                obj.setIsError(true);            
                 obj.stop();
             }
         }
@@ -446,7 +439,8 @@ var CheckProxy = function(configObj)
             extractDataFromArgs();
             checkProxy();            
         } catch(e) {
-            isError = true;
+            obj.setErrorDesc(e);
+            obj.setIsError(true);
             obj.stop();
         }      
     }  
@@ -482,8 +476,8 @@ var CheckProxy = function(configObj)
             'is_proxy': isProxy
         }
     
-        if (isError == true) {
-            obj.sendErrorResponse({});
+        if (obj.getIsError() == true) {
+            obj.sendErrorResponse(obj.getIsErrorDesc());
         } else {
             obj.sendResponse(result);
         }
