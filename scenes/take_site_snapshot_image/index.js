@@ -1,0 +1,1 @@
+require('../../modules/snapshot/scenarios/site_snapshot_image');
