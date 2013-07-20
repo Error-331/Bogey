@@ -126,6 +126,8 @@ var CheckProxy = function()
      *
      * @access private
      * 
+     * @throws string 
+     * 
      */ 
 
     function extractDataFromArgs()

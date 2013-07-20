@@ -1,0 +1,1 @@
+require('../../modules/proxy/scenarios/check_proxy');
