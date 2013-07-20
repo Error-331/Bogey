@@ -56,7 +56,21 @@ var Scenario = function(usrScenarioName)
      * @var string current service name
      */      
     
-    var scenarioName = 'scenario';     
+    var scenarioName = 'scenario';   
+    
+    /**
+     * @access private
+     * @var boolean error flag
+     */      
+    
+    var isError = false;    
+    
+    /**
+     * @access private
+     * @var string error description
+     */     
+    
+    var errorDesc = '';    
     
     /* Private members ends here */
     
@@ -64,7 +78,7 @@ var Scenario = function(usrScenarioName)
     /* Private core methods ends here */
     
     /* Privileged core methods starts here */
-        
+            
     /**
      * Method that sends response message.
      *
@@ -160,7 +174,39 @@ var Scenario = function(usrScenarioName)
     this.getScenarioName = function()
     {
         return scenarioName;
-    }     
+    }  
+    
+    /**
+     * Method that returns current error flag value.
+     *
+     * Simple method that returns current error flag value.
+     *
+     * @access privileged
+     * 
+     * @return bool error flag value.
+     * 
+     */     
+    
+    this.getIsError = function()
+    {
+        return isError;
+    }
+    
+    /**
+     * Method that returns current error description.
+     *
+     * Simple method that returns current error description.
+     *
+     * @access privileged
+     * 
+     * @return string error description.
+     * 
+     */         
+    
+    this.getErrorDesc = function()
+    {
+        return errorDesc;
+    }
     
     /* Privileged get methods ends here */
     
@@ -191,6 +237,50 @@ var Scenario = function(usrScenarioName)
         
         scenarioName = usrScenarioName;        
     }    
+       
+    /**
+     * Method that sets error flag.
+     *
+     * Simple method that sets error flag.
+     *
+     * @access privileged
+     * 
+     * @param bool usrIsError error flag value
+     * 
+     * @throws string 
+     * 
+     */      
+    
+    this.setIsError = function(usrIsError)
+    {
+        if (typeof usrIsError != 'boolean') {
+            throw '"isError" property must be boolean';
+        }
+        
+        isError = usrIsError;
+    }
+    
+    /**
+     * Method that sets error description.
+     *
+     * Simple method that sets error description.
+     *
+     * @access privileged
+     * 
+     * @param bool desc error description
+     * 
+     * @throws string 
+     * 
+     */     
+    
+    this.setErrorDesc = function(desc)
+    {
+        if (typeof desc != 'string') {
+            throw 'Error description must be string';
+        }
+        
+        errorDesc = desc;
+    }
     
     /* Privileged set methods ends here */    
 
