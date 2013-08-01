@@ -201,7 +201,7 @@ var Mail = function(configObj)
                 curPage.clipRect = {top: captchaCoords.top, left: captchaCoords.left, width: captchaCoords.width, height: captchaCoords.height};
                 
                 try {                            
-                    res = obj.renderPageToImage(path, name, ext); 
+                    res = obj.takeSnapshot(ext, name, path); 
                 } catch(e) {
                     obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', e); 
                     def.reject();
