@@ -92,7 +92,7 @@ var Base = function(configObj)
                 }, logInTimeout); 
                                               
                 // check login page and do the actual login
-                var result = curPage.evaluate(function(trimFunc, findOffsetFunc) {
+                var result = curPage.evaluate(function(trimFunc, findOffsetFunc, showMarkFunc) {
                     // check loginPanel
                     var offset = new Array();
                     var logPanelElm = document.getElementById('loginPanel');
@@ -134,7 +134,8 @@ var Base = function(configObj)
                     }
                     
                     offset.push(findOffsetFunc(inpt));
-                    
+                    document.onclick=function(){showMarkFunc(offset[1].top + 20 + 'px', offset[1].left + 20 + 'px');};
+                  
                     // check submit input
                     inpt = logPanelElm.querySelector('#hook_FormButton_button_go');
                     
@@ -145,7 +146,7 @@ var Base = function(configObj)
                     offset.push(findOffsetFunc(inpt));                    
                     
                     return JSON.stringify(offset);
-                }, sandboxutils.trim, sandboxutils.findOffset);
+                }, sandboxutils.trim, sandboxutils.findOffset, sandboxutils.showMark);
                 
                 if (result !== false) {
                     result = JSON.parse(result);
@@ -153,10 +154,20 @@ var Base = function(configObj)
                     //curPage.sendEvent('mousepress', result[0].top + 10, result[0].left + 10, 'left');
                     //curPage.sendEvent('keypress', 'a', null, null);
                     
-                    //curPage.sendEvent('mousepress', result[1].top + 60, result[1].left + 30, 'left');
-                    //curPage.sendEvent('keypress', 'c', null, null);                    
+                    curPage.settings.javascriptEnabled = true;
+                    curPage.settings.loadImages = true;
+                    curPage.clipRect = { top: 0, left: 0, width: 1024, height: 1024 };
+                    curPage.viewportSize = { width: 1024, height: 1024 };
+
+                    
+                    
+                    curPage.sendEvent('click', result[1].top + 10, result[1].top + 10, 'left');
+                    curPage.sendEvent('keypress', 'c', null, null);                    
                
-                    obj.takeSnapshot('jpeg', 'test', '/', 1024, 768, 2000);                    
+                    obj.takeSnapshot('jpeg', 'test', '/', 1024, 768); 
+                    
+   
+                    
                 } else {
                     obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Invalid login page...'); 
                     def.reject();                       
