@@ -68,11 +68,25 @@ exports.findOffset = function (obj)
     return {top: curtop, left: curleft, width: curWidth, height: curHeight};
 }
 
-exports.trim = function (str)
+exports.trim = function(str)
 {
     if (typeof str != 'string') {
         throw 'Provided user data is not a string';
     }
     
     return str.replace(/^\s+|\s+$/g, "");
+}
+
+exports.showMark = function(top, left)
+{
+    var div = document.createElement("div");
+    div.innerHTML = "mark";
+                    
+    div.style.position = 'absolute';
+    div.style.top = top;
+    div.style.left = left;
+    div.style.zIndex  = 1000;
+    div.style.background = 'green';
+    
+    document.body.appendChild(div);    
 }
