@@ -65,5 +65,14 @@ exports.findOffset = function (obj)
             curleft += obj.x;
     }
                 
-    return { top: curtop, left: curleft, width: curWidth, height: curHeight};
+    return {top: curtop, left: curleft, width: curWidth, height: curHeight};
+}
+
+exports.trim = function (str)
+{
+    if (typeof str != 'string') {
+        throw 'Provided user data is not a string';
+    }
+    
+    return str.replace(/^\s+|\s+$/g, "");
 }
