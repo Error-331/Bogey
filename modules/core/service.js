@@ -467,63 +467,74 @@ var Service = function(configObj, usrServiceName)
     {
         return pageLoadFuncStack.pop();
     }   
-    
+        
     /**
      * Method that renders page (or part of the page) into the image file.
      *
-     * Method can accept two sets of parameters: if only a full path to the image is given or if path to the image directory is given, as well as image 
-     * name and file extension.
+     * Method accepts a bunch of optional parameters used to tune image snapshot process.
      *
      * @access privileged
      * 
-     * @param string full path to the image or path to the directory where image will be saved
+     * @param string format (extension) of the file
      * @param string name of the file
-     * @param string extension of the file
+     * @param string path to the image or path to the directory where image will be saved
+     * @param int width of the snapshot
+     * @param int height of the snapshot
+     * @param int delay after which snapshot will be taken
      * 
      * @throws string 
      *
      * @return string full path to the rendered page.
      * 
      */     
-        
-    this.renderPageToImage = function()
+    
+    this.takeSnapshot = function(format, name, path, width, height, delay)
     {        
-        var path = '';
-        var ext = '';
-        var name = '';
-        var curPage = null;
+        var imgFormat = 'png'; 
+        var imgName = 'untitled';
+        var dirPath = '';
+        var curDelay = 0;
         
-        if (arguments.length == 1) {
-            // Full path is given
-            path = fileUtils.extractPath(arguments[0]);
-            ext = fileUtils.extractExtension(arguments[0]);
-            
-            if (fileUtils.isPathWritable(path) === false) {
-                throw 'Path is not writable';
-            }
-            
-            ext = fileUtils.checkImgExt(ext);
-            obj.getPage().render(path);
-            return path;
-        } else if (arguments.length == 3) {
-            // Path, image name and image extension is given
-            path = arguments[0];
-            name = arguments[1];
-            ext = arguments[2];
-            
-            if (fileUtils.isPathWritable(path) === false) {
-                throw 'Path is not writable';
-            }  
-
-            name = fileUtils.checkImgName(name);
-            ext = fileUtils.checkImgExt(ext);
-            path = fileUtils.addSeparator(path)  + name + '.' + ext;
-            
-            obj.getPage().render(path);
-            return path;
-        } else {
-            throw 'Invalid parameters set';
+        if (format !== undefined) {
+            imgFormat = fileUtils.checkImgExt(format); 
         }
+        
+        if (name !== undefined) {
+            imgName = fileUtils.checkImgName(name);
+        }
+        
+        if (path !== undefined && fileUtils.isPathWritable(path)) {
+            var dirPath = fileUtils.addSeparator(path)
+        }
+        
+        if (width !== undefined && (typeof width != 'number' || width <= 0)) {
+            throw 'Snapshot width must be numeric and greater than zero';      
+        }
+                 
+        if (height !== undefined && (typeof height != 'number' || height <= 0)) {
+            throw 'Snapshot height must be numeric and greater than zero';
+        }     
+         
+        if (delay !== undefined) {
+            if (typeof delay != 'number' || delay < 0) {
+                throw 'Snapshot delay must be numeric and greater than zero';
+            } else {
+                curDelay = delay;
+            }
+        }
+                
+        var curPage = obj.getPage();
+        
+        if (width !== undefined && height !== undefined) {
+            curPage.viewportSize = {'width': 1024, 'height': 768};
+            curPage.paperSize = {'width': 1024, 'height': 768};            
+        }        
+        
+        setTimeout(function() {
+            curPage.render(dirPath + imgName + '.' + imgFormat);
+        }, curDelay);
+        
+        return dirPath + imgName + '.' + imgFormat;
     }
         
     /* Privileged core methods ends here */
