@@ -92,7 +92,7 @@ var Base = function(configObj)
                 }, logInTimeout); 
                                               
                 // check login page and do the actual login
-                var result = curPage.evaluate(function(trimFunc, findOffsetFunc, showMarkFunc) {
+                var result = curPage.evaluate(function(trimFunc, findOffsetFunc, bindShowMarkOnClickFunc) {
                     // check loginPanel
                     var offset = new Array();
                     var logPanelElm = document.getElementById('loginPanel');
@@ -134,8 +134,7 @@ var Base = function(configObj)
                     }
                     
                     offset.push(findOffsetFunc(inpt));
-                    document.onclick=function(){showMarkFunc(offset[1].top + 20 + 'px', offset[1].left + 20 + 'px');};
-                  
+                    bindShowMarkOnClickFunc()                  
                     // check submit input
                     inpt = logPanelElm.querySelector('#hook_FormButton_button_go');
                     
@@ -146,7 +145,7 @@ var Base = function(configObj)
                     offset.push(findOffsetFunc(inpt));                    
                     
                     return JSON.stringify(offset);
-                }, sandboxutils.trim, sandboxutils.findOffset, sandboxutils.showMark);
+                }, sandboxutils.trim, sandboxutils.findOffset, sandboxutils.bindShowMarkOnClick);
                 
                 if (result !== false) {
                     result = JSON.parse(result);
@@ -156,12 +155,10 @@ var Base = function(configObj)
                     
                     curPage.settings.javascriptEnabled = true;
                     curPage.settings.loadImages = true;
-                    curPage.clipRect = { top: 0, left: 0, width: 1024, height: 1024 };
-                    curPage.viewportSize = { width: 1024, height: 1024 };
+                    //curPage.clipRect = { top: 0, left: 0, width: 1024, height: 1024 };
+                    curPage.viewportSize = { width: 800, height: 600 };
 
-                    
-                    
-                    curPage.sendEvent('click', result[1].top + 10, result[1].top + 10, 'left');
+                    curPage.sendEvent('click', result[1].left, result[1].top, 'left');
                     curPage.sendEvent('keypress', 'c', null, null);                    
                
                     obj.takeSnapshot('jpeg', 'test', '/', 1024, 768); 
