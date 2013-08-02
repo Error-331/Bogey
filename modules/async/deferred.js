@@ -100,7 +100,8 @@ var Deferred = function()
      *
      */     
     
-    this.done = function() {
+    this.done = function() 
+    {
         if (arguments.length == 0) {
             return;
         }
@@ -145,7 +146,8 @@ var Deferred = function()
      *
      */       
     
-    this.fail = function() {
+    this.fail = function() 
+    {
         if (arguments.length == 0) {
             return;
         }
@@ -187,7 +189,8 @@ var Deferred = function()
      *
      */     
     
-    this.resolve = function() {
+    this.resolve = function() 
+    {
         if (status == 'unknown') {
             var i = 0;
 
@@ -211,7 +214,8 @@ var Deferred = function()
      *
      */      
     
-    this.reject = function() {   
+    this.reject = function() 
+    {   
         if (status == 'unknown') {
             var i = 0;
             
@@ -235,11 +239,52 @@ var Deferred = function()
      *
      */       
         
-    this.isDone = function() {
+    this.isDone = function() 
+    {
         if (status == 'resolve') {
             return true;
         } else {
             return false;
+        }
+    } 
+    
+    /**
+     * Checks if deferred object has been rejected.
+     *
+     * Simple method that checks if deferred object has been rejected.
+     *
+     * @access privileged
+     *
+     * @return boolean true if deferred object has been rejected and false if not.
+     *
+     */     
+    
+    this.isFail = function() 
+    {
+        if (status == 'fail') {
+            return true;
+        } else {
+            return false;
+        }        
+    }
+    
+    /**
+     * Checks if deferred object has been processed (e.g. has been resolved or rejected).
+     *
+     * Simple method that checks if deferred object has been processed (e.g. has been resolved or rejected).
+     *
+     * @access privileged
+     *
+     * @return boolean true if deferred object has been processed and false if not.
+     *
+     */      
+    
+    this.isProcessed = function() 
+    {
+        if (obj.isDone() == false && obj.isFail() == false) {
+            return false;
+        } else {
+            return true;
         }
     }    
             
