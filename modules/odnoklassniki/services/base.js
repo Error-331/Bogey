@@ -1,5 +1,6 @@
 // Modules include
 var service = require('../../core/service');
+var dummy = require('../../core/dummy');
 var deferred = require('../../async/deferred');
 var sandboxutils = require('../../utils/sandboxutils');
 
@@ -92,7 +93,7 @@ var Base = function(configObj)
                 }, logInTimeout); 
 
                 // check login page and find offset of the elements
-                var result = curPage.evaluate(function(trimFunc, findOffsetFunc, checkElementsBySchemaFunc) {
+                var result = curPage.evaluate(function(trimFunc, findOffsetFunc, checkElementsBySchemaFunc, bindShowMarkOnClickFunc) {
                     // check by schema
                     var schema = {
                         elm1: {
@@ -100,7 +101,7 @@ var Base = function(configObj)
                             sub: {
                                 elm1: {
                                     sel: 'h2',
-                                    text: [trimFunc, 'Log in'],
+                                    text: [trimFunc, 'Log in']
                                 },
                                 elm2: {
                                     sel: '#field_email',
@@ -117,22 +118,33 @@ var Base = function(configObj)
                             }
                         }
                     }
-                    
+                    bindShowMarkOnClickFunc();
                     try {
                         return JSON.stringify(checkElementsBySchemaFunc(schema));    
                     } catch(e) {
                         return JSON.stringify({error: true, message: e});
                     }
                     
-                }, sandboxutils.trim, sandboxutils.findOffset, sandboxutils.checkElementsBySchema);
-                
-                console.log(result);
-                phantom.exit();
-                
-                if (result !== false) {
-                    result = JSON.parse(result);
+                }, sandboxutils.trim, sandboxutils.findOffset, sandboxutils.checkElementsBySchema, sandboxutils.bindShowMarkOnClick);
+                   console.log(result);
+                // check result
+                result = JSON.parse(result);
+                        
+                if (result.error != undefined && result.error == true) {
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Invalid login page...'); 
+                    def.reject();
+                } else {
+                    curPage.viewportSize = {width: 800, height: 600};
+  
+                    var curDummy = dummy.create(curPage);
+                    var subResult = result.slice(0, 2);
                     
-                    //curPage.sendEvent('mousepress', result[0].top + 10, result[0].left + 10, 'left');
+                    subResult[0].text = 'login';
+                    subResult[1].text = 'pass';
+                    curDummy.fillTextInputBunch(subResult);
+                    
+                    
+                                        //curPage.sendEvent('mousepress', result[0].top + 10, result[0].left + 10, 'left');
                     //curPage.sendEvent('keypress', 'a', null, null);
                     
                     //curPage.settings.javascriptEnabled = true;
@@ -143,14 +155,9 @@ var Base = function(configObj)
                     //curPage.sendEvent('click', result[1].left, result[1].top, 'left');
                     //curPage.sendEvent('keypress', 'c', null, null);                    
                
-                    //obj.takeSnapshot('jpeg', 'test', '/', 1024, 768); 
+                    obj.takeSnapshot('jpeg', 'test', '/', 1024, 768); 
                     
-   
-                    
-                } else {
-                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Invalid login page...'); 
-                    def.reject();                       
-                }                             
+                }                                          
             }).fail(function(){
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot open login page...'); 
                 def.reject();                
