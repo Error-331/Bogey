@@ -90,3 +90,20 @@ exports.showMark = function(top, left)
     
     document.body.appendChild(div);    
 }
+
+exports.bindShowMarkOnClick = function()
+{
+    document.onclick=function(elm){                    
+        var div = document.createElement("div");
+        div.innerHTML = "mark";
+                    
+        div.style.position = 'absolute';
+        div.style.top = elm.pageY + 'px';
+        div.style.left = elm.pageX + 'px';
+    
+        div.style.zIndex  = 1000;
+        div.style.background = 'green';
+    
+        document.body.appendChild(div); 
+    };    
+}
