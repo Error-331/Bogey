@@ -118,6 +118,13 @@ var Service = function(configObj, usrServiceName)
     
     var curPageURL = '';
     
+    /**
+     * @access private
+     * @var array stack that contains viewport size objects
+     */           
+    
+    var viewportSizeStack = new Array();
+    
     /* Private members ends here */
     
     /* Private core methods starts here */
@@ -466,7 +473,45 @@ var Service = function(configObj, usrServiceName)
     this.popURLChangeFunc = function()
     {
         return pageLoadFuncStack.pop();
-    }   
+    }  
+    
+    /**
+     * Method that pushes viewport size object to the stack.
+     *
+     * Simple method that pushes viewport size object to the stack.
+     *
+     * @access privileged
+     *
+     * @param object sizeObj size object
+     * 
+     * @throws string 
+     *
+     */      
+    
+    this.pushViewportSize = function(sizeObj)
+    {
+        if (typeof sizeObj != 'object') {
+            throw 'Viewport size must be passed as object';
+        }
+            
+        viewportSizeStack.push(sizeObj);
+    }
+    
+    /**
+     * Method that pulls viewport size object from the stack.
+     *
+     * Simple method that pulls viewport size object from the stack.
+     *
+     * @access privileged
+     *
+     * @return object viewport size object.
+     * 
+     */      
+
+    this.popViewportSize = function()
+    {
+        return viewportSizeStack.pop();
+    }
         
     /**
      * Method that renders page (or part of the page) into the image file.
@@ -482,9 +527,7 @@ var Service = function(configObj, usrServiceName)
      * @param int height of the snapshot
      * @param int delay after which snapshot will be taken
      * 
-     * @throws string 
-     *
-     * @return string full path to the rendered page.
+     * @return object deferred object.
      * 
      */     
     
@@ -495,29 +538,35 @@ var Service = function(configObj, usrServiceName)
         var dirPath = '';
         var curDelay = 0;
         
-        if (format !== undefined) {
-            imgFormat = fileUtils.checkImgExt(format); 
+        var def = deferred.create();
+        
+        try {
+            if (format !== undefined) {
+                imgFormat = fileUtils.checkImgExt(format); 
+            }
+        
+            if (name !== undefined) {
+                imgName = fileUtils.checkImgName(name);
+            }
+        
+            if (path !== undefined && fileUtils.isPathWritable(path)) {
+                var dirPath = fileUtils.addSeparator(path)
+            }
+        } catch (e) {
+            def.reject(e);
         }
         
-        if (name !== undefined) {
-            imgName = fileUtils.checkImgName(name);
-        }
-        
-        if (path !== undefined && fileUtils.isPathWritable(path)) {
-            var dirPath = fileUtils.addSeparator(path)
-        }
-        
-        if (width !== undefined && (typeof width != 'number' || width <= 0)) {
-            throw 'Snapshot width must be numeric and greater than zero';      
+        if (width !== undefined && (typeof width != 'number' || width <= 0)) {  
+            def.reject('Snapshot width must be numeric and greater than zero');
         }
                  
         if (height !== undefined && (typeof height != 'number' || height <= 0)) {
-            throw 'Snapshot height must be numeric and greater than zero';
+            def.reject('Snapshot height must be numeric and greater than zero');
         }     
          
         if (delay !== undefined) {
             if (typeof delay != 'number' || delay < 0) {
-                throw 'Snapshot delay must be numeric and greater than zero';
+                def.reject('Snapshot delay must be numeric and greater than zero');
             } else {
                 curDelay = delay;
             }
@@ -526,15 +575,21 @@ var Service = function(configObj, usrServiceName)
         var curPage = obj.getPage();
         
         if (width !== undefined && height !== undefined) {
-            curPage.viewportSize = {'width': 1024, 'height': 768};
-            curPage.paperSize = {'width': 1024, 'height': 768};            
+            obj.pushViewportSize(curPage.viewportSize);       
+            curPage.viewportSize = {'width': width, 'height': height};         
         }        
         
         setTimeout(function() {
             curPage.render(dirPath + imgName + '.' + imgFormat);
+            
+            if (width !== undefined && height !== undefined) {
+                curPage.viewportSize = obj.popViewportSize();
+            }
+            
+            def.resolve(dirPath + imgName + '.' + imgFormat);
         }, curDelay);
         
-        return dirPath + imgName + '.' + imgFormat;
+        return def;
     }
         
     /* Privileged core methods ends here */
