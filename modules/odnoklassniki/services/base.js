@@ -90,62 +90,44 @@ var Base = function(configObj)
                         def.reject();
                     }
                 }, logInTimeout); 
-                                              
-                // check login page and do the actual login
-                var result = curPage.evaluate(function(trimFunc, findOffsetFunc, bindShowMarkOnClickFunc) {
-                    // check loginPanel
-                    var offset = new Array();
-                    var logPanelElm = document.getElementById('loginPanel');
-                    
-                    if (logPanelElm === null) {
-                        return false;
-                    }
-                    
-                    // check h2
-                    var h2 = logPanelElm.getElementsByTagName('h2');
-                    
-                    if (h2.length <= 0) {
-                        return false;
+
+                // check login page and find offset of the elements
+                var result = curPage.evaluate(function(trimFunc, findOffsetFunc, checkElementsBySchemaFunc) {
+                    // check by schema
+                    var schema = {
+                        elm1: {
+                            sel: '#loginPanel',
+                            sub: {
+                                elm1: {
+                                    sel: 'h2',
+                                    text: [trimFunc, 'Log in'],
+                                },
+                                elm2: {
+                                    sel: '#field_email',
+                                    func: findOffsetFunc
+                                },
+                                elm3: {
+                                    sel: '#field_password',
+                                    func: findOffsetFunc
+                                },
+                                elm4: {
+                                    sel: '#hook_FormButton_button_go',
+                                    func: findOffsetFunc
+                                }
+                            }
+                        }
                     }
                     
                     try {
-                        h2 = trimFunc(h2[0].innerHTML);
-                        if (h2 != 'Log in') {
-                            return false;
-                        }
+                        return JSON.stringify(checkElementsBySchemaFunc(schema));    
                     } catch(e) {
-                        return false;
+                        return JSON.stringify({error: true, message: e});
                     }
                     
-                    // check email input
-                    var inpt = logPanelElm.querySelector('#field_email');
-                    
-                    if (inpt === null) {
-                        return false;
-                    }
-                    
-                    offset.push(findOffsetFunc(inpt));
-                    
-                    // check password input
-                    inpt = logPanelElm.querySelector('#field_password');
-                    
-                    if (inpt === null) {
-                        return false;
-                    }
-                    
-                    offset.push(findOffsetFunc(inpt));
-                    bindShowMarkOnClickFunc()                  
-                    // check submit input
-                    inpt = logPanelElm.querySelector('#hook_FormButton_button_go');
-                    
-                    if (inpt === null) {
-                        return false;
-                    }
-                    
-                    offset.push(findOffsetFunc(inpt));                    
-                    
-                    return JSON.stringify(offset);
-                }, sandboxutils.trim, sandboxutils.findOffset, sandboxutils.bindShowMarkOnClick);
+                }, sandboxutils.trim, sandboxutils.findOffset, sandboxutils.checkElementsBySchema);
+                
+                console.log(result);
+                phantom.exit();
                 
                 if (result !== false) {
                     result = JSON.parse(result);
@@ -153,15 +135,15 @@ var Base = function(configObj)
                     //curPage.sendEvent('mousepress', result[0].top + 10, result[0].left + 10, 'left');
                     //curPage.sendEvent('keypress', 'a', null, null);
                     
-                    curPage.settings.javascriptEnabled = true;
-                    curPage.settings.loadImages = true;
+                    //curPage.settings.javascriptEnabled = true;
+                    //curPage.settings.loadImages = true;
                     //curPage.clipRect = { top: 0, left: 0, width: 1024, height: 1024 };
-                    curPage.viewportSize = { width: 800, height: 600 };
+                    //curPage.viewportSize = { width: 800, height: 600 };
 
-                    curPage.sendEvent('click', result[1].left, result[1].top, 'left');
-                    curPage.sendEvent('keypress', 'c', null, null);                    
+                    //curPage.sendEvent('click', result[1].left, result[1].top, 'left');
+                    //curPage.sendEvent('keypress', 'c', null, null);                    
                
-                    obj.takeSnapshot('jpeg', 'test', '/', 1024, 768); 
+                    //obj.takeSnapshot('jpeg', 'test', '/', 1024, 768); 
                     
    
                     
