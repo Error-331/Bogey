@@ -69,7 +69,7 @@ exports.findOffset = function (obj)
 }
 
 exports.trim = function(str)
-{
+{                    
     if (typeof str != 'string') {
         throw 'Provided user data is not a string';
     }
@@ -108,18 +108,136 @@ exports.bindShowMarkOnClick = function()
     };    
 }
 
-exports.checkElementsBySchema = function(scheme)
+/*
+ 
+            var schema = {
+                elm1: {
+                    sel: '#loginPanel',
+                    is_single: true,
+                    sub_is_single: true,
+                    sub: {
+                        elm1: {
+                            sel: 'h2',
+                            text: [trimFunc, 'Log in']
+                        },
+                        elm2: {
+                            sel: '#field_email',
+                            func: findOffsetFunc
+                        },
+                        elm3: {
+                            sel: '#field_password',
+                            func: findOffsetFunc
+                        },
+                        elm4: {
+                            sel: '#hook_FormButton_button_go',
+                            func: findOffsetFunc
+                        }
+                    }
+                }                            
+            }  
+ 
+ */
+exports.checkElementsBySchema = function(scheme, format)
 {
     if (typeof scheme != 'object') {
         throw 'Schema parameter is not an object';
     }
     
+    if (format != undefined) {
+        if (typeof format != 'string') {
+            throw 'Format parameter must be string';
+        }
+        
+        format = format.toLowerCase();    
+    } else {
+        format = 'raw';
+    }
+    
     var result = new Array();
-    var traverseFunc = function(usrScheme, rootElm)
+    
+    var formatPlain = function(data, format)
+    {    
+        var elm = null;
+        var subElm = null;
+
+        for (elm in data) {
+            for (subElm in data[elm]) {
+                switch (format) {
+                    case 'plain-objects':
+                        if (typeof data[elm][subElm][0] == 'object') {
+                            result.push(data[elm][subElm][0]);
+                        }
+                        
+                        break;
+                    default:
+                        result.push(data[elm][subElm][0]);
+                        break;
+                }
+                                              
+                if (typeof data[elm][subElm][1] == 'object') {
+                    formatPlain(data[elm][subElm][1], format);
+                }                
+            }          
+        }
+    }
+        
+    var validateFunc = function(usrScheme, rootElm)
     {
+        var result = new Array();
         var subRes = null;
         
+        // check 'text' property
+        if (usrScheme.text != undefined) {
+            if (typeof usrScheme.text == 'string') {
+                if (rootElm.innerHTML != usrScheme.text) {
+                    return false;
+                }
+            } else if (typeof usrScheme.text == 'object') {
+                if (typeof usrScheme.text[0] == 'function' && typeof usrScheme.text[1] == 'string') {
+                    subRes = usrScheme.text[0](rootElm.innerHTML);
+                    if (subRes != usrScheme.text[1]) {
+                        return false;
+                    }
+                } else {
+                    throw '"text" property parameters mismatch';
+                }
+            } else {
+                throw '"text" property must be string or object';
+            }
+        }    
+        
+        // check 'func' property
+        if (usrScheme.func != undefined) {
+            if (typeof usrScheme.func == 'function') {
+                result.push(usrScheme.func(rootElm));
+            } else {
+                throw '"func" property must be function';
+            }
+        } else {
+            result.push(true);
+        }
+        
+        // check 'sub' property
+        if (usrScheme.sub != undefined) {
+            if (typeof usrScheme.sub == 'object') {
+                result.push(traverseFunc(usrScheme.sub, rootElm));
+            } else {
+                throw '"sub" property must be object';
+            }
+        }  
+        
+        return result;
+    }
+     
+    var traverseFunc = function(usrScheme, rootElm)
+    {
+        var globResult = new Array();
+        var result = null;
+        var subResult = false;
+        
         var elm = null;
+        var elmDOM = null;
+        
         var selRes = null;
         
         for (elm in usrScheme) {
@@ -138,50 +256,42 @@ exports.checkElementsBySchema = function(scheme)
                 if (selRes.length <= 0) {
                     throw 'Element not found for: ' + usrScheme[elm].sel;
                 }
+                
+                // check each element
+                result = new Array();
+                for (elmDOM = 0; elmDOM < selRes.length; elmDOM++) {                    
+                    subResult = validateFunc(usrScheme[elm], selRes.item(elmDOM));
+                    
+                    if (subResult != false) {
+                        result.push(subResult);
+                    }                  
+                } 
+                                
+                if (result.length <= 0) {
+                    throw 'Schema validation fail';
+                }
+                
+                globResult.push(result);
             } else {
                 throw '"sel" property is not present';
-            }
-            
-            // check 'text' property
-            if (usrScheme[elm].text != undefined) {
-                if (typeof usrScheme[elm].text == 'string') {
-                    if (selRes[0].innerHTML != usrScheme[elm].text) {
-                        throw 'Text content of the element do not match: ' + usrScheme[elm].text;
-                    }
-                } else if (typeof usrScheme[elm].text == 'object') {
-                    if (typeof usrScheme[elm].text[0] == 'function' && typeof usrScheme[elm].text[1] == 'string') {
-                        subRes = usrScheme[elm].text[0](selRes[0].innerHTML);
-                        if (subRes != usrScheme[elm].text[1]) {
-                            throw 'Text content of the element do not match: "' + subRes + '"';
-                        }
-                    } else {
-                        throw '"text" property parameters mismatch';
-                    }
-                } else {
-                    throw '"text" property must be string or object';
-                }
-            }
-            
-            // check 'func' property
-            if (usrScheme[elm].func != undefined) {
-                if (typeof usrScheme[elm].func == 'function') {
-                    result.push(usrScheme[elm].func(selRes[0]));
-                } else {
-                    throw '"func" property must be function';
-                }
-            }
-            
-            // check 'sub' property
-            if (usrScheme[elm].sub != undefined) {
-                if (typeof usrScheme[elm].sub == 'object') {
-                    traverseFunc(usrScheme[elm].sub, selRes[0]);
-                } else {
-                    throw '"sub" property must be object';
-                }
-            }
+            }                                  
         }
+        
+        return globResult;
     }
     
-    traverseFunc(scheme);
-    return result;
+    // format
+    switch(format) {
+        case 'raw':
+            return traverseFunc(scheme, undefined);
+            break;
+        case 'plain':
+        case 'plain-objects':
+            formatPlain(traverseFunc(scheme, undefined), format);
+            return result;
+            break;
+        default:
+            return traverseFunc(scheme, undefined);
+            break;
+    }          
 }
