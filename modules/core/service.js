@@ -40,6 +40,7 @@
 var page = require('webpage');
 
 var logmessage = require('../io/logmessage');
+var srError = require('../error/serviceerror');
 var deferred = require('../async/deferred');
 
 var fileUtils = require('../utils/fileutils');
@@ -590,6 +591,27 @@ var Service = function(configObj, usrServiceName)
         }, curDelay);
         
         return def;
+    }
+    
+    /**
+     * Method that generates service error object.
+     *
+     * Simple method that generates service error object.
+     *
+     * @access privileged
+     * 
+     * @param int code of the error
+     * @param string message of the error
+     *
+     * @return object service erorr.
+     * 
+     * @throws string 
+     * 
+     */       
+    
+    this.createErrorObject = function(code, message) 
+    {
+        return srError.create(code, message);
     }
         
     /* Privileged core methods ends here */
