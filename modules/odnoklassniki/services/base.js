@@ -19,13 +19,103 @@ var Base = function(configObj)
     
     var mainPageURL = 'http://www.odnoklassniki.ru/';
     
-    var logInTimeout = 6000;
+    var logInTimeout = 8000;
     var logOutTimeout = 6000;
     var openMainPageTimeout = 3000; 
+    var openLoginPageTimeout = 3000;
+    
+    /**
+     * @access private
+     * @var string login for odnoklassniki
+     */      
+    
+    var serviceLogin = 'SergeySel331';
+    
+    /**
+     * @access private
+     * @var string password for odnoklassniki
+     */       
+
+    var servicePassword = 'sad213CXZ';
     
     /* Private members ends here */
       
-    /* Private core methods starts here */  
+    /* Private core methods starts here */ 
+    
+    function parseLoginForm()
+    {
+        var curPage = obj.getPage();
+      
+        return JSON.parse(curPage.evaluate(function(trimFunc, findOffsetFunc, checkElementsBySchemaFunc) {
+            // check by schema
+            var schema = {
+                elm1: {
+                    sel: '#loginPanel',
+                    
+                    is_single: true,
+                    sub_is_single: true,
+                    
+                    sub: {
+                        elm1: {
+                            sel: 'h2',
+                            text: [trimFunc, 'Log in']
+                        },
+                        elm2: {
+                            sel: '#field_email',
+                            func: findOffsetFunc
+                        },
+                        elm3: {
+                            sel: '#field_password',
+                            func: findOffsetFunc
+                        },
+                        elm4: {
+                            sel: '#hook_FormButton_button_go',
+                            func: findOffsetFunc
+                        }
+                    }
+                }                            
+            }
+
+            try {
+                return JSON.stringify(checkElementsBySchemaFunc(schema, 'plain-objects'));    
+            } catch(e) {
+                return JSON.stringify({error: true, message: e});
+            }
+                    
+        }, sandboxutils.trim, sandboxutils.findOffset, sandboxutils.checkElementsBySchema));        
+    }
+    
+    function parseMainToolbar()
+    {
+        var curPage = obj.getPage();
+        
+        return JSON.parse(curPage.evaluate(function(trimFunc, findOffsetFunc, checkElementsBySchemaFunc) {
+            var schema = {
+                elm1: {
+                    sel: 'div.toolbar_c',
+                    
+                    is_single: true,
+                    sub_is_single: true,
+                    
+                    sub: {
+                        elm1: {
+                            sel: 'ul.toolbar_nav'
+                        },
+                        elm2: {
+                            sel: 'div.toolbar_search'
+                        }
+                    }
+                }
+            }
+
+            try {
+                return JSON.stringify(checkElementsBySchemaFunc(schema, 'plain-objects'));    
+            } catch(e) {
+                return JSON.stringify({error: true, message: e});
+            }
+                    
+        }, sandboxutils.trim, sandboxutils.findOffset, sandboxutils.checkElementsBySchema));            
+    }    
     
     function openMainPage()
     {
@@ -34,9 +124,9 @@ var Base = function(configObj)
         
         // reject if timeout
         setTimeout(function(){
-            if (!def.isDone()) {
+            if (!def.isProcessed()) {
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Opening main page takes too long...');
-                def.reject();
+                def.reject(obj.createErrorObject(1, 'Main page open timeout'));
             }
         }, openMainPageTimeout);      
                 
@@ -54,15 +144,94 @@ var Base = function(configObj)
                     def.resolve();
                 } else {
                     obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Cannot open main page...'); 
-                    def.reject();
+                    def.reject(obj.createErrorObject(3, 'Main page cannot be opened'));
                 }           
             });                                  
         }
                 
         return def;
     }    
-    
-    
+
+    function openLoginPage()
+    {
+        var curPage = obj.getPage();
+        var def = deferred.create();
+                
+        var parseLoginFormLoc = function()
+        {
+            var result = parseLoginForm();
+
+            if (result.error != undefined && result.error == true) {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot find login form...'); 
+                def.reject(obj.createErrorObject(2, result.message));
+            } else {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Login page already opened...'); 
+                def.resolve(result);
+            }             
+        }
+        
+        // reject if timeout
+        setTimeout(function(){
+            if (!def.isProcessed()) {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Opening login page takes too long...');
+                def.reject(obj.createErrorObject(1, 'Cannot open login page'));
+            }
+        }, openLoginPageTimeout);          
+        
+        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Opening login page...');    
+        
+        // check if main page is already open
+        if (obj.getCurPageURL() == mainPageURL) {
+            obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Parsing login form...'); 
+
+            // check if login form is present
+            parseLoginFormLoc();
+        } else {   
+            openMainPage().done(function(){    
+                // check if login form is present
+                parseLoginFormLoc();
+            }).fail(function(){
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot open login form...'); 
+                def.reject(obj.createErrorObject(3, 'Cannot open login page'));                
+            });       
+        }
+        
+        return def;
+    }
+       
+    function isLogedIn()
+    {
+        var def = deferred.create();  
+        var result = null;
+        
+        // check if any page is open
+        if (obj.getCurPageURL() == '') {
+            obj.openMainPage().done(function(){
+                // parse toolbar
+                result = parseMainToolbar();
+
+                if (result.error != undefined && result.error == true) {
+                    def.reject(obj.createErrorObject(2, result.message));
+                } else {
+                    def.resolve(result);
+                } 
+            }).fail(function(error){
+                def.reject(error);
+            });
+        } else {
+            // parse toolbar
+            result = parseMainToolbar();
+            
+            if (result.error != undefined && result.error == true) {
+                def.reject(result.error);
+            } else {
+                def.resolve(result);
+            }
+        }
+        
+        return def;
+    }   
+     
     function logOut()
     {
         var curPage = obj.getPage();
@@ -73,103 +242,96 @@ var Base = function(configObj)
         return def;
     }
     
+    
     function logIn()
     {
         var curPage = obj.getPage();
-        var def = deferred.create();
-        
-        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Opening login page...');    
-        obj.logOut().done(function() {                               
-
-            // open main page
-            obj.openMainPage().done(function(){
+        var def = deferred.create(); 
                 
-                // reject if timeout
-                setTimeout(function(){
-                    if (!def.isDone()) {
-                        obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Login takes too long...');
-                        def.reject();
-                    }
-                }, logInTimeout); 
-
-                // check login page and find offset of the elements
-                var result = curPage.evaluate(function(trimFunc, findOffsetFunc, checkElementsBySchemaFunc, bindShowMarkOnClickFunc) {
-                    // check by schema
-                    var schema = {
-                        elm1: {
-                            sel: '#loginPanel',
-                            sub: {
-                                elm1: {
-                                    sel: 'h2',
-                                    text: [trimFunc, 'Log in']
-                                },
-                                elm2: {
-                                    sel: '#field_email',
-                                    func: findOffsetFunc
-                                },
-                                elm3: {
-                                    sel: '#field_password',
-                                    func: findOffsetFunc
-                                },
-                                elm4: {
-                                    sel: '#hook_FormButton_button_go',
-                                    func: findOffsetFunc
-                                }
-                            }
-                        }
-                    }
-                    bindShowMarkOnClickFunc();
-                    try {
-                        return JSON.stringify(checkElementsBySchemaFunc(schema));    
-                    } catch(e) {
-                        return JSON.stringify({error: true, message: e});
-                    }
-                    
-                }, sandboxutils.trim, sandboxutils.findOffset, sandboxutils.checkElementsBySchema, sandboxutils.bindShowMarkOnClick);
-                   console.log(result);
-                // check result
-                result = JSON.parse(result);
+        var result = null; 
+        
+        // reject if timeout
+        setTimeout(function(){
+            if (!def.isProcessed()) {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Login takes too long...');
+                def.reject(obj.createErrorObject(1, 'Login timeout'));
+            }
+        }, logInTimeout);              
+        
+        var enterLogin = function()
+        {
+            var result = parseLoginForm();
+            
+            if (result.error != undefined && result.error == true) {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot find login form...');
+                def.reject(obj.createErrorObject(2, result.message));
+            } else {
+                // page change callback
+                obj.pushPageLoadFunc(function(status){
+                    if (status == 'success') {
+                        obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Checking if are logged in...');
+                        result = parseMainToolbar();
                         
-                if (result.error != undefined && result.error == true) {
-                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Invalid login page...'); 
-                    def.reject();
-                } else {
-                    curPage.viewportSize = {width: 800, height: 600};
-  
-                    var curDummy = dummy.create(curPage);
-                    var subResult = result.slice(0, 2);
+                        if (result.error != undefined && result.error == true) {
+                            obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Main toolbar not found, not logged in...');
+                            def.reject(obj.createErrorObject(2, result.message)); 
+                        } else {
+                            obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Main toolbar found, logged in...');
+                            def.resolve(result);
+                        }                      
+                    } else {
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Error while redirecting after login...');
+                        def.reject(obj.createErrorObject(3, 'Error while redirecting after login'));
+                    }
                     
-                    subResult[0].text = 'login';
-                    subResult[1].text = 'pass';
-                    curDummy.fillTextInputBunch(subResult);
                     
+                  //obj.takeSnapshot('jpeg', 'test', '/', 1024, 768);
+                });
+                
+                // prepare viewport
+                obj.pushViewportSize(curPage.viewportSize); 
+                curPage.viewportSize = {width: 800, height: 600};
                     
-                                        //curPage.sendEvent('mousepress', result[0].top + 10, result[0].left + 10, 'left');
-                    //curPage.sendEvent('keypress', 'a', null, null);
-                    
-                    //curPage.settings.javascriptEnabled = true;
-                    //curPage.settings.loadImages = true;
-                    //curPage.clipRect = { top: 0, left: 0, width: 1024, height: 1024 };
-                    //curPage.viewportSize = { width: 800, height: 600 };
+                // enter login and password
+                var curDummy = dummy.create(curPage);
+                var subResult = result.slice(0, 2);
 
-                    //curPage.sendEvent('click', result[1].left, result[1].top, 'left');
-                    //curPage.sendEvent('keypress', 'c', null, null);                    
-               
-                    obj.takeSnapshot('jpeg', 'test', '/', 1024, 768); 
+                subResult[0].text = serviceLogin;
+                subResult[1].text = servicePassword;
+
+                curDummy.fillTextInputBunch(subResult);
+                result[2].top = result[2].top + 10;
+                result[2].left= result[2].left + 10;
+                curDummy.click(result[2]);
                     
-                }                                          
-            }).fail(function(){
-                obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot open login page...'); 
-                def.reject();                
-            });   
+                // restore viewport
+                curPage.viewportSize = obj.popViewportSize(); 
+            }             
+        }        
+        
+        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting login process...'); 
+                
+        // check if already loged in
+        isLogedIn().done(function(){
+           obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Already loged in, trying to logout...'); 
+        
+           // def.resolve();
         }).fail(function(){
-            obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot open login page...'); 
-            def.reject();
+            obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Not logged in, trying to login...');
+            
+            // open login page
+            openLoginPage().done(function(){
+                obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Entering login data...');
+                enterLogin();
+            }).fail(function(error){
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot login...');
+                def.reject(error);
+            });
         });
-         
-        return def;        
+        
+        return def;
     }
-    
+        
     /* Private core methods ends here */
     
     /* Privileged core methods starts here */
