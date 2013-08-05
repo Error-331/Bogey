@@ -194,6 +194,13 @@ exports.isValidImage = function(path)
     return fs.isReadable(path);
 }
 
+exports.deleteIfExist = function(path)
+{
+    if (fs.isFile(path)) {
+        fs.remove(path);
+    }
+}
+
 exports.getDirSeparator = function()
 {
     return fs.separator;
