@@ -37,6 +37,7 @@
  */
 
 // Modules include
+var args = require('system').args;
 var page = require('webpage');
 
 var logmessage = require('../io/logmessage');
@@ -126,9 +127,55 @@ var Service = function(configObj, usrServiceName)
     
     var viewportSizeStack = new Array();
     
+    /**
+     * @access private
+     * @var bool property that indicates whether to save cookies to the file or not
+     * 
+     * @see addCookie();
+     */       
+    
+    var persistCookies = true;
+    
     /* Private members ends here */
     
     /* Private core methods starts here */
+    
+    /**
+     * Method that configures current service.
+     *
+     * This method is default configuration method and will be called each time regardless of configureService() overloaded 
+     * (priveleged) method. This method accepts and sets default options for the service.
+     *
+     * @access private
+     *
+     * @param object configObj object that contains default configuration options.
+     * 
+     * @throws string    
+     *
+     */      
+    
+    function configureService(configObj)
+    {       
+        if (typeof configObj != 'object') {
+            return;
+        }
+
+        if (configObj.persistCookies != undefined) {
+            obj.setPersistCookies(configObj.persistCookies);
+        }    
+        
+        if (configObj.libraryPath != undefined) {
+            if (typeof configObj.libraryPath != 'string') {
+                throw '"libraryPath" parameter must be string';
+            }
+            
+            if (fileUtils.isPathReadable(configObj.libraryPath)) {
+                curPage.libraryPath = configObj.libraryPath;
+            } else {
+                throw '"libraryPath" is not readable: "' + configObj.libraryPath + '"';
+            }
+        }
+    }
        
     /**
      * Method that pushes deferred object of the operation to the stack.
@@ -613,6 +660,62 @@ var Service = function(configObj, usrServiceName)
     {
         return srError.create(code, message);
     }
+     
+    /**
+     * Method that persists cookie to the file.
+     *
+     * Cookie is saved if 'persistCookies' option is set to true.
+     *
+     * @access privileged
+     * 
+     * @param object usrCookie cookie object
+     * 
+     * @throws string 
+     * 
+     */   
+    
+    this.addCookie = function(usrCookie)
+    { 
+        if (obj.getPersistCookies() == false) {
+            return;
+        }
+        
+        if (typeof usrCookie != 'object') {
+            throw 'Cookie is not an object';
+        }
+        
+         phantom.addCookie(usrCookie);
+    }   
+    
+    /**
+     * Method that persists cookies to the file.
+     *
+     * Cookies is saved if 'persistCookies' option is set to true.
+     *
+     * @access privileged
+     * 
+     * @param array usrCookies array of cookie objects
+     * 
+     * @throws string 
+     * 
+     */     
+    
+    this.addCookies = function(usrCookies)
+    {
+        if (obj.getPersistCookies() == false) {
+            return;
+        }        
+        
+        if (typeof usrCookies != 'object') {
+            throw 'Cookies is not array';
+        }
+        
+        var cookie = null;
+        console.log('321');
+        for (cookie in usrCookies) {
+            obj.addCookie(usrCookies[cookie]);
+        }
+    }
         
     /* Privileged core methods ends here */
     
@@ -665,6 +768,24 @@ var Service = function(configObj, usrServiceName)
     {
         return curPageURL;
     }
+    
+    /**
+     * Method that returns 'persistCookies' option value.
+     *
+     * This option tells service whether to save or not to save cookies to the file.
+     *
+     * @access privileged
+     * 
+     * @return bool option value.
+     * 
+     * @see addCookie();
+     * 
+     */    
+    
+    this.getPersistCookies = function()
+    {
+        return persistCookies;
+    }
         
     /* Privileged get methods ends here */
     
@@ -696,9 +817,47 @@ var Service = function(configObj, usrServiceName)
         serviceName = usrServiceName;        
     }
     
+    /**
+     * Method that sets current service 'persistCookies' option value.
+     *
+     * This option tells service whether to save or not to save cookies to the file.
+     *
+     * @access privileged
+     * 
+     * @param bool usrPersistCookies option value
+     * 
+     * @throws string 
+     * 
+     * @see addCookie();
+     * 
+     */     
+    
+    this.setPersistCookies = function(usrPersistCookies)
+    {
+        if (typeof usrPersistCookies != 'boolean') {
+            throw '"persistCookies" option must be boolean';
+        }
+        
+        persistCookies = usrPersistCookies;
+
+        // delete cookies file if present
+        if (persistCookies == false) {
+            var key = null;
+               
+            for (key in args) {   
+                if (args[key].indexOf('--cookies-file=') != -1) {  
+                    fileUtils.deleteIfExist(args[key].substr(15));
+                }
+            }
+        }
+    }
+    
+  
     /* Privileged set methods ends here */  
 
     this.setServiceName(usrServiceName);
+    
+    configureService(configObj);
     this.configureService(configObj);
 }
 
