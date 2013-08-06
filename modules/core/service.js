@@ -136,6 +136,13 @@ var Service = function(configObj, usrServiceName)
     
     var persistCookies = true;
     
+    /**
+     * @access private
+     * @var string path to the modules directory
+     */      
+    
+    var modulesPath = '';
+    
     /* Private members ends here */
     
     /* Private core methods starts here */
@@ -164,13 +171,17 @@ var Service = function(configObj, usrServiceName)
             obj.setPersistCookies(configObj.persistCookies);
         }    
         
+        if (configObj.modulesPath != undefined) {
+            obj.setModulesPath(configObj.modulesPath);
+        }
+        
         if (configObj.libraryPath != undefined) {
             if (typeof configObj.libraryPath != 'string') {
                 throw '"libraryPath" parameter must be string';
             }
             
             if (fileUtils.isPathReadable(configObj.libraryPath)) {
-                curPage.libraryPath = configObj.libraryPath;
+                curPage.libraryPath = fileUtils.addSeparator(configObj.libraryPath);
             } else {
                 throw '"libraryPath" is not readable: "' + configObj.libraryPath + '"';
             }
@@ -787,6 +798,22 @@ var Service = function(configObj, usrServiceName)
         return persistCookies;
     }
         
+    /**
+     * Method that returns 'modulesPaths' option value.
+     *
+     * Method returns current path to modules directory.
+     *
+     * @access privileged
+     * 
+     * @return string path to modules directory.
+     * 
+     */       
+    
+    this.getModulesPath = function()
+    {
+        return modulesPath;
+    }
+        
     /* Privileged get methods ends here */
     
     /* Privileged set methods starts here */
@@ -852,6 +879,30 @@ var Service = function(configObj, usrServiceName)
         }
     }
     
+    /**
+     * Method that sets current path to modules directory.
+     *
+     * Simple method that sets current path to modules directory.
+     *
+     * @access privileged
+     * 
+     * @param string usrModulesPath 
+     * 
+     * @throws string 
+     * 
+     */     
+    
+    this.setModulesPath = function(usrModulesPath)
+    {
+        if (typeof usrModulesPath != 'string') {
+            throw '"modulesPath" must be string';
+        }
+              
+        fileUtils.isPathReadable(usrModulesPath);
+        curPage.libraryPath = fileUtils.addSeparator(usrModulesPath);
+        
+        modulesPath = usrModulesPath;
+    }
   
     /* Privileged set methods ends here */  
 
