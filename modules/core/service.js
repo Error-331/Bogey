@@ -727,6 +727,98 @@ var Service = function(configObj, usrServiceName)
             obj.addCookie(usrCookies[cookie]);
         }
     }
+    
+    /**
+     * Method that validates page against defined schema.
+     *
+     * Method injects file with validator class (and other necessary files) into the current page, injects user defined schema and 
+     * validates page against this schema while in sandbox mode.
+     *
+     * @access privileged
+     * 
+     * @param string schmePath path to the current schema
+     * @param string serviceNamespace namespace of the current service in sandbox mode
+     * @param string schemaNamespace namespace of the current schema in sandbox mode
+     * @param string format of the output data
+     * @param array additionalScripts array of strings which points to the additional files which will be injected
+     * 
+     * @throws string 
+     * 
+     * @return object deferred object.
+     * 
+     */      
+    
+    this.validatePageBySchema = function(schmePath, serviceNamespace, schemaNamespace, format, additionalScripts)
+    {
+        var def = deferred.create();  
+        
+        // validation
+        if (typeof schmePath != 'string') {
+            throw 'Invalid path to schema file';
+        }
+ 
+        if (typeof schemaNamespace != 'string') {
+            throw 'Invalid service namespace type'
+        } 
+ 
+        if (typeof schemaNamespace != 'string') {
+            throw 'Invalid schema namespace type'
+        }
+        
+        var curPage = obj.getPage();
+        var tmpLibraryPath = curPage.libraryPath;
+        
+        curPage.libraryPath = obj.getModulesPath();
+                  
+        // inject scripts
+        if (!curPage.injectJs('sandbox/schemavalidator.js')) {
+            throw 'Cannot inject schema validator class';
+        }
+
+        if (additionalScripts != undefined) {
+            if (typeof additionalScripts != 'object') {
+                throw 'Additional scripts files must be provided as array';
+            }
+            
+            var script = null;
+            
+            for (script in additionalScripts) {
+                if (typeof additionalScripts[script] != 'string') {
+                    throw 'Additional script file name must be string';
+                }
+
+                if (!curPage.injectJs(additionalScripts[script])) {
+                    throw 'Cannot inject: "' + additionalScripts[script] + '"';
+                }                
+            }
+        } 
+
+        if (!curPage.injectJs(schmePath)) {
+            throw 'Cannot inject: "' + schmePath + '"';
+        }
+
+        curPage.libraryPath = tmpLibraryPath;
+
+        // evalute
+        var result = JSON.parse(curPage.evaluate(function(service, schema, format) {
+            try {                
+                var validator = new Bogey.SchemaValidator(Bogey[service]['schemas'][schema], format);
+                
+                return JSON.stringify(validator.checkElementsBySchema());    
+            } catch(e) {
+                return JSON.stringify({error: true, message: e});
+            }
+                    
+        }, serviceNamespace, schemaNamespace, format)); 
+        
+        if (result.error != undefined && result.error == true) {
+            def.reject(obj.createErrorObject(2, result.message));
+        } else {
+            def.resolve(result);
+        }
+        
+        return def;
+    }
         
     /* Privileged core methods ends here */
     
