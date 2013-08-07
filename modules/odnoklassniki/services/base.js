@@ -2,7 +2,6 @@
 var service = require('../../core/service');
 var dummy = require('../../core/dummy');
 var deferred = require('../../async/deferred');
-var sandboxutils = require('../../utils/sandboxutils');
 
 var Base = function(configObj)
 { 
@@ -41,82 +40,7 @@ var Base = function(configObj)
     /* Private members ends here */
       
     /* Private core methods starts here */ 
-    
-    function parseLoginForm()
-    {
-        var curPage = obj.getPage();
-      
-        return JSON.parse(curPage.evaluate(function(trimFunc, findOffsetFunc, checkElementsBySchemaFunc) {
-            // check by schema
-            var schema = {
-                elm1: {
-                    sel: '#loginPanel',
-                    
-                    is_single: true,
-                    sub_is_single: true,
-                    
-                    sub: {
-                        elm1: {
-                            sel: 'h2',
-                            text: [trimFunc, 'Log in']
-                        },
-                        elm2: {
-                            sel: '#field_email',
-                            func: findOffsetFunc
-                        },
-                        elm3: {
-                            sel: '#field_password',
-                            func: findOffsetFunc
-                        },
-                        elm4: {
-                            sel: '#hook_FormButton_button_go',
-                            func: findOffsetFunc
-                        }
-                    }
-                }                            
-            }
-
-            try {
-                return JSON.stringify(checkElementsBySchemaFunc(schema, 'plain-objects'));    
-            } catch(e) {
-                return JSON.stringify({error: true, message: e});
-            }
-                    
-        }, sandboxutils.trim, sandboxutils.findOffset, sandboxutils.checkElementsBySchema));        
-    }
-    
-    function parseMainToolbar()
-    {
-        var curPage = obj.getPage();
-        
-        return JSON.parse(curPage.evaluate(function(trimFunc, findOffsetFunc, checkElementsBySchemaFunc) {
-            var schema = {
-                elm1: {
-                    sel: 'div.toolbar_c',
-                    
-                    is_single: true,
-                    sub_is_single: true,
-                    
-                    sub: {
-                        elm1: {
-                            sel: 'ul.toolbar_nav'
-                        },
-                        elm2: {
-                            sel: 'div.toolbar_search'
-                        }
-                    }
-                }
-            }
-
-            try {
-                return JSON.stringify(checkElementsBySchemaFunc(schema, 'plain-objects'));    
-            } catch(e) {
-                return JSON.stringify({error: true, message: e});
-            }
-                    
-        }, sandboxutils.trim, sandboxutils.findOffset, sandboxutils.checkElementsBySchema));            
-    }    
-    
+                   
     function openMainPage()
     {
         var curPage = this.getPage();
@@ -159,15 +83,13 @@ var Base = function(configObj)
                 
         var parseLoginFormLoc = function()
         {
-            var result = parseLoginForm();
-
-            if (result.error != undefined && result.error == true) {
-                obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot find login form...'); 
-                def.reject(obj.createErrorObject(2, result.message));
-            } else {
+            obj.validatePageBySchema('odnoklassniki/schemas/mainloginform.js', 'odnoklassniki', 'mainLoginForm', 'plain-objects', ['sandbox/utils.js']).done(function(result){
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Login page already opened...'); 
                 def.resolve(result);
-            }             
+            }).fail(function(error){
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot find login form...'); 
+                def.reject(error);
+            });                      
         }
         
         // reject if timeout
@@ -202,31 +124,26 @@ var Base = function(configObj)
     function isLogedIn()
     {
         var def = deferred.create();  
-        var result = null;
         
         // check if any page is open
         if (obj.getCurPageURL() == '') {
             obj.openMainPage().done(function(){
                 // parse toolbar
-                result = parseMainToolbar();
-
-                if (result.error != undefined && result.error == true) {
-                    def.reject(obj.createErrorObject(2, result.message));
-                } else {
+                obj.validatePageBySchema('odnoklassniki/schemas/maintoolbar.js', 'odnoklassniki', 'mainToolbar', 'plain-objects').done(function(result){
                     def.resolve(result);
-                } 
+                }).fail(function(error){
+                    def.reject(error);
+                });                                
             }).fail(function(error){
                 def.reject(error);
             });
         } else {
             // parse toolbar
-            result = parseMainToolbar();
-            
-            if (result.error != undefined && result.error == true) {
-                def.reject(result.error);
-            } else {
+            result = obj.validatePageBySchema('odnoklassniki/schemas/toptoolbar.js', 'odnoklassniki', 'mainToolbar', 'plain-objects').done(function(result){
                 def.resolve(result);
-            }
+            }).fail(function(error){
+                def.reject(error);
+            });           
         }
         
         return def;
@@ -237,7 +154,6 @@ var Base = function(configObj)
         var curPage = obj.getPage();
         var def = deferred.create();  
         
-        def.resolve();
         
         return def;
     }
@@ -247,9 +163,7 @@ var Base = function(configObj)
     {
         var curPage = obj.getPage();
         var def = deferred.create(); 
-                
-        var result = null; 
-        
+                      
         // reject if timeout
         setTimeout(function(){
             if (!def.isProcessed()) {
@@ -260,32 +174,25 @@ var Base = function(configObj)
         
         var enterLogin = function()
         {
-            var result = parseLoginForm();
-            
-            if (result.error != undefined && result.error == true) {
-                obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot find login form...');
-                def.reject(obj.createErrorObject(2, result.message));
-            } else {
+            obj.validatePageBySchema('odnoklassniki/schemas/mainloginform.js', 'odnoklassniki', 'mainLoginForm', 'plain-objects', ['sandbox/utils.js']).done(function(result){
                 // page change callback
-                obj.pushPageLoadFunc(function(status){
+                obj.pushPageLoadFunc(function(status){                   
                     if (status == 'success') {
                         obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Checking if are logged in...');
-                        result = parseMainToolbar();
-                        
-                        if (result.error != undefined && result.error == true) {
-                            obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Main toolbar not found, not logged in...');
-                            def.reject(obj.createErrorObject(2, result.message)); 
-                        } else {
+                        obj.validatePageBySchema('odnoklassniki/schemas/maintoolbar.js', 'odnoklassniki', 'mainToolbar', 'plain-objects').done(function(result){                          
                             obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Main toolbar found, logged in...');
-                            def.resolve(result);
-                        }                      
+
+                            // add cookies
+                            obj.addCookies(curPage.cookies);
+                            def.resolve(result);                           
+                        }).fail(function(error){
+                            obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Main toolbar not found, not logged in...');
+                            def.reject(error);                             
+                        });                                           
                     } else {
                         obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Error while redirecting after login...');
                         def.reject(obj.createErrorObject(3, 'Error while redirecting after login'));
-                    }
-                    
-                    
-                  //obj.takeSnapshot('jpeg', 'test', '/', 1024, 768);
+                    }                                   
                 });
                 
                 // prepare viewport
@@ -305,8 +212,11 @@ var Base = function(configObj)
                 curDummy.click(result[2]);
                     
                 // restore viewport
-                curPage.viewportSize = obj.popViewportSize(); 
-            }             
+                curPage.viewportSize = obj.popViewportSize();                  
+            }).fail(function(error){
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot find login form...');
+                def.reject(error);      
+            });               
         }        
         
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting login process...'); 
@@ -314,6 +224,23 @@ var Base = function(configObj)
         // check if already loged in
         isLogedIn().done(function(){
            obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Already loged in, trying to logout...'); 
+        
+            // trying to logout
+            logOut().done(function(){
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot login...');
+                
+                // open login page
+                openLoginPage().done(function(){
+                    obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Entering login data...');
+                    enterLogin();
+                }).fail(function(error){
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot login...');
+                    def.reject(error);
+                });                               
+            }).fail(function(error){
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot login...');     
+                def.reject(error);
+            });
         
            // def.resolve();
         }).fail(function(){
@@ -389,7 +316,7 @@ var Base = function(configObj)
 exports.constFunc = Base;
 exports.create = function create(configObj) {
     "use strict";
-    
+    //obj.takeSnapshot('jpeg', 'test', '/', 1024, 768);
     Base.prototype = service.create(configObj, 'odnoklassniki_base');
     return new Base(configObj, 'odnoklassniki_base');
-};
+};          
