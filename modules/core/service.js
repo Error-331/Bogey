@@ -45,6 +45,7 @@ var srError = require('../error/serviceerror');
 var deferred = require('../async/deferred');
 
 var fileUtils = require('../utils/fileutils');
+var dummy = require('../core/dummy');
 
 var Service = function(configObj, usrServiceName)
 {
@@ -727,7 +728,7 @@ var Service = function(configObj, usrServiceName)
             obj.addCookie(usrCookies[cookie]);
         }
     }
-    
+        
     /**
      * Method that validates page against defined schema.
      *
@@ -818,6 +819,31 @@ var Service = function(configObj, usrServiceName)
         }
         
         return def;
+    }
+    
+    /**
+     * Method that runs "dummy" schema.
+     *
+     * Dummy object simulates user interaction with the page (i.e. click, fill input text) and the provided schema contains order (and names) of the 
+     * operations which will be performed.
+     *
+     * @access privileged
+     * 
+     * @param object schema operation schema
+     * 
+     * @throws string 
+     * 
+     * @return object deferred object.
+     * 
+     */        
+        
+    this.runDummySchema = function(schema)
+    {
+        if (typeof schema != 'object') {
+            throw 'Schema for "dummy" must be object';
+        }
+              
+        return dummy.create(obj).runSchema(schema);
     }
         
     /* Privileged core methods ends here */
