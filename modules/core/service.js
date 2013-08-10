@@ -729,9 +729,6 @@ var Service = function(configObj, usrServiceName)
         }
     }
     
-    // data is plain array
-    
-    
     /**
      * Method that merges provided data with "dummy" schema.
      *

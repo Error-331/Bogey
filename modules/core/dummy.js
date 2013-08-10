@@ -39,7 +39,7 @@
 // Modules include
 var deferred = require('../async/deferred');
 
-var Dummy = function(usrPage)
+var Dummy = function(usrService)
 {
     /* Private members starts here */
     
@@ -52,10 +52,10 @@ var Dummy = function(usrPage)
     
     /**
      * @access private
-     * @var object current page to which events will be sent
+     * @var object current service
      */           
     
-    var page = null;
+    var service = null;
     
     /* Private members ends here */
     
@@ -93,10 +93,33 @@ var Dummy = function(usrPage)
         }
     }
     
+    function checkSchemaElm(elm)
+    {
+        var def = deferred.create();
+        
+        if (typeof elm != 'object') {
+            def.reject('Schema element is not an object');
+        }
+        
+        if (typeof elm['op'] == 'string') {
+            def.reject('Schema operation cannot be undefined');
+        }
+        
+        def.resolve();
+        return def;
+    }
+    
+    function runSchemaElm(elm)
+    {
+        var def = deferred.create();
+        
+        return def;
+    }
+    
     /* Private core methods ends here */    
     
     /* Privileged core methods starts here */
-    
+        
     /**
      * Method that simulates mouse click.
      *
@@ -114,6 +137,7 @@ var Dummy = function(usrPage)
     this.click = function(coords, button)
     {
         checkEssentials(coords);
+        var def = deferred.create();
         
         if (button != undefined) {
             if (typeof button != 'string') {
@@ -130,8 +154,10 @@ var Dummy = function(usrPage)
             button = 'left';
         }
              
+        var page = service.getPage();     
+             
         page.sendEvent('mousemove', coords.left, coords.top, button);
-        page.sendEvent('click');
+        page.sendEvent('click');     
     }
     
     /**
@@ -156,6 +182,7 @@ var Dummy = function(usrPage)
             throw 'Supplied text value is not a string';
         }
         
+        var page = service.getPage();  
         page.sendEvent('keypress', text, null, null);
     }
     
@@ -184,14 +211,80 @@ var Dummy = function(usrPage)
         }
     }
     
+    this.runSchema = function(schema)
+    {
+        if (typeof schema != 'object') {
+            throw 'Schema for "dummy" is not an object';
+        }
+
+        var def = deferred.create();
+                
+        var key = '';
+        var keys = new Array();
+        var i = 0;
+        
+        var page = service.getPage();
+                
+        // get schema keys
+        for (key in schema) {
+            keys.push(key);
+        }
+        
+        if (keys.length == 0) {
+            def.resolve();
+            return def;
+        }
+        
+        var loopFunc = function() {
+            
+            
+            runSchemaElm().done(function(){
+                loopFunc();
+            });       
+        }
+        
+        // prepare viewport
+        service.pushViewportSize(page.viewportSize); 
+        page.viewportSize = {width: 800, height: 600};
+                
+                
+        
+             
+        checkSchemaElm(schema[keys[i]]).done(function(){
+            
+        }).fail(function(error){
+            def.reject(error);
+        });
+        
+        /*if (i == 0) {
+            if (keys[i] != undefined) {
+                switch schema[]
+            }   
+        } */       
+                     
+                
+            
+
+        
+
+        phantom.exit();    
+                
+                
+        // restore viewport
+        page.viewportSize = service.popViewportSize(); 
+        
+        
+        return def;
+    }
+    
     /* Privileged core methods ends here */
     
     /* Privileged get methods starts here */
     
     /**
-     * Method that returns current page object.
+     * Method that returns current service object.
      *
-     * Simple method that returns current page object.
+     * Simple method that returns current service object.
      *
      * @access privileged
      * 
@@ -199,9 +292,9 @@ var Dummy = function(usrPage)
      * 
      */       
     
-    this.getPage = function()
+    this.getService = function()
     {
-        return page;
+        return service;
     }
     
     /* Privileged get methods ends here */
@@ -209,35 +302,35 @@ var Dummy = function(usrPage)
     /* Privileged set methods starts here */
     
     /**
-     * Method that sets current page object.
+     * Method that sets current service object.
      *
-     * Simple method that sets current page object.
+     * Simple method that sets current service object.
      *
      * @access privileged
      * 
-     * @param object usrPage page object
+     * @param object usrService service object
      * 
      * @throws string 
      * 
      */     
     
-    this.setPage = function(usrPage)
+    this.setService = function(usrService)
     {
-        if (typeof usrPage != 'object') {
-            throw 'Page is not object';
+        if (typeof usrService != 'object') {
+            throw 'Service is not object';
         }
         
-        page = usrPage;
+        service = usrService;
     }
     
     /* Privileged set methods ends here */   
     
-    this.setPage(usrPage);
+    this.setService(usrService);
 }
 
 exports.constFunc = Dummy;
-exports.create = function create(usrPage) {
+exports.create = function create(usrService) {
     "use strict";
     
-    return new Dummy(usrPage);
+    return new Dummy(usrService);
 };

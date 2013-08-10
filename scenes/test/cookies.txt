@@ -1,0 +1,2 @@
+[General]
+cookies="@Variant(\0\0\0\x7f\0\0\0\x16QList<QNetworkCookie>\0\0\0\0\x1\0\0\0\x3\0\0\0gguid=35D10E18520629F4X1376135668; expires=Thu, 31-Dec-2037 23:55:55 GMT; domain=.tns-counter.ru; path=/\0\0\0WVID=0ErXXc3Ky7581I1Ydq; expires=Sat, 09-Aug-2014 20:00:00 GMT; domain=.yadro.ru; path=/\0\0\0\x61mrcu=537952062BA500AB8C2417DB4DD9; expires=Tue, 08-Aug-2023 12:01:41 GMT; domain=.mail.ru; path=/)"

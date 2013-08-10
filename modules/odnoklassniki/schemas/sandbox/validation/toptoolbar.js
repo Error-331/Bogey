@@ -22,7 +22,8 @@ Bogey.odnoklassniki.schemas.topToolbar = {
                 sel: '#portal-headline_login',
                 sub: {
                     elm1: {
-                        sel: '.portal-headline__login__link'
+                        sel: '.portal-headline__login__link',
+                        func: Bogey.utils.findOffset
                     }
                 }
             }

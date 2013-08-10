@@ -1,6 +1,5 @@
 // Modules include
 var service = require('../../core/service');
-var dummy = require('../../core/dummy');
 var deferred = require('../../async/deferred');
 
 var Base = function(configObj)
@@ -16,11 +15,39 @@ var Base = function(configObj)
     
     var obj = this;    
     
+    /**
+     * @access private
+     * @var string main URL of the service
+     */        
+    
     var mainPageURL = 'http://www.odnoklassniki.ru/';
     
+    /**
+     * @access private
+     * @var int login operation timeout in milliseconds
+     */      
+    
     var logInTimeout = 8000;
+    
+    /**
+     * @access private
+     * @var int logout operation timeout in milliseconds
+     */       
+    
     var logOutTimeout = 6000;
+    
+    /**
+     * @access private
+     * @var int timeout (in milliseconds) for operation which is responsible for opening main page of the service
+     */          
+    
     var openMainPageTimeout = 3000; 
+   
+    /**
+     * @access private
+     * @var int timeout (in milliseconds) for operation which is responsible for opening main login page of the service
+     */       
+    
     var openLoginPageTimeout = 3000;
     
     /**
@@ -83,7 +110,7 @@ var Base = function(configObj)
                 
         var parseLoginFormLoc = function()
         {
-            obj.validatePageBySchema('odnoklassniki/schemas/mainloginform.js', 'odnoklassniki', 'mainLoginForm', 'plain-objects', ['sandbox/utils.js']).done(function(result){
+            obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/mainloginform.js', 'odnoklassniki', 'mainLoginForm', 'plain-objects', ['sandbox/utils.js']).done(function(result){
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Login page already opened...'); 
                 def.resolve(result);
             }).fail(function(error){
@@ -129,7 +156,7 @@ var Base = function(configObj)
         if (obj.getCurPageURL() == '') {
             obj.openMainPage().done(function(){
                 // parse toolbar
-                obj.validatePageBySchema('odnoklassniki/schemas/maintoolbar.js', 'odnoklassniki', 'mainToolbar', 'plain-objects').done(function(result){
+                obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/maintoolbar.js', 'odnoklassniki', 'mainToolbar', 'plain-objects').done(function(result){
                     def.resolve(result);
                 }).fail(function(error){
                     def.reject(error);
@@ -139,7 +166,7 @@ var Base = function(configObj)
             });
         } else {
             // parse toolbar
-            result = obj.validatePageBySchema('odnoklassniki/schemas/toptoolbar.js', 'odnoklassniki', 'mainToolbar', 'plain-objects').done(function(result){
+            result = obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/toptoolbar.js', 'odnoklassniki', 'mainToolbar', 'plain-objects', ['sandbox/utils.js']).done(function(result){
                 def.resolve(result);
             }).fail(function(error){
                 def.reject(error);
@@ -153,6 +180,8 @@ var Base = function(configObj)
     {
         var curPage = obj.getPage();
         var def = deferred.create();  
+        
+        obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/mainloginform.js', 'odnoklassniki', 'mainLoginForm', 'plain-objects', ['sandbox/utils.js'])
         
         
         return def;
@@ -174,12 +203,12 @@ var Base = function(configObj)
         
         var enterLogin = function()
         {
-            obj.validatePageBySchema('odnoklassniki/schemas/mainloginform.js', 'odnoklassniki', 'mainLoginForm', 'plain-objects', ['sandbox/utils.js']).done(function(result){
+            obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/mainloginform.js', 'odnoklassniki', 'mainLoginForm', 'plain-objects', ['sandbox/utils.js']).done(function(result){
                 // page change callback
                 obj.pushPageLoadFunc(function(status){                   
                     if (status == 'success') {
                         obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Checking if are logged in...');
-                        obj.validatePageBySchema('odnoklassniki/schemas/maintoolbar.js', 'odnoklassniki', 'mainToolbar', 'plain-objects').done(function(result){                          
+                        obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/maintoolbar.js', 'odnoklassniki', 'mainToolbar', 'plain-objects').done(function(result){                          
                             obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Main toolbar found, logged in...');
 
                             // add cookies
@@ -195,24 +224,20 @@ var Base = function(configObj)
                     }                                   
                 });
                 
-                // prepare viewport
-                obj.pushViewportSize(curPage.viewportSize); 
-                curPage.viewportSize = {width: 800, height: 600};
-                    
-                // enter login and password
-                var curDummy = dummy.create(curPage);
-                var subResult = result.slice(0, 2);
-
-                subResult[0].text = serviceLogin;
-                subResult[1].text = servicePassword;
-
-                curDummy.fillTextInputBunch(subResult);
-                result[2].top = result[2].top + 10;
-                result[2].left= result[2].left + 10;
-                curDummy.click(result[2]);
-                    
-                // restore viewport
-                curPage.viewportSize = obj.popViewportSize();                  
+                // run dummy schema (enter login and password)
+                var schema = require('../schemas/dummy/fillmainloginform').schema;
+                
+                result[0].text = serviceLogin;
+                result[1].text = servicePassword;
+                
+                schema = obj.mergeDataAndDummySchema(schema, result);
+                obj.runDummySchema(schema).done(function(){
+                    obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Running "dummy" schema for login form...'); 
+                }).fail(function(error){
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema for login form...');
+                    def.reject(obj.createErrorObject(4, error));
+                });
+                
             }).fail(function(error){
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot find login form...');
                 def.reject(error);      
@@ -226,9 +251,7 @@ var Base = function(configObj)
            obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Already loged in, trying to logout...'); 
         
             // trying to logout
-            logOut().done(function(){
-                obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot login...');
-                
+            logOut().done(function(){                
                 // open login page
                 openLoginPage().done(function(){
                     obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Entering login data...');

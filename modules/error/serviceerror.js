@@ -59,6 +59,7 @@ ServiceError.prototype.isError = true;
  * 1 - timeout
  * 2 - parse error
  * 3 - cannot open page
+ * 4 - dummy schema error
  * 
  */  
 
