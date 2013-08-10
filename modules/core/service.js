@@ -728,7 +728,58 @@ var Service = function(configObj, usrServiceName)
             obj.addCookie(usrCookies[cookie]);
         }
     }
+    
+    // data is plain array
+    
+    
+    /**
+     * Method that merges provided data with "dummy" schema.
+     *
+     * Provided data must be presented as array of objects, where each objects field must have same counterpart in the schema.
+     *
+     * @access privileged
+     * 
+     * @param object schema "dummy" schema
+     * @param array data array of objects
+     * 
+     * @return object schema merged with provided data.
+     * 
+     * @throws string 
+     * 
+     */     
+    
+    this.mergeDataAndDummySchema = function(schema, data)
+    {
+        if (typeof schema != 'object') {
+            '"Dummy" schema must be object';
+        }
         
+        if (typeof data != 'object') {
+            'Data is not represented as object';
+        }
+        
+        var key = null;
+        var subKey = null;
+        
+        var i = 0;
+        
+        for (key in schema) {
+            if (data[i] == undefined) {
+                break;
+            }
+
+            for (subKey in data[i]) {
+                if (schema[key][subKey] != undefined) {
+                    schema[key][subKey] = data[i][subKey];
+                }
+            }
+            
+            i++;
+        }
+        
+        return schema;
+    }
+    
     /**
      * Method that validates page against defined schema.
      *
