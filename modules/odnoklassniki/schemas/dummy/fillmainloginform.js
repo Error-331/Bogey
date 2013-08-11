@@ -6,6 +6,8 @@ exports.schema = {
         top: 0,
         text: '',
         
+        offset: 20,
+        
         delay_before: 1000
     },
  
@@ -15,6 +17,8 @@ exports.schema = {
         left: 0,
         top: 0,
         text: '',
+        
+        offset: 20,
         
         delay_before: 1000
     },            
