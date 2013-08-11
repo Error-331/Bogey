@@ -151,6 +151,20 @@ var Service = function(configObj, usrServiceName)
     
     var debugSandbox = false;
     
+    /**
+     * @access private
+     * @var int default viewport width
+     */      
+    
+    var viewportWidth = 1024;
+    
+    /**
+     * @access private
+     * @var int default viewport height
+     */      
+    
+    var viewportHeight = 768;
+    
     /* Private members ends here */
     
     /* Private core methods starts here */
@@ -198,6 +212,9 @@ var Service = function(configObj, usrServiceName)
         if (configObj.debugSandbox != undefined) {
             obj.setDebugSandbox(configObj.debugSandbox);
         }
+        
+        // set viewport size
+        curPage.viewportSize = {width: viewportWidth, height: viewportHeight};
     }
        
     /**
@@ -404,7 +421,7 @@ var Service = function(configObj, usrServiceName)
      * 
      */     
     
-    curPage.onLoadFinished = function(status) {        
+    curPage.onLoadFinished = function(status) {       
         if (pageLoadFuncStack.length > 0) {
             obj.popURLChangeFunc()(status);
         }
@@ -752,7 +769,7 @@ var Service = function(configObj, usrServiceName)
         }
         
         var cookie = null;
-        console.log('321');
+
         for (cookie in usrCookies) {
             obj.addCookie(usrCookies[cookie]);
         }
@@ -1141,6 +1158,7 @@ var Service = function(configObj, usrServiceName)
 
     this.setServiceName(usrServiceName);
     
+    // configure service
     configureService(configObj);
     this.configureService(configObj);
 }

@@ -85,6 +85,21 @@ var Dummy = function(usrService)
         }
     }
     
+    /**
+     * Method that checks offset of the current schema element.
+     *
+     * Method checks the offset of the element and add it to the top and left properties.
+     *
+     * @access private
+     *
+     * @param object elm current schema element
+     * 
+     * @return object current element with proccesed offset.   
+     * 
+     * @throws string    
+     *
+     */        
+    
     function checkOffset(elm)
     {
         if (elm.offset != undefined) {
@@ -209,7 +224,8 @@ var Dummy = function(usrService)
         
         var execFunc = function(){
             page.sendEvent('mousemove', elm.left, elm.top, elm.btn);
-            page.sendEvent('click');        
+            page.sendEvent('click');     
+            service.takeSnapshot('jpeg', 'test', '/', 1024, 768);
         }
         
         // check coords
@@ -410,11 +426,7 @@ var Dummy = function(usrService)
         for (key in schema) {
             keys.push(key);
         }
-        
-        var doneFunc = function(){
-            page.viewportSize = service.popViewportSize(); 
-        }
-                
+                        
         var loopFunc = function() {          
             if (keys[i] == undefined) {
                 def.resolve();
@@ -430,13 +442,7 @@ var Dummy = function(usrService)
             });                    
         }
         
-        // prepare viewport
-        service.pushViewportSize(page.viewportSize); 
-        page.viewportSize = {width: 800, height: 600};
-      
         loopFunc();
-       
-        def.done(doneFunc).fail(doneFunc);   
         return def;
     }
     
