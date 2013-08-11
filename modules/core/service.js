@@ -144,6 +144,13 @@ var Service = function(configObj, usrServiceName)
     
     var modulesPath = '';
     
+    /**
+     * @access private
+     * @var bool indicates whether sandbox debug mode is on or off
+     */      
+    
+    var debugSandbox = false;
+    
     /* Private members ends here */
     
     /* Private core methods starts here */
@@ -186,6 +193,10 @@ var Service = function(configObj, usrServiceName)
             } else {
                 throw '"libraryPath" is not readable: "' + configObj.libraryPath + '"';
             }
+        }
+        
+        if (configObj.debugSandbox != undefined) {
+            obj.setDebugSandbox(configObj.debugSandbox);
         }
     }
        
@@ -356,6 +367,24 @@ var Service = function(configObj, usrServiceName)
     curPage.onUrlChanged = function(targetUrl) {
         curPageURL = targetUrl; 
            
+        // sandbox debug mode
+        if (debugSandbox == true) {             
+            var tmpLibraryPath = curPage.libraryPath;
+        
+            curPage.libraryPath = obj.getModulesPath();
+             
+            if (!curPage.injectJs('sandbox/debug.js')) {
+                throw 'Cannot inject sandbox debug package';
+            }
+            
+            curPage.libraryPath = tmpLibraryPath;
+            
+            curPage.evaluate(function() {
+                Bogey.debug.bindShowMarkOnClick();               
+            }); 
+        }
+          
+        // check callback function stack
         if (urlChangeFuncStack.length > 0) {
             obj.popURLChangeFunc()(targetUrl);
         }
@@ -852,7 +881,7 @@ var Service = function(configObj, usrServiceName)
         var result = JSON.parse(curPage.evaluate(function(service, schema, format) {
             try {                
                 var validator = new Bogey.SchemaValidator(Bogey[service]['schemas'][schema], format);
-                
+
                 return JSON.stringify(validator.checkElementsBySchema());    
             } catch(e) {
                 return JSON.stringify({error: true, message: e});
@@ -979,6 +1008,22 @@ var Service = function(configObj, usrServiceName)
     {
         return modulesPath;
     }
+    
+    /**
+     * Method that returns 'debugSandbox' option value.
+     *
+     * Method returns value which indicates whether sandbox debug mode on or off.
+     *
+     * @access privileged
+     * 
+     * @return bool value for the debug mode.
+     * 
+     */    
+    
+    this.getDebugSandbox = function()
+    {
+        return debugSandbox
+    }    
         
     /* Privileged get methods ends here */
     
@@ -1052,7 +1097,7 @@ var Service = function(configObj, usrServiceName)
      *
      * @access privileged
      * 
-     * @param string usrModulesPath 
+     * @param string usrModulesPath path to modules directory
      * 
      * @throws string 
      * 
@@ -1068,6 +1113,28 @@ var Service = function(configObj, usrServiceName)
         curPage.libraryPath = fileUtils.addSeparator(usrModulesPath);
         
         modulesPath = usrModulesPath;
+    }
+    
+    /**
+     * Method that turns on or off sandbox debug mode.
+     *
+     * Method that sets parameter value which indicates whether sandbox debug mode is on or off.
+     *
+     * @access privileged
+     * 
+     * @param bool usrDebugSandbox value for the debug mode
+     * 
+     * @throws string 
+     * 
+     */      
+    
+    this.setDebugSandbox = function(usrDebugSandbox)
+    {
+        if (typeof usrDebugSandbox != 'boolean') {
+            throw '"debugSandbox" must be bool';
+        }
+        
+        debugSandbox = usrDebugSandbox;
     }
   
     /* Privileged set methods ends here */  
