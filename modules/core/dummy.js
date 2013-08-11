@@ -85,6 +85,36 @@ var Dummy = function(usrService)
         }
     }
     
+    function checkOffset(elm)
+    {
+        if (elm.offset != undefined) {
+            if (typeof elm.offset != 'number') {
+                throw 'Offset must be numeric';
+            }
+            
+            elm.top += elm.offset;
+            elm.left += elm.offset;
+        }
+        
+        if (elm.offset_left != undefined) {
+            if (typeof elm.offset_left != 'number') {
+                throw 'Left offset must be numeric';
+            }
+            
+            elm.left += elm.offset_left;
+        } 
+        
+        if (elm.offset_top != undefined) {
+            if (typeof elm.offset_top != 'number') {
+                throw 'Top offset must be numeric';
+            }
+            
+            elm.top += elm.offset_top;
+        }          
+                
+        return elm;
+    }
+    
     /**
      * Method that checks "delay_before" parameter of the current schema element.
      *
@@ -179,7 +209,7 @@ var Dummy = function(usrService)
         
         var execFunc = function(){
             page.sendEvent('mousemove', elm.left, elm.top, elm.btn);
-            page.sendEvent('click');       
+            page.sendEvent('click');        
         }
         
         // check coords
@@ -191,16 +221,13 @@ var Dummy = function(usrService)
         }    
         
         // check offset
-        if (elm.offset != undefined) {
-            if (typeof elm.offset != 'number') {
-                def.reject('Offset must be numeric');
-                return def;
-            }
-            
-            elm.top += elm.offset;
-            elm.left += elm.offset;
+        try{
+            elm = checkOffset(elm);
+        } catch(e) {
+            def.reject(e);
+            return def;            
         }
-        
+                
         // check mouse button
         if (elm.btn != undefined) {
             if (typeof elm.btn != 'string') {
@@ -262,6 +289,14 @@ var Dummy = function(usrService)
             def.reject(e);
             return def;
         }  
+        
+        // check offset
+        try{
+            elm = checkOffset(elm);
+        } catch(e) {
+            def.reject(e);
+            return def;            
+        }        
         
         // check text
         if (typeof elm.text != 'string') {
@@ -398,7 +433,7 @@ var Dummy = function(usrService)
         // prepare viewport
         service.pushViewportSize(page.viewportSize); 
         page.viewportSize = {width: 800, height: 600};
-                       
+      
         loopFunc();
        
         def.done(doneFunc).fail(doneFunc);   
