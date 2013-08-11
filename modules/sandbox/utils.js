@@ -46,34 +46,3 @@ Bogey.utils.trim = function(str)
     
     return str.replace(/^\s+|\s+$/g, "");
 }
-
-Bogey.utils.showMark = function(top, left)
-{
-    var div = document.createElement("div");
-    div.innerHTML = "mark";
-                    
-    div.style.position = 'absolute';
-    div.style.top = top;
-    div.style.left = left;
-    div.style.zIndex  = 1000;
-    div.style.background = 'green';
-    
-    document.body.appendChild(div);    
-}
-
-Bogey.utils.bindShowMarkOnClick = function()
-{
-    document.onclick=function(elm){                    
-        var div = document.createElement("div");
-        div.innerHTML = "mark";
-                    
-        div.style.position = 'absolute';
-        div.style.top = elm.pageY + 'px';
-        div.style.left = elm.pageX + 'px';
-    
-        div.style.zIndex  = 1000;
-        div.style.background = 'green';
-    
-        document.body.appendChild(div); 
-    };    
-}
