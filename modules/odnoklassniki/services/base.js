@@ -27,14 +27,14 @@ var Base = function(configObj)
      * @var int login operation timeout in milliseconds
      */      
     
-    var logInTimeout = 8000;
+    var logInTimeout = 12000;
     
     /**
      * @access private
      * @var int logout operation timeout in milliseconds
      */       
     
-    var logOutTimeout = 6000;
+    var logOutTimeout = 10000;
     
     /**
      * @access private
@@ -181,7 +181,57 @@ var Base = function(configObj)
         var curPage = obj.getPage();
         var def = deferred.create();  
         
-        obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/mainloginform.js', 'odnoklassniki', 'mainLoginForm', 'plain-objects', ['sandbox/utils.js'])
+        // reject if timeout
+        setTimeout(function(){
+            if (!def.isProcessed()) {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Logout takes too long...');
+                def.reject(obj.createErrorObject(1, 'Logout timeout'));
+            }
+        }, logOutTimeout);      
+
+        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting logout process...');    
+           
+        // checking top toolbar
+        obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/toptoolbar.js', 'odnoklassniki', 'topToolbar', 'plain-objects', ['sandbox/utils.js']).done(function(result){
+            obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Top toolbar found, trying to log out...');
+                        
+            // page change callback
+            obj.pushPageLoadFunc(function(status){                   
+                if (status == 'success') {
+                    obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Checking if are logged out...');
+                    obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/mainloginform.js', 'odnoklassniki', 'mainLoginForm').done(function(result){                          
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Main login form found, logged out...');
+
+                        // add cookies
+                        obj.addCookies(curPage.cookies);
+                        def.resolve(result);                           
+                    }).fail(function(error){
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Main login form not found, not logged out...');
+                        def.reject(error);                             
+                    });                                           
+                } else {
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Error while redirecting after logout...');
+                    def.reject(obj.createErrorObject(3, 'Error while redirecting after logout'));
+                }                                   
+            });
+            
+            // run dummy schema (click logout button)
+            var schema = require('../schemas/dummy/clicklogout').schema;
+            schema = obj.mergeDataAndDummySchema(schema, result);            
+                                                            
+            // run dummy schema
+            obj.runDummySchema(schema).done(function(){                             
+                obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');
+                setTimeout(function(){obj.takeSnapshot('jpeg', 'test', '/', 1024, 768);}, 2000);
+            }).fail(function(error){
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema for logout...');
+                def.reject(obj.createErrorObject(4, error));
+            });            
+            
+        }).fail(function(error){         
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot find top toolbar...');
+            def.reject(error);
+        });
         
         
         return def;
@@ -200,6 +250,8 @@ var Base = function(configObj)
                 def.reject(obj.createErrorObject(1, 'Login timeout'));
             }
         }, logInTimeout);              
+                
+        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting login process...'); 
         
         var enterLogin = function()
         {
@@ -231,8 +283,10 @@ var Base = function(configObj)
                 result[1].text = servicePassword;
                 
                 schema = obj.mergeDataAndDummySchema(schema, result);
-                obj.runDummySchema(schema).done(function(){
-                    obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Running "dummy" schema for login form...'); 
+                obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Running "dummy" schema for login form...');
+                        
+                obj.runDummySchema(schema).done(function(){  
+                    obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...'); 
                 }).fail(function(error){
                     obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema for login form...');
                     def.reject(obj.createErrorObject(4, error));
@@ -242,14 +296,12 @@ var Base = function(configObj)
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot find login form...');
                 def.reject(error);      
             });               
-        }        
-        
-        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting login process...'); 
+        }            
                 
         // check if already loged in
         isLogedIn().done(function(){
            obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Already loged in, trying to logout...'); 
-        
+
             // trying to logout
             logOut().done(function(){                
                 // open login page
