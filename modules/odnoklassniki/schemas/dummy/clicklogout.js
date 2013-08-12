@@ -10,7 +10,7 @@ exports.schema = {
         offset_top: 0,
         
         delay_before: 1000,
-        delay_after: 2000,
+        delay_after: 2000
     },
     
     step2: {
@@ -19,14 +19,22 @@ exports.schema = {
         scripts: ['sandbox/utils.js'],
         
         sandbox_schema: { 
-            sel: '#mp_mm_cont',  
-            sub: {
-                sel: '#hook_Form_PopLayerLogoffUserForm',
+            elm1: {
+                sel: '#mp_mm_cont',
                 sub: {
-                    sel: '#hook_FormButton_button_logoff',
-                    func: 'Bogey.utils.findOffset',
+                    elm1: {
+                        sel: '#hook_Form_PopLayerLogoffUserForm',
+                        sub: {
+                            elm1: {
+                                sel: '#hook_FormButton_button_logoff',
+                                func: 'Bogey.utils.findOffset'                                
+                            }
+                        }
+                    }
                 }
             }
+             
+
         }      
     },
     
@@ -34,8 +42,8 @@ exports.schema = {
         type: 'dummy',
         op: 'click',
         
-        left: 'prev(1).left',
-        top: 'prev(1).top',
+        left: 'item(0).left',
+        top: 'item(0).top',
         
         offset_left: 3,
         offset_top: 3,
