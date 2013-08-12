@@ -201,13 +201,12 @@ var Base = function(configObj)
             
             // run dummy schema (click logout button)
             obj.runDummySchema(schema).done(function(){                             
-                obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');
-                setTimeout(function(){obj.takeSnapshot('jpeg', 'test', '/', 1024, 768);}, 2000);
+                obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');               
             }).fail(function(error){
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema for logout...');
                 def.reject(obj.createErrorObject(4, error));
             });              
-          
+          setTimeout(function(){obj.takeSnapshot('jpeg', 'test', '/', 1024, 768);}, 6000);
         }).fail(function(error){
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot find top toolbar...');
             def.reject(error);            
