@@ -57,9 +57,64 @@ var Dummy = function(usrService)
     
     var service = null;
     
+    var sandboxResultStack = new Array();
+    
     /* Private members ends here */
     
     /* Private core methods starts here */
+    
+    function clearSandboxResultStack()
+    {
+        sandboxResultStack = new Array();
+    }
+    
+    function parsePrevMetaFunc(prop)
+    {        
+        var par1 = prop.indexOf('(');
+        var par2 = prop.indexOf(')');
+        
+        var index = prop.substr(par1 + 1, (par2 - par1) - 1); 
+        var extProp = prop.substr(prop.indexOf('.') + 1); 
+        
+        index = parseInt(index);
+
+        if (typeof sandboxResultStack[index] != 'object') {
+            throw 'Item with index "' + index + '" is not found in the result stack';
+        }
+        
+        if (sandboxResultStack[index][extProp] == undefined) {
+            throw 'Property "' + extProp + '" does not exist in the item "' + index + '"';
+        }
+        
+        return sandboxResultStack[index][extProp];
+    }
+    
+    function checkProperties(elm)
+    {
+        var reArr = [
+            {
+                re: /^item\([0-9]+\)\.[a-zA-Z]+$/,
+                func: function (prop) {
+                    return parsePrevMetaFunc(prop);
+                }
+            }
+        ];
+        
+        var prop = null;
+        var re = null;        
+        
+        for (prop in elm) {
+            if (typeof elm[prop] == 'string') {
+                for (re in reArr) {
+                    if (reArr[re].re.test(elm[prop])) {
+                        elm[prop] = reArr[re].func(elm[prop]);
+                    }
+                }
+            }
+        }  
+        
+        return elm;
+    }
     
     /**
      * Method that checks coordinates of the current schema element.
@@ -225,7 +280,6 @@ var Dummy = function(usrService)
         var execFunc = function(){
             page.sendEvent('mousemove', elm.left, elm.top, elm.btn);
             page.sendEvent('click');     
-            service.takeSnapshot('jpeg', 'test', '/', 1024, 768);
         }
         
         // check coords
@@ -339,15 +393,23 @@ var Dummy = function(usrService)
     
     function runSandboxSchemaElm(elm)
     {
-        var def = deferred.create();
-        var subDef = null;
+        var def = deferred.create();       
+        var res = null;
         
         if (typeof elm != 'object') {
             def.reject('Schema element is not an object');
             return def;
         }        
         
-        service.validatePageByDummySchema(elm);
+        service.validatePageByDummySchema(elm).done(function(result){
+            for (res in result) {
+                sandboxResultStack.push(result[res]);
+            }
+
+            def.resolve();
+        }).fail(function(error){
+            def.reject(error.message);
+        });
         
         return def;
     }
@@ -368,7 +430,8 @@ var Dummy = function(usrService)
         }  
         
         elm.op = elm.op.toLowerCase();
-        
+        elm = checkProperties(elm);
+               
         switch(elm.op){
             case 'click':
                 subDef = click(elm);
@@ -410,7 +473,7 @@ var Dummy = function(usrService)
     {
         var def = deferred.create();
         var subDef = null;    
-        
+
         if (typeof elm != 'object') {
             def.reject('Schema element is not an object');
         }
@@ -469,6 +532,8 @@ var Dummy = function(usrService)
                    
     this.runSchema = function(schema)
     {
+        clearSandboxResultStack();
+        
         if (typeof schema != 'object') {
             throw 'Schema for "dummy" is not an object';
         }
