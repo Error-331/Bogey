@@ -975,16 +975,28 @@ var Service = function(configObj, usrServiceName)
             }                  
         }
         
-        
-               
-        console.log('231');
-        phantom.exit();
-                      
-        
-        
+        curPage.libraryPath = tmpLibraryPath;
+                         
+        // evalute page
+        var result = JSON.parse(curPage.evaluate(function(schema, format) {
+            try {     
+                alert(schema);
+                schema = JSON.parse(schema);
+                
+                var validator = new Bogey.SchemaValidator(schema, format);
 
+                return JSON.stringify(validator.checkElementsBySchema());    
+            } catch(e) {
+                return JSON.stringify({error: true, message: e});
+            }
+                    
+        }, JSON.stringify(schema.sandbox_schema), format));         
         
-       
+        if (result.error != undefined && result.error == true) {
+            def.reject(obj.createErrorObject(2, result.message));
+        } else {
+            def.resolve(result);
+        }        
         
         return def;
     }
@@ -1258,6 +1270,15 @@ var Service = function(configObj, usrServiceName)
         }
         
         debugSandbox = usrDebugSandbox;
+
+        
+        if (debugSandbox == false) {
+            curPage.onAlert = function(msg) {
+                console.log('Page alert: ' + msg);
+            };
+        } else {
+            curPage.onAlert = undefined;
+        }
     }
     
     /**
