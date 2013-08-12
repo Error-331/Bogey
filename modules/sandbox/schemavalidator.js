@@ -72,6 +72,9 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
         var result = new Array();
         var subRes = null;
         
+        var func = null;
+        var i = 0;
+        
         // check 'text' property
         if (usrScheme.text != undefined) {
             if (typeof usrScheme.text == 'string') {
@@ -95,6 +98,19 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
         // check 'func' property
         if (usrScheme.func != undefined) {
             if (typeof usrScheme.func == 'function') {
+                result.push(usrScheme.func(rootElm));
+            } else if (typeof usrScheme.func == 'string') {
+                usrScheme.func = usrScheme.func.split('.');
+                
+                for (i = 0; i < usrScheme.func.length; i++) {
+                    if (i == 0) {
+                        func = window[usrScheme.func[i]];
+                    } else {
+                        func = func[usrScheme.func[i]];
+                    }                
+                }
+                
+                usrScheme.func = func;
                 result.push(usrScheme.func(rootElm));
             } else {
                 throw '"func" property must be function';
