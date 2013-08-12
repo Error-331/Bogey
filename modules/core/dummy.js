@@ -337,31 +337,35 @@ var Dummy = function(usrService)
         return def;
     }
     
-    /**
-     * Method that processes "dummy" schema element.
-     *
-     * Method processes "dummy" schema element, based on the data of the element current method executes corresponding action.
-     *
-     * @access private
-     *
-     * @param object elm "dummy" schema element
-     * 
-     * @return object deferred object.
-     *
-     */       
-        
-    function runSchemaElm(elm)
+    function runSandboxSchemaElm(elm)
     {
         var def = deferred.create();
         var subDef = null;
         
         if (typeof elm != 'object') {
             def.reject('Schema element is not an object');
+            return def;
+        }        
+        
+        service.validatePageByDummySchema(elm);
+        
+        return def;
+    }
+    
+    function runDummySchemaElm(elm)
+    {
+        var def = deferred.create();
+        var subDef = null;
+        
+        if (typeof elm != 'object') {
+            def.reject('Schema element is not an object');
+            return def;
         }
         
         if (typeof elm.op != 'string') {
             def.reject('Schema operation cannot be undefined');
-        }
+            return def;
+        }  
         
         elm.op = elm.op.toLowerCase();
         
@@ -378,8 +382,63 @@ var Dummy = function(usrService)
                 def.reject('Unrecognised operation: "' + elm.op + '"');
                 return def;
                 break;
+        }        
+        
+        subDef.done(function(){
+            def.resolve();
+        }).fail(function(error){
+            def.reject(error);
+        });
+        
+        return def;
+    }
+    
+    /**
+     * Method that processes "dummy" schema element.
+     *
+     * Method processes "dummy" schema element, based on the data of the element current method executes corresponding action.
+     *
+     * @access private
+     *
+     * @param object elm "dummy" schema element
+     * 
+     * @return object deferred object.
+     *
+     */       
+        
+    function runSchemaElm(elm)
+    {
+        var def = deferred.create();
+        var subDef = null;    
+        
+        if (typeof elm != 'object') {
+            def.reject('Schema element is not an object');
         }
-
+        
+        if (elm.type != undefined) {
+            if (typeof elm.type != 'string') {
+                def.reject('Schema type must be string');
+            }
+            
+            elm.type = elm.type.toLowerCase();  
+        } else {
+            elm.type = 'dummy';
+        }
+        
+        switch (elm.type) {
+            case 'dummy':
+                subDef = runDummySchemaElm(elm);
+                break;
+                
+            case 'sandbox':
+                subDef = runSandboxSchemaElm(elm);
+                break;
+            
+            default:
+                throw 'Unrecognised schema type: "' + elm.type + '"';
+                break;
+        }
+        
         subDef.done(function(){
             def.resolve();
         }).fail(function(error){

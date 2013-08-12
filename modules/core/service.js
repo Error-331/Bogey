@@ -873,11 +873,12 @@ var Service = function(configObj, usrServiceName)
         
         curPage.libraryPath = obj.getModulesPath();
                   
-        // inject scripts
+        // inject validator class
         if (!curPage.injectJs('sandbox/schemavalidator.js')) {
             throw 'Cannot inject schema validator class';
         }
 
+        // inject additional scripts
         if (additionalScripts != undefined) {
             if (typeof additionalScripts != 'object') {
                 throw 'Additional scripts files must be provided as array';
@@ -896,6 +897,7 @@ var Service = function(configObj, usrServiceName)
             }
         } 
 
+        // inject schema
         if (!curPage.injectJs(schmePath)) {
             throw 'Cannot inject: "' + schmePath + '"';
         }
@@ -919,6 +921,70 @@ var Service = function(configObj, usrServiceName)
         } else {
             def.resolve(result);
         }
+        
+        return def;
+    }
+    
+    this.validatePageByDummySchema = function(schema)
+    {
+        var def = deferred.create();
+        var curPage = obj.getPage();
+        
+        var tmpLibraryPath = curPage.libraryPath;
+        var format = 'raw';
+        
+        var script = null;
+        
+        if (typeof schema != 'object') {
+            throw 'Schema must be object';
+        }
+        
+        if (typeof schema.sandbox_schema != 'object') {
+            throw 'Invalid "sandbox_schema" property';
+        }
+        
+        if (typeof schema.format != undefined) {
+            if (typeof schema.format != 'string') {
+                throw 'Invalid format parameter in sandbox/dummy schema';
+            }
+            
+            format = schema.format.toLowerCase();
+        }
+        
+        curPage.libraryPath = obj.getModulesPath();
+        
+        // inject validator class
+        if (!curPage.injectJs('sandbox/schemavalidator.js')) {
+            throw 'Cannot inject schema validator class';
+        }   
+        
+        // inject additional scripts 
+        if (schema.scripts != undefined) {
+            if (typeof schema.scripts != 'object') {
+                throw 'Additional scripts files must be provided as array';
+            }
+            
+            for (script in schema.scripts) {
+                if (typeof schema.scripts[script] != 'string') {
+                    throw 'Additional script file name must be string';
+                }
+
+                if (!curPage.injectJs(schema.scripts[script])) {
+                    throw 'Cannot inject: "' + schema.scripts[script] + '"';
+                }                
+            }                  
+        }
+        
+        
+               
+        console.log('231');
+        phantom.exit();
+                      
+        
+        
+
+        
+       
         
         return def;
     }

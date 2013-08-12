@@ -179,6 +179,46 @@ var Base = function(configObj)
     function logOut()
     {
         var curPage = obj.getPage();
+        var def = deferred.create();   
+        
+        // reject if timeout
+        setTimeout(function(){
+            if (!def.isProcessed()) {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Logout takes too long...');
+                def.reject(obj.createErrorObject(1, 'Logout timeout'));
+            }
+        }, logOutTimeout);   
+        
+        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting logout process...');
+        
+        // checking top toolbar
+        obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/toptoolbar.js', 'odnoklassniki', 'topToolbar', 'plain-objects', ['sandbox/utils.js']).done(function(result){
+            obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Top toolbar found, trying to log out...');
+            
+            // prepare dummy schema (click logout button)
+            var schema = require('../schemas/dummy/clicklogout').schema;
+            schema = obj.mergeDataAndDummySchema(schema, result);  
+            
+            // run dummy schema (click logout button)
+            obj.runDummySchema(schema).done(function(){                             
+                obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');
+                setTimeout(function(){obj.takeSnapshot('jpeg', 'test', '/', 1024, 768);}, 2000);
+            }).fail(function(error){
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema for logout...');
+                def.reject(obj.createErrorObject(4, error));
+            });              
+          
+        }).fail(function(error){
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot find top toolbar...');
+            def.reject(error);            
+        });
+        
+        return def;
+    }
+     
+    function logOut1()
+    {
+        var curPage = obj.getPage();
         var def = deferred.create();  
         
         // reject if timeout
