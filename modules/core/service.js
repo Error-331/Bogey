@@ -213,6 +213,14 @@ var Service = function(configObj, usrServiceName)
             obj.setDebugSandbox(configObj.debugSandbox);
         }
         
+        if (configObj.viewportWidth != undefined) {
+            obj.setViewportWidth(configObj.viewportWidth);
+        }
+        
+        if (configObj.viewportHeight != undefined) {
+            obj.setViewportHeight(configObj.viewportHeight);
+        }
+        
         // set viewport size
         curPage.viewportSize = {width: viewportWidth, height: viewportHeight};
     }
@@ -1041,7 +1049,39 @@ var Service = function(configObj, usrServiceName)
     {
         return debugSandbox
     }    
-        
+    
+    /**
+     * Method that returns current viewport width.
+     *
+     * Simple method that returns current viewport width.
+     *
+     * @access privileged
+     * 
+     * @return int viewport width.
+     * 
+     */     
+    
+    this.getViewportWidth = function()
+    {
+        return viewportWidth;
+    }
+      
+    /**
+     * Method that returns current viewport height.
+     *
+     * Simple method that returns current viewport height.
+     *
+     * @access privileged
+     * 
+     * @return int viewport height.
+     * 
+     */       
+    
+    this.getViewportHeight = function()
+    {
+        return viewportHeight;
+    }
+          
     /* Privileged get methods ends here */
     
     /* Privileged set methods starts here */
@@ -1152,6 +1192,60 @@ var Service = function(configObj, usrServiceName)
         }
         
         debugSandbox = usrDebugSandbox;
+    }
+    
+    /**
+     * Method that sets current viewport width.
+     *
+     * Simple method that sets current viewport width.
+     *
+     * @access privileged
+     * 
+     * @param int usrWidth width of the viewport
+     * 
+     * @throws string 
+     * 
+     */       
+    
+    this.setViewportWidth = function(usrWidth)
+    {
+        if (typeof usrWidth != 'number') {
+            throw 'Viewport width must be number';
+        }
+        
+        if (usrWidth < 0) {
+            throw 'Viewport width must be equal or greater than zero';
+        }
+               
+        viewportWidth = usrWidth; 
+        curPage.viewportSize = {width: viewportWidth, height: viewportHeight};    
+    }
+    
+    /**
+     * Method that sets current viewport height.
+     *
+     * Simple method that sets current viewport height.
+     *
+     * @access privileged
+     * 
+     * @param int usrHeight height of the viewport
+     * 
+     * @throws string 
+     * 
+     */     
+    
+    this.setViewportHeight = function(usrHeight)
+    {
+        if (typeof usrHeight != 'number') {
+            throw 'Viewport height must be number';
+        }
+        
+        if (usrHeight < 0) {
+            throw 'Viewport height must be equal or greater than zero';
+        }
+        
+        viewportHeight = usrHeight;
+        curPage.viewportSize = {width: viewportWidth, height: viewportHeight}; 
     }
   
     /* Privileged set methods ends here */  
