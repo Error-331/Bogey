@@ -1,5 +1,5 @@
 /**
- * Phantasm
+ * Bogey
  *
  * NOTICE OF LICENSE
  *
@@ -11,7 +11,7 @@
  * obtain it through the world-wide-web, please send an email
  * to red331@mail.ru so we can send you a copy immediately.
  *
- * Module deferred is a part of PhantomJS framework - Phantasm.
+ * Module deferred is a part of PhantomJS framework - Bogey.
  *
  * @package Phantasm
  * @author Selihov Sergei Stanislavovich <red331@mail.ru>

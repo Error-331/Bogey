@@ -70,7 +70,7 @@ var Base = function(configObj)
                    
     function openMainPage()
     {
-        var curPage = this.getPage();
+        var curPage = obj.getPage();
         var def = deferred.create();
         
         // reject if timeout
@@ -194,51 +194,12 @@ var Base = function(configObj)
         // checking top toolbar
         obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/toptoolbar.js', 'odnoklassniki', 'topToolbar', 'plain-objects', ['sandbox/utils.js']).done(function(result){
             obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Top toolbar found, trying to log out...');
-            
-            // prepare dummy schema (click logout button)
-            var schema = require('../schemas/dummy/clicklogout').schema;
-            schema = obj.mergeDataAndDummySchema(schema, result);  
-            
-            // run dummy schema (click logout button)
-            obj.runDummySchema(schema).done(function(){                             
-                obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');               
-            }).fail(function(error){
-                obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema for logout...');
-                def.reject(obj.createErrorObject(4, error));
-            });              
-          setTimeout(function(){obj.takeSnapshot('jpeg', 'test', '/', 1024, 768);}, 6000);
-        }).fail(function(error){
-            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot find top toolbar...');
-            def.reject(error);            
-        });
-        
-        return def;
-    }
-     
-    function logOut1()
-    {
-        var curPage = obj.getPage();
-        var def = deferred.create();  
-        
-        // reject if timeout
-        setTimeout(function(){
-            if (!def.isProcessed()) {
-                obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Logout takes too long...');
-                def.reject(obj.createErrorObject(1, 'Logout timeout'));
-            }
-        }, logOutTimeout);      
-
-        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting logout process...');    
-           
-        // checking top toolbar
-        obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/toptoolbar.js', 'odnoklassniki', 'topToolbar', 'plain-objects', ['sandbox/utils.js']).done(function(result){
-            obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Top toolbar found, trying to log out...');
-                        
+                      
             // page change callback
             obj.pushPageLoadFunc(function(status){                   
                 if (status == 'success') {
                     obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Checking if are logged out...');
-                    obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/mainloginform.js', 'odnoklassniki', 'mainLoginForm').done(function(result){                          
+                    obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/mainloginform.js', 'odnoklassniki', 'mainLoginForm', 'plain-objects', ['sandbox/utils.js']).done(function(result){                          
                         obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Main login form found, logged out...');
 
                         // add cookies
@@ -247,36 +208,34 @@ var Base = function(configObj)
                     }).fail(function(error){
                         obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Main login form not found, not logged out...');
                         def.reject(error);                             
-                    });                                           
+                    });     
+                    
+                              setTimeout(function(){obj.takeSnapshot('jpeg', 'test', '/', 1024, 768);}, 0);
                 } else {
                     obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Error while redirecting after logout...');
                     def.reject(obj.createErrorObject(3, 'Error while redirecting after logout'));
                 }                                   
-            });
+            });            
+            
+            // prepare dummy schema (click logout button)
+            var schema = require('../schemas/dummy/clicklogout').schema;
+            schema = obj.mergeDataAndDummySchema(schema, result);  
             
             // run dummy schema (click logout button)
-            var schema = require('../schemas/dummy/clicklogout').schema;
-            schema = obj.mergeDataAndDummySchema(schema, result);            
-                                                            
-            // run dummy schema
             obj.runDummySchema(schema).done(function(){                             
-                obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');
-                setTimeout(function(){obj.takeSnapshot('jpeg', 'test', '/', 1024, 768);}, 2000);
+                obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');      
             }).fail(function(error){
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema for logout...');
                 def.reject(obj.createErrorObject(4, error));
-            });            
-            
-        }).fail(function(error){         
+            });              
+        }).fail(function(error){
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot find top toolbar...');
-            def.reject(error);
+            def.reject(error);            
         });
-        
         
         return def;
     }
-    
-    
+     
     function logIn()
     {
         var curPage = obj.getPage();
@@ -398,7 +357,7 @@ var Base = function(configObj)
     this.logIn = function()
     {
         try {
-            return this.startOp(logIn);
+            return obj.startOp(logIn);
         } catch(e) {
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "logIn"...');
         }        
@@ -407,7 +366,7 @@ var Base = function(configObj)
     this.logOut = function()
     {
         try {
-            return this.startOp(logOut);
+            return obj.startOp(logOut);
         } catch(e) {
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "logOut"...');
         }        
@@ -416,7 +375,7 @@ var Base = function(configObj)
     this.openMainPage = function()
     {
         try {
-            return this.startOp(openMainPage);
+            return obj.startOp(openMainPage);
         } catch(e) {
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "openMainPage"...');
         }           
