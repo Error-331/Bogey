@@ -27,7 +27,7 @@ var Base = function(configObj)
      * @var int login operation timeout in milliseconds
      */      
     
-    var logInTimeout = 12000;
+    var logInTimeout = 16000;
     
     /**
      * @access private
@@ -63,6 +63,13 @@ var Base = function(configObj)
      */       
 
     var servicePassword = 'sad213CXZ';
+    
+    /**
+     * @access private
+     * @var bool property that indicates whether current object must relogin to odnoklassniki every time it is started
+     */      
+    
+    var reloginOnStart = false;
     
     /* Private members ends here */
       
@@ -209,8 +216,6 @@ var Base = function(configObj)
                         obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Main login form not found, not logged out...');
                         def.reject(error);                             
                     });     
-                    
-                              setTimeout(function(){obj.takeSnapshot('jpeg', 'test', '/', 1024, 768);}, 0);
                 } else {
                     obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Error while redirecting after logout...');
                     def.reject(obj.createErrorObject(3, 'Error while redirecting after logout'));
@@ -297,25 +302,34 @@ var Base = function(configObj)
         }            
                 
         // check if already loged in
-        isLogedIn().done(function(){
-           obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Already loged in, trying to logout...'); 
-
-            // trying to logout
-            logOut().done(function(){                
-                // open login page
-                openLoginPage().done(function(){
-                    obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Entering login data...');
-                    enterLogin();
+        isLogedIn().done(function(result){
+           obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Already loged in...');  
+           
+           // check reloginOnStart
+           if (reloginOnStart === true) {
+                obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Already loged in, trying to logout...'); 
+               
+                // trying to logout
+                logOut().done(function(){                
+                    // open login page
+                    openLoginPage().done(function(){
+                        obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Entering login data...');
+                        enterLogin();
+                    }).fail(function(error){
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot login...');
+                        def.reject(error);
+                    });                               
                 }).fail(function(error){
-                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot login...');
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot login...');     
                     def.reject(error);
-                });                               
-            }).fail(function(error){
-                obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot login...');     
-                def.reject(error);
-            });
-        
-           // def.resolve();
+                });    
+           } else {
+               obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Already loged in...');
+               
+               // add cookies
+               obj.addCookies(curPage.cookies);
+               def.resolve(result);   
+           }                        
         }).fail(function(){
             obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Not logged in, trying to login...');
             
@@ -352,6 +366,10 @@ var Base = function(configObj)
         if (typeof configObj != 'object') {
             return;
         }
+        
+        if (configObj.reloginOnStart != undefined) {
+            obj.setReloginOnStart(configObj.reloginOnStart);
+        }
     } 
     
     this.logIn = function()
@@ -382,7 +400,29 @@ var Base = function(configObj)
     }       
     
     /* Privileged core methods ends here */
-
+    
+    /* Privileged get methods starts here */
+    
+    this.getReloginOnStart = function()
+    {
+        return reloginOnStart;
+    }
+    
+    /* Privileged get methods ends here */
+    
+    /* Privileged set methods starts here */
+    
+    this.setReloginOnStart = function(usrRelogin)
+    {        
+        if (typeof usrRelogin != 'boolean') {
+            throw 'Property "reloginOnStart" must be boolean';
+        }
+        
+        reloginOnStart = usrRelogin;
+    }
+    
+    /* Privileged set methods ends here */    
+    
     this.configureService(configObj);
 }
 
