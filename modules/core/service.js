@@ -925,6 +925,23 @@ var Service = function(configObj, usrServiceName)
         return def;
     }
     
+    /**
+     * Method that validates page against defined schema.
+     *
+     * Method injects file with validator class (and other necessary files) into the current page, injects user defined schema 
+     * and validates page against this schema while in sandbox mode. Note that this method uses combined validator/dummy 
+     * schema and can enter sandbox mode multiple times. This method is more versatile than validatePageBySchema().
+     *
+     * @access privileged
+     * 
+     * @param object schema validator/dummy combined schema
+     * 
+     * @throws string 
+     * 
+     * @return object deferred object.
+     * 
+     */      
+    
     this.validatePageByDummySchema = function(schema)
     {
         var def = deferred.create();
