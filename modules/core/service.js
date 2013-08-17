@@ -361,7 +361,7 @@ var Service = function(configObj, usrServiceName)
             });
             
             funcDef.fail(function(){               
-                def.reject();
+                def.reject.apply(def, arguments);
                 isOpFinish = true;
                 
                 execOp();
