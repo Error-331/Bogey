@@ -345,6 +345,16 @@ var Base = function(configObj)
         
         return def;
     }
+    
+    function searchPeopleByCriteria(criteria)
+    {
+        var curPage = obj.getPage();
+        var def = deferred.create();         
+        
+        console.log('321');
+        
+        return def;
+    }
         
     /* Private core methods ends here */
     
@@ -397,11 +407,45 @@ var Base = function(configObj)
         } catch(e) {
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "openMainPage"...');
         }           
-    }       
+    }   
+
+    /**
+     * Method that starts operation 'searchPeopleByCriteria'.
+     *
+     * Current method puts operation 'searchPeopleByCriteria' on operation stack.
+     *
+     * @access privileged
+     * 
+     * @param object criteria of the search
+     * 
+     * @return object deferred object.
+     * 
+     */
+
+    this.searchPeopleByCriteria = function(criteria)
+    {
+        try {
+            return obj.startOp(searchPeopleByCriteria, criteria);
+        } catch(e) {
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "searchPeopleByCriteria"...');
+        }
+    }
     
     /* Privileged core methods ends here */
     
     /* Privileged get methods starts here */
+    
+    /**
+     * Method that returns value of the property that indicates whether current object must relogin to odnoklassniki every time it is started.
+     *
+     * Simple method that returns value of the property that indicates whether current object must relogin to odnoklassniki every 
+     * time it is started.
+     *
+     * @access privileged
+     * 
+     * @return bool value of the 'reloginOnStart' property.
+     * 
+     */      
     
     this.getReloginOnStart = function()
     {
@@ -411,7 +455,21 @@ var Base = function(configObj)
     /* Privileged get methods ends here */
     
     /* Privileged set methods starts here */
-    
+   
+    /**
+     * Method that sets value for the property that indicates whether current object must relogin to odnoklassniki every time it is started.
+     *
+     * Simple method that sets value for the property that indicates whether current object must relogin to odnoklassniki every 
+     * time it is started.
+     *
+     * @access privileged
+     * 
+     * @param bool usrRelogin value for the property
+     * 
+     * @throws string 
+     * 
+     */     
+   
     this.setReloginOnStart = function(usrRelogin)
     {        
         if (typeof usrRelogin != 'boolean') {
