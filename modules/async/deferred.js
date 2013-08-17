@@ -36,6 +36,9 @@
  * @author Selihov Sergei Stanislavovich <red331@mail.ru>
  */
 
+// Modules include
+var promise = require('../async/promise');
+
 var Deferred = function()
 {
     /* Private members starts here */
@@ -129,7 +132,7 @@ var Deferred = function()
             }
         } 
         
-        return this;
+        return obj;
     };
     
     /**
@@ -147,7 +150,7 @@ var Deferred = function()
      */       
     
     this.fail = function() 
-    {
+    { 
         if (arguments.length == 0) {
             return;
         }
@@ -175,7 +178,7 @@ var Deferred = function()
             }
         }   
         
-        return this;
+        return obj;
     };  
     
     /**
@@ -194,9 +197,9 @@ var Deferred = function()
         if (status == 'unknown') {
             var i = 0;
 
-            resolveArgs = arguments;
+            resolveArgs = arguments;  
             for (i = 0; i < resolveFunctions.length; i++) {
-                resolveFunctions[i].apply(null, arguments);
+                resolveFunctions[i].apply(null, resolveArgs);
             }
             
             status = 'resolve';
@@ -218,10 +221,10 @@ var Deferred = function()
     {   
         if (status == 'unknown') {
             var i = 0;
-            
+
             failArgs = arguments;
             for (i = 0; i < failFunctions.length; i++) {
-                failFunctions[i].apply(null, arguments);
+                failFunctions[i].apply(null, failArgs);
             }
             
             status = 'fail';
@@ -287,6 +290,24 @@ var Deferred = function()
             return true;
         }
     }    
+    
+    /**
+     * Returns promise object.
+     *
+     * Promise object restricts user to only add handler functions to the deferred object, but not to alter its state.
+     *
+     * @access privileged
+     *
+     * @return object promise object.
+     * 
+     * @throws string  
+     *
+     */     
+    
+    this.promise = function()
+    {
+        return promise.create(obj);
+    }
             
     /* Privileged core methods ends here */
 }
