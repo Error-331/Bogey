@@ -52,6 +52,13 @@ var Base = function(configObj)
     
     /**
      * @access private
+     * @var int timeout (in milliseconds) for operation which is responsible for searching people by criteria
+     */     
+    
+    var searchPeopleByCriteriaTimeout = 300000;
+    
+    /**
+     * @access private
      * @var string login for odnoklassniki
      */      
     
@@ -107,7 +114,7 @@ var Base = function(configObj)
             });                                  
         }
                 
-        return def;
+        return def.promise();
     }    
 
     function openLoginPage()
@@ -152,8 +159,19 @@ var Base = function(configObj)
             });       
         }
         
-        return def;
+        return def.promise();
     }
+    
+    /**
+     * Method that starts checks whether current object logged in to odnoklassniki or not.
+     *
+     * Current uses schema to parse main page and to find out evidence that the current object logged in to odnoklassniki or not.
+     *
+     * @access privileged
+     * 
+     * @return object promise.
+     * 
+     */    
        
     function isLogedIn()
     {
@@ -180,7 +198,7 @@ var Base = function(configObj)
             });           
         }
         
-        return def;
+        return def.promise();
     }   
      
     function logOut()
@@ -238,7 +256,7 @@ var Base = function(configObj)
             def.reject(error);            
         });
         
-        return def;
+        return def.promise();
     }
      
     function logIn()
@@ -343,7 +361,7 @@ var Base = function(configObj)
             });
         });
         
-        return def;
+        return def.promise();
     }
     
     function searchPeopleByCriteria(criteria)
@@ -351,9 +369,51 @@ var Base = function(configObj)
         var curPage = obj.getPage();
         var def = deferred.create();         
         
-        console.log('321');
-        
-        return def;
+        // reject if timeout
+        setTimeout(function(){
+            if (!def.isProcessed()) {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Search people by criteria takes too long...');
+                def.reject(obj.createErrorObject(1, 'Login timeout'));
+            }
+        }, searchPeopleByCriteriaTimeout);              
+                
+        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting search people by criteria process...');         
+       
+       // check if already loged in
+       logIn().done(function(){
+           openMainPage().done(function(){
+                 
+                // page change callback
+                obj.pushPageLoadFunc(function(status){                   
+                    if (status == 'success') {
+                        obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Setting criteria of the search...');
+                                         
+                    } else {
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Error while redirecting to search page...');
+                        def.reject(obj.createErrorObject(3, 'Error while redirecting after login'));
+                    }                                   
+                });          
+          
+                // click 'search new friends' button
+                var schema = require('../schemas/dummy/clicksearchnewfriends').schema;
+            
+                obj.runDummySchema(schema).done(function(){                             
+                    obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');                
+                }).fail(function(error){
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema for "click search new friends"...');
+                    def.reject(obj.createErrorObject(4, error));
+                });           
+          
+           }).fail(function(error){
+               obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot search people by criteria...');
+               def.reject(error);
+           });       
+       }).fail(function(error){
+           obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot search people by criteria...');
+           def.reject(error);
+       });
+
+        return def.promise();
     }
         
     /* Private core methods ends here */

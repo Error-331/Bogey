@@ -3,7 +3,14 @@ var od = require('../../modules/odnoklassniki/services/base').create({
     'viewportHeight': 768,
     
     'debugSandbox': true,
-    'modulesPath': '/var/www/phantomJS_scripts/modules/'
+    'modulesPath': '/var/www/phantomjs_scripts/modules/',
+    
+    // odnoklassniki configs
+    'reloginOnStart': false
 });
 
-od.logIn();
+var criteria = {
+    
+}
+
+od.searchPeopleByCriteria();
