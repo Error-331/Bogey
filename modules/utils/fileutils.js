@@ -134,14 +134,14 @@ exports.extractExtension = function(path)
 exports.addSeparator = function(path)
 {
     checkPathLength(path);
-    
+            
     var sep = path.lastIndexOf(fs.separator);
 
     if (sep == -1 || sep == 0) {
         path = path + fs.separator;
         return path;
     } else {
-        if (sep < path.length) {
+        if (sep < (path.length - 1)) {
             path = path + fs.separator;
         } else {
             return path;
