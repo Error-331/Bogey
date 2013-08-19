@@ -387,26 +387,51 @@ var Base = function(configObj)
                 
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting search people by criteria process...');         
        
+        // check criteria
+        if (typeof criteria != 'object') {
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Criteria is not set...');
+            def.reject(obj.createErrorObject(5, 'Criteria is not set'));    
+            
+            return def.promise();
+        }
+               
         // check if already loged in
         logIn().done(function(){
             openMainPage().done(function(){
-                 
-                // page change callback
-                obj.pushPageLoadFunc(function(status){               
-                    if (status == 'success') {
-                        obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Setting criteria of the search...');                                                              
-                    } else {
-                        obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Error while redirecting to search page...');
-                        def.reject(obj.createErrorObject(3, 'Error while redirecting after login'));
-                    }                                   
-                });          
-          
+                           
                 // click 'search new friends' button
                 var schema = require('../schemas/dummy/clicksearchnewfriends').schema;
-            
-                obj.runDummySchema(schema).done(function(){                             
+                var schemaVars = new Array();
+                
+                // prepare criteria (gender)
+                if (criteria.gender === undefined) {
+                    criteria.gender == 'any';
+                }
+        
+                if (typeof criteria.gender == 'string') {
+                    criteria.gender = criteria.gender.toLowerCase();
+                }
+        
+                switch(criteria.gender) {
+                    case 'male':
+                        schemaVars['gender'] = 1;
+                    case 'female':
+                        schemaVars['gender'] = 2;
+                    case 'any':
+                        schemaVars['gender'] = 0;
+                        break;
+                    default:
+                        def.reject(obj.createErrorObject(5, 'Criteria gender is invalid'));  
+                    break;
+                }       
+                
+                obj.runDummySchema(schema, criteria).done(function(){                             
                     obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');   
-                        obj.takeSnapshot('jpeg', 'test', '', 1024, 768, 6000);
+                    
+                    
+                    
+                    
+                    obj.takeSnapshot('jpeg', 'test', '', 1024, 768, 6000);
                 }).fail(function(error){
                     obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema for "click search new friends"...');
                     def.reject(obj.createErrorObject(4, error));

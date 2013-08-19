@@ -1031,20 +1031,34 @@ var Service = function(configObj, usrServiceName)
      * @access privileged
      * 
      * @param object schema operation schema
+     * @param array dummy schema variables
+     *  
+     * @return object deferred object.
      * 
      * @throws string 
      * 
-     * @return object deferred object.
-     * 
      */        
         
-    this.runDummySchema = function(schema)
+    this.runDummySchema = function(schema, variables)
     {
         if (typeof schema != 'object') {
             throw 'Schema for "dummy" must be object';
         }
+        
+        var dummyObj = dummy.create(obj);
+        var key = '';
               
-        return dummy.create(obj).runSchema(schema);
+        if (variables !== undefined) {
+            if (typeof variables != 'object') {
+                throw 'Variables for dummy schema must presented as array';
+            }
+            
+            for (key in variables) {
+                dummyObj.addDummySchemaVar(key, variables[key]);
+            }
+        } 
+             
+        return dummyObj.runSchema(schema);
     }
         
     /* Privileged core methods ends here */

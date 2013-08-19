@@ -59,6 +59,8 @@ var Dummy = function(usrService)
     
     var sandboxResultStack = new Array();
     
+    var dummySchemaVarsStack = new Array();
+    
     /* Private members ends here */
     
     /* Private core methods starts here */
@@ -68,7 +70,12 @@ var Dummy = function(usrService)
         sandboxResultStack = new Array();
     }
     
-    function parsePrevMetaFunc(prop)
+    function clearDummySchemaVarsStack()
+    {
+        dummySchemaVarsStack = new Array();
+    }
+    
+    function parseItemMetaFunc(prop)
     {        
         var par1 = prop.indexOf('(');
         var par2 = prop.indexOf(')');
@@ -95,7 +102,7 @@ var Dummy = function(usrService)
             {
                 re: /^item\([0-9]+\)\.[a-zA-Z]+$/,
                 func: function (prop) {
-                    return parsePrevMetaFunc(prop);
+                    return parseItemMetaFunc(prop);
                 }
             }
         ];
@@ -515,6 +522,23 @@ var Dummy = function(usrService)
     
     /* Privileged core methods starts here */
     
+    this.addDummySchemaVar = function(key, val)
+    {        
+        if (typeof key != 'string') {
+            throw 'Dummy schema variable key must be string';
+        }    
+        
+        if (key.length == 0) {
+            throw 'Dummy schema variable key length cannot be zero';
+        }
+        
+        if (val === undefined) {
+            throw 'Dummy schema variable cannot be undefined';
+        }
+        
+        dummySchemaVarsStack[key] = val;
+    }
+    
     /**
      * Method that runs "dummy" schema.
      *
@@ -553,6 +577,8 @@ var Dummy = function(usrService)
                         
         var loopFunc = function() {          
             if (keys[i] == undefined) {
+                clearDummySchemaVarsStack();
+                
                 def.resolve();
                 return;
             }
