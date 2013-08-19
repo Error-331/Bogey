@@ -119,7 +119,7 @@ var Service = function(configObj, usrServiceName)
      * @var string current page URL
      */       
     
-    var curPageURL = '';
+    var curPageURL = curPage.url;
     
     /**
      * @access private
@@ -662,9 +662,13 @@ var Service = function(configObj, usrServiceName)
             if (name !== undefined) {
                 imgName = fileUtils.checkImgName(name);
             }
-        
-            if (path !== undefined && fileUtils.isPathWritable(path)) {
-                var dirPath = fileUtils.addSeparator(path)
+            
+            if (path === undefined || (typeof path == 'string' && path.length == 0)) {
+                dirPath = '';
+            } else {
+                if (fileUtils.isPathWritable(path)) {    
+                    dirPath = fileUtils.addSeparator(path);
+                }
             }
         } catch (e) {
             def.reject(e);
