@@ -3,7 +3,7 @@ var od = require('../../modules/odnoklassniki/services/base').create({
     'viewportHeight': 768,
     
     'debugSandbox': true,
-    'modulesPath': '/var/www/phantomjs_scripts/modules/',
+    'modulesPath': '/var/www/phantomJS_scripts/modules/',
     
     // odnoklassniki configs
     'reloginOnStart': false

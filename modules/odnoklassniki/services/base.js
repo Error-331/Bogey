@@ -41,7 +41,7 @@ var Base = function(configObj)
      * @var int timeout (in milliseconds) for operation which is responsible for opening main page of the service
      */          
     
-    var openMainPageTimeout = 3000; 
+    var openMainPageTimeout = 5000; 
    
     /**
      * @access private
@@ -104,7 +104,7 @@ var Base = function(configObj)
         } else {         
             // open main page
             curPage.open(mainPageURL, function(status) {
-                if (status == 'success') {
+                if (status == 'success' && !def.isProcessed()) {
                     obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'success', 'Main page successfuly opened...'); 
                     def.resolve();
                 } else {
@@ -176,9 +176,10 @@ var Base = function(configObj)
     function isLogedIn()
     {
         var def = deferred.create();  
-        
+        var curURL = obj.getCurPageURL();
+
         // check if any page is open
-        if (obj.getCurPageURL() == '') {
+        if (curURL == '' || curURL == 'about:blank') {
             obj.openMainPage().done(function(){
                 // parse toolbar
                 obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/maintoolbar.js', 'odnoklassniki', 'mainToolbar', 'plain-objects').done(function(result){
@@ -348,7 +349,14 @@ var Base = function(configObj)
                obj.addCookies(curPage.cookies);
                def.resolve(result);   
            }                        
-        }).fail(function(){
+        }).fail(function(error){
+            if (typeof error == 'object' && (error.code == 3 || error.code == 1)) {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot login, error while checking login status...');               
+                def.reject(error);
+                
+                return def.promise();
+            }
+                       
             obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Not logged in, trying to login...');
             
             // open login page
@@ -379,15 +387,14 @@ var Base = function(configObj)
                 
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting search people by criteria process...');         
        
-       // check if already loged in
-       logIn().done(function(){
-           openMainPage().done(function(){
+        // check if already loged in
+        logIn().done(function(){
+            openMainPage().done(function(){
                  
                 // page change callback
-                obj.pushPageLoadFunc(function(status){                   
+                obj.pushPageLoadFunc(function(status){               
                     if (status == 'success') {
-                        obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Setting criteria of the search...');
-                                         
+                        obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Setting criteria of the search...');                                                              
                     } else {
                         obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Error while redirecting to search page...');
                         def.reject(obj.createErrorObject(3, 'Error while redirecting after login'));
@@ -398,7 +405,8 @@ var Base = function(configObj)
                 var schema = require('../schemas/dummy/clicksearchnewfriends').schema;
             
                 obj.runDummySchema(schema).done(function(){                             
-                    obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');                
+                    obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');   
+                        obj.takeSnapshot('jpeg', 'test', '', 1024, 768, 6000);
                 }).fail(function(error){
                     obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema for "click search new friends"...');
                     def.reject(obj.createErrorObject(4, error));
@@ -547,7 +555,7 @@ var Base = function(configObj)
 exports.constFunc = Base;
 exports.create = function create(configObj) {
     "use strict";
-    //obj.takeSnapshot('jpeg', 'test', '/', 1024, 768);
+    //obj.takeSnapshot('jpeg', 'test', '', 1024, 768);
     Base.prototype = service.create(configObj, 'odnoklassniki_base');
     return new Base(configObj, 'odnoklassniki_base');
 };          
