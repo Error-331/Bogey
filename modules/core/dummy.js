@@ -75,6 +75,94 @@ var Dummy = function(usrService)
         dummySchemaVarsStack = new Array();
     }
     
+    function parseDummyVarFunc(prop)
+    {
+        var re = /(\$[a-zA-Z]+[a-zA-Z0-9_]*)(\.[a-zA-Z]+[a-zA-Z0-9_]*)?/g;  
+
+        var match = false;
+        var matches = new Array();
+    
+        var varStartPos = new Array();
+        var varLengths = new Array();
+    
+        var firstPart = '';
+        var secondPart = '';    
+    
+        var posOffset = 0;
+        var key;
+        var i;    
+        
+        var getRightVar = function(curVar, curMatch) {
+            var prop;
+            
+            if (typeof curVar == 'object' && curMatch[2] === undefined) {
+                throw 'Dummy variable contains object, but string variable does not point to it';
+            }
+            
+            if (typeof curVar != 'object' && curMatch[2] !== undefined) {
+                throw 'Dummy variable does not contains an object, but string variable points to it';
+            }
+
+            if (typeof curVar == 'object' && curMatch[2] !== undefined) {
+                prop = curMatch[2].substr(1);
+                
+                if (curVar[prop] === undefined) {
+                    throw 'Dummy variable does not contain property: "' + prop + '"';
+                }
+                
+                return curVar[prop];
+            } else {
+                return curVar;
+            }
+        }
+                 
+        // find all matches (and related info)
+        match = re.exec(prop);
+
+        while (match != null) {  
+            matches.push(match);        
+            varLengths.push(match[0].length); 
+        
+            posOffset = prop.indexOf(match[0], posOffset)
+            varStartPos.push(posOffset);
+        
+            posOffset += match[0].length;
+        
+            match = re.exec(prop);
+        }  
+          
+        // replace all matches
+        for (match = 0; match < matches.length; match++) {
+            key = matches[match][1].substr(1);
+        
+            if (dummySchemaVarsStack[key] === undefined) {
+                continue;
+            }
+        
+            if (varStartPos[match] == 0) {
+                if (matches.length == 1 && (matches[0][0].length == prop.length)) {
+                    return getRightVar(dummySchemaVarsStack[key], matches[match]);                 
+                } else {
+                    firstPart = getRightVar(dummySchemaVarsStack[key], matches[match]);
+                    secondPart = prop.substr(varStartPos[match] + varLengths[match]);  
+                }                                   
+            } else {
+                firstPart = prop.substr(0, varStartPos[match]);
+                secondPart = getRightVar(dummySchemaVarsStack[key], matches[match]) + prop.substr(varStartPos[match] + matches[match][0].length);
+            }
+        
+            prop = firstPart + secondPart;
+
+            // recalculate starting positions
+            for (i = match + 1; i < matches.length; i ++) {    
+                posOffset = getRightVar(dummySchemaVarsStack[key], matches[match]).toString().length - matches[match][0].length;
+                varStartPos[i] += posOffset;
+            }               
+        }  
+ 
+        return prop;
+    }
+    
     function parseItemMetaFunc(prop)
     {        
         var par1 = prop.indexOf('(');
@@ -100,6 +188,12 @@ var Dummy = function(usrService)
     {
         var reArr = [
             {
+                re: /(\$[a-zA-Z]+[a-zA-Z0-9_]*)(\.[a-zA-Z]+[a-zA-Z0-9_]*)?/g,
+                func: function(prop) {
+                    return parseDummyVarFunc(prop)                    
+                }
+            },                     
+            {
                 re: /^item\([0-9]+\)\.[a-zA-Z]+$/,
                 func: function (prop) {
                     return parseItemMetaFunc(prop);
@@ -113,6 +207,8 @@ var Dummy = function(usrService)
         for (prop in elm) {
             if (typeof elm[prop] == 'string') {
                 for (re in reArr) {
+                    
+                    reArr[re].re.compile(reArr[re].re);
                     if (reArr[re].re.test(elm[prop])) {
                         elm[prop] = reArr[re].func(elm[prop]);
                     }
@@ -283,7 +379,7 @@ var Dummy = function(usrService)
     {
         var def = deferred.create();
         var page = service.getPage();  
-        
+
         var execFunc = function(){
             page.sendEvent('mousemove', elm.left, elm.top, elm.btn);
             page.sendEvent('click');     
