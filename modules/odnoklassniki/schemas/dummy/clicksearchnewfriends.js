@@ -1,5 +1,17 @@
-exports.schema = {    
+exports.schema = {  
     step1: {
+        type: 'dummy',
+        op: 'click',
+        
+        left: '$gender.left',
+        top: '$gender.top',
+        
+        offset_left: 0,
+        offset_top: 0
+    }       
+    
+    
+   /* step1: {
         type: 'sandbox',
         format: 'plain-objects',
         scripts: ['sandbox/utils.js'],
@@ -58,5 +70,5 @@ exports.schema = {
         
         offset_left: 50,
         offset_top: 0
-    }
+    }*/                 
 }

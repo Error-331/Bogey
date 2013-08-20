@@ -411,27 +411,28 @@ var Base = function(configObj)
                 if (typeof criteria.gender == 'string') {
                     criteria.gender = criteria.gender.toLowerCase();
                 }
-        
                 switch(criteria.gender) {
                     case 'male':
-                        schemaVars['gender'] = 1;
+                        schemaVars['gender'] = 100;
+                        break;
                     case 'female':
-                        schemaVars['gender'] = 2;
+                        schemaVars['gender'] = 200;
+                        break;
                     case 'any':
-                        schemaVars['gender'] = 0;
+                        schemaVars['gender'] = 300;
                         break;
                     default:
                         def.reject(obj.createErrorObject(5, 'Criteria gender is invalid'));  
-                    break;
+                        break;
                 }       
-                
-                obj.runDummySchema(schema, criteria).done(function(){                             
+schemaVars['gender'] = {'left': 500, 'top': 0};
+                obj.runDummySchema(schema, schemaVars).done(function(){                             
                     obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');   
                     
                     
                     
                     
-                    obj.takeSnapshot('jpeg', 'test', '', 1024, 768, 6000);
+                    obj.takeSnapshot('jpeg', 'test', '', 1024, 768, 1000);
                 }).fail(function(error){
                     obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema for "click search new friends"...');
                     def.reject(obj.createErrorObject(4, error));
