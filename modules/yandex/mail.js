@@ -1,70 +1,7 @@
-/**
- * Bogey
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the GNU GENERAL PUBLIC LICENSE (Version 3)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://www.gnu.org/licenses/gpl.html
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to red331@mail.ru so we can send you a copy immediately.
- *
- * Module mail is a part of PhantomJS framework - Bogey.
- *
- * @package Phantasm
- * @author Selihov Sergei Stanislavovich <red331@mail.ru>
- * @copyright Copyright (c) 2013 Selihov Sergei Stanislavovich.
- * @license http://www.gnu.org/licenses/gpl.html GNU GENERAL PUBLIC LICENSE (Version 3)
- *
- */
-
-/**
- * Modules for Yandex service (http://www.yandex.ru).
- *
- * @subpackage yandex
- * @author Selihov Sergei Stanislavovich <red331@mail.ru>
- */
-
-/**
- * Documents the Mail class.
- *
- * Following code represents a wrapper class for Yandex-mail service.
- *
- * @subpackage Antigate
- * @author Selihov Sergei Stanislavovich <red331@mail.ru>
- */
-
-// Modules include
-var service = require('../core/service');
-var deferred = require('../async/deferred');
-var sandboxutils = require('../utils/sandboxutils');
-
 var Mail = function(configObj)
 { 
     service.constFunc.call(this, configObj, 'yandex_mail');
-    
-    /* Private members starts here */
-    
-    /**
-     * @access private
-     * @var object link to the current object
-     */        
-    
-    var obj = this;    
-    
-    var mainPageURL = 'http://mail.yandex.ru/';
-    
-    var logOutTimeout = 5000;
-    var openMainPageTimeout = 3000;
-    var openRegPageTimeout = 3000;
-    var extractRegPageCaptchaTimeout = 3500;
-    
-    var mainPageMainLinkClickDelay = 3000;
-      
-    /* Private members ends here */
-    
+        
     /* Private core methods starts here */      
     
     function logOut()
@@ -84,34 +21,7 @@ var Mail = function(configObj)
         
         return def;
     }
-    
-    function openMainPage()
-    {
-        var curPage = this.getPage();
-        var def = deferred.create();
         
-        // reject if timeout
-        setTimeout(function(){
-            if (!def.isDone()) {
-                obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Opening main page takes too long...');
-                def.reject();
-            }
-        }, openMainPageTimeout);          
-        
-        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Opening main page...'); 
-        curPage.open(mainPageURL, function(status) {
-            if (status == 'success') {
-                obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'success', 'Main page successfuly opened...'); 
-                def.resolve();
-            } else {
-                obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Cannot open main page...'); 
-                def.reject();
-            }           
-        });
-        
-        return def;
-    }
-    
     function openRegPage()
     {
         var curPage = obj.getPage();

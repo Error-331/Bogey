@@ -180,12 +180,14 @@ var Base = function(configObj)
     {
         var def = deferred.create();  
         var curURL = obj.getCurPageURL();
+        
+        var result = null;
 
         // check if any page is open
         if (curURL == '' || curURL == 'about:blank') {
             obj.openMainPage().done(function(){
                 // parse toolbar
-                obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/maintoolbar.js', 'odnoklassniki', 'mainToolbar', 'plain-objects').done(function(result){
+                result = obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/maintoolbar.js', 'odnoklassniki', 'mainToolbar', 'plain-objects', ['sandbox/utils.js']).done(function(result){
                     def.resolve(result);
                 }).fail(function(error){
                     def.reject(error);
