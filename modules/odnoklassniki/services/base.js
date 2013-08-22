@@ -70,17 +70,20 @@ var Base = function(configObj)
      */       
 
     var servicePassword = 'sad213CXZ';
-    
-    /**
-     * @access private
-     * @var bool property that indicates whether current object must relogin to odnoklassniki every time it is started
-     */      
-    
-    var reloginOnStart = false;
-    
+        
     /* Private members ends here */
       
     /* Private core methods starts here */ 
+    
+    /**
+     * Method that is responsible for opening main page of the service.
+     *
+     * Simple method that tries to open main page of the service.
+     *
+     * @access private
+     *
+     * @return object operation promise.
+     */       
                    
     function openMainPage()
     {
@@ -469,11 +472,7 @@ schemaVars['gender'] = {'left': 500, 'top': 0};
     {
         if (typeof configObj != 'object') {
             return;
-        }
-        
-        if (configObj.reloginOnStart != undefined) {
-            obj.setReloginOnStart(configObj.reloginOnStart);
-        }
+        }       
     } 
     
     this.logIn = function()
@@ -492,7 +491,17 @@ schemaVars['gender'] = {'left': 500, 'top': 0};
         } catch(e) {
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "logOut"...');
         }        
-    }    
+    }   
+    
+    /**
+     * Operation method that starts (or puts to the stack) operation 'openMainPage'.
+     *
+     * Method that starts operation that tries to open main page of the service.
+     *
+     * @access privileged
+     *
+     * @return object operation promise.
+     */      
     
     this.openMainPage = function()
     {
@@ -527,52 +536,10 @@ schemaVars['gender'] = {'left': 500, 'top': 0};
     
     /* Privileged core methods ends here */
     
-    /* Privileged get methods starts here */
-    
-    /**
-     * Method that returns value of the property that indicates whether current object must relogin to odnoklassniki every time it is started.
-     *
-     * Simple method that returns value of the property that indicates whether current object must relogin to odnoklassniki every 
-     * time it is started.
-     *
-     * @access privileged
-     * 
-     * @return bool value of the 'reloginOnStart' property.
-     * 
-     */      
-    
-    this.getReloginOnStart = function()
-    {
-        return reloginOnStart;
-    }
-    
+    /* Privileged get methods starts here */    
     /* Privileged get methods ends here */
     
-    /* Privileged set methods starts here */
-   
-    /**
-     * Method that sets value for the property that indicates whether current object must relogin to odnoklassniki every time it is started.
-     *
-     * Simple method that sets value for the property that indicates whether current object must relogin to odnoklassniki every 
-     * time it is started.
-     *
-     * @access privileged
-     * 
-     * @param bool usrRelogin value for the property
-     * 
-     * @throws string 
-     * 
-     */     
-   
-    this.setReloginOnStart = function(usrRelogin)
-    {        
-        if (typeof usrRelogin != 'boolean') {
-            throw 'Property "reloginOnStart" must be boolean';
-        }
-        
-        reloginOnStart = usrRelogin;
-    }
-    
+    /* Privileged set methods starts here */    
     /* Privileged set methods ends here */    
     
     this.configureService(configObj);

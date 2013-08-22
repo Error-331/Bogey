@@ -165,6 +165,13 @@ var Service = function(configObj, usrServiceName)
     
     var viewportHeight = 768;
     
+    /**
+     * @access private
+     * @var bool property that indicates whether current object must relogin to the service every time it is started
+     */      
+    
+    var reloginOnStart = false;    
+    
     /* Private members ends here */
     
     /* Private core methods starts here */
@@ -220,6 +227,10 @@ var Service = function(configObj, usrServiceName)
         if (configObj.viewportHeight != undefined) {
             obj.setViewportHeight(configObj.viewportHeight);
         }
+        
+        if (configObj.reloginOnStart != undefined) {
+            obj.setReloginOnStart(configObj.reloginOnStart);
+        }        
         
         // set viewport size
         curPage.viewportSize = {width: viewportWidth, height: viewportHeight};
@@ -1194,6 +1205,23 @@ var Service = function(configObj, usrServiceName)
     {
         return viewportHeight;
     }
+    
+    /**
+     * Method that returns value of the property that indicates whether current object must relogin to the service every time it is started.
+     *
+     * Simple method that returns value of the property that indicates whether current object must relogin to the service every 
+     * time it is started.
+     *
+     * @access privileged
+     * 
+     * @return bool value of the 'reloginOnStart' property.
+     * 
+     */      
+    
+    this.getReloginOnStart = function()
+    {
+        return reloginOnStart;
+    }    
           
     /* Privileged get methods ends here */
     
@@ -1369,6 +1397,29 @@ var Service = function(configObj, usrServiceName)
         viewportHeight = usrHeight;
         curPage.viewportSize = {width: viewportWidth, height: viewportHeight}; 
     }
+    
+    /**
+     * Method that sets value for the property that indicates whether current object must relogin to the service every time it is started.
+     *
+     * Simple method that sets value for the property that indicates whether current object must relogin to the service every 
+     * time it is started.
+     *
+     * @access privileged
+     * 
+     * @param bool usrRelogin value for the property
+     * 
+     * @throws string 
+     * 
+     */     
+   
+    this.setReloginOnStart = function(usrRelogin)
+    {        
+        if (typeof usrRelogin != 'boolean') {
+            throw 'Property "reloginOnStart" must be boolean';
+        }
+        
+        reloginOnStart = usrRelogin;
+    }    
   
     /* Privileged set methods ends here */  
 
