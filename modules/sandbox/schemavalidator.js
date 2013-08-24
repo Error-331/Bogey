@@ -73,6 +73,7 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
         var subRes = null;
         
         var func = null;
+        var funcRes = null;
         var i = 0;
         
         // check 'text' property
@@ -98,7 +99,7 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
         // check 'func' property
         if (usrScheme.func != undefined) {
             if (typeof usrScheme.func == 'function') {
-                result.push(usrScheme.func(rootElm));
+                funcRes = usrScheme.func(rootElm);
             } else if (typeof usrScheme.func == 'string') {
                 usrScheme.func = usrScheme.func.split('.');
                 
@@ -111,14 +112,26 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
                 }
                 
                 usrScheme.func = func;
-                result.push(usrScheme.func(rootElm));
+                funcRes = usrScheme.func(rootElm)
             } else {
                 throw '"func" property must be function';
             }
         } else {
-            result.push(true);
+            funcRes = {};
         }
-        
+
+        // check 'varName' property      
+        if (usrScheme.varName !== undefined) {
+            if (typeof usrScheme.varName != 'string' || usrScheme.varName.length <= 0) {
+                throw '"varName" property must be string and its length must be greater than zero';
+            }
+            
+            funcRes.varName = usrScheme.varName
+            result.push(funcRes);
+        } else {
+            result.push(funcRes);
+        }          
+         
         // check 'sub' property
         if (usrScheme.sub != undefined) {
             if (typeof usrScheme.sub == 'object') {
