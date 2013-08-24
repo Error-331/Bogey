@@ -1335,7 +1335,7 @@ var Service = function(configObj, usrServiceName)
         debugSandbox = usrDebugSandbox;
 
         
-        if (debugSandbox == false) {
+        if (debugSandbox == true) {
             curPage.onAlert = function(msg) {
                 console.log('Page alert: ' + msg);
             };
