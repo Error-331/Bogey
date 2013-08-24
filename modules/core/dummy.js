@@ -493,7 +493,7 @@ var Dummy = function(usrService)
         
         return def;
     }
-    
+        
     function runSandboxSchemaElm(elm)
     {
         var def = deferred.create();       
@@ -507,6 +507,16 @@ var Dummy = function(usrService)
         service.validatePageByDummySchema(elm).done(function(result){
             for (res in result) {
                 sandboxResultStack.push(result[res]);
+                
+                // check for dummy vars
+                if (typeof result[res] == 'object' && result[res].varName !== undefined) {                  
+                    if (result[res].varName.length <= 0) {
+                        throw 'Property "varName" of the resulting object cannot have length equal or less than zero';
+                    }
+                    
+                    // merge variables from sandbox with variables that are already in the stack
+                    obj.mergeDummyVar(result[res].varName, result[res]);
+                }
             }
 
             def.resolve();
@@ -634,6 +644,32 @@ var Dummy = function(usrService)
         
         dummySchemaVarsStack[key] = val;
     }
+    
+    this.mergeDummyVar = function(name, data)
+    {      
+        if (typeof name != 'string' || name.length <= 0) {
+            throw 'Dummy variable name must be string and have length greater than zero';
+        }
+        
+        if (data === undefined) {
+            return;
+        }    
+        
+        if (dummySchemaVarsStack[name] !== undefined) {  
+            if (typeof dummySchemaVarsStack[name] == 'object' && typeof data == 'object') {
+                var key;
+                
+                for (key in data) {
+                    dummySchemaVarsStack[name][key] = data[key];
+                }
+                
+            } else {
+                dummySchemaVarsStack[name] = data;
+            }
+        } else {
+            obj.addDummySchemaVar(name, data);
+        }
+    }    
     
     /**
      * Method that runs "dummy" schema.
