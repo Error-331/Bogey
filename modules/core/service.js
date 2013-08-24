@@ -74,6 +74,13 @@ var Service = function(configObj, usrServiceName)
     
     /**
      * @access private
+     * @var string current page name
+     */          
+    
+    var curPageName = 'unknown';
+    
+    /**
+     * @access private
      * @var boolean flag that indicates whether current operation has finished or not
      */    
     
@@ -1109,6 +1116,22 @@ var Service = function(configObj, usrServiceName)
     }
     
     /**
+     * Method that returns current page name.
+     *
+     * Simple method that returns current page name.
+     *
+     * @access privileged
+     * 
+     * @return string page name.
+     * 
+     */        
+    
+    this.getCurPageName = function()
+    {
+        return curPageName;
+    }
+    
+    /**
      * Method that returns current page URL.
      *
      * Simple method that returns current page URL.
@@ -1254,6 +1277,32 @@ var Service = function(configObj, usrServiceName)
     }
     
     /**
+     * Method that sets current page name.
+     *
+     * Simple method that sets current page name.
+     *
+     * @access privileged
+     * 
+     * @param string usrPageName page name
+     * 
+     * @throws string 
+     * 
+     */      
+    
+    this.setCurPageName = function(usrPageName)
+    {
+        if (typeof usrPageName != 'string') {
+            throw 'Page name is not a string';
+        }
+        
+        if (usrPageName.length <= 0) {
+            throw 'Page name length cannot be zero';            
+        }
+        
+        curPageName = usrPageName;
+    }
+    
+    /**
      * Method that sets current service 'persistCookies' option value.
      *
      * This option tells service whether to save or not to save cookies to the file.
@@ -1339,8 +1388,13 @@ var Service = function(configObj, usrServiceName)
             curPage.onAlert = function(msg) {
                 console.log('Page alert: ' + msg);
             };
+            
+            curPage.onConsoleMessage = function(msg) {
+                console.log('Page console: ' + msg);
+            };
         } else {
             curPage.onAlert = undefined;
+            curPage.onConsoleMessage = undefined;
         }
     }
     
