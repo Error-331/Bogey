@@ -38,6 +38,31 @@ Bogey.utils.findOffset = function (obj)
     return {top: curtop, left: curleft, width: curWidth, height: curHeight};
 }
 
+Bogey.utils.findChildrenOffset = function(parElm, sel)
+{
+    if (typeof parElm != 'object') {
+        throw 'Parent element must be object';
+    }
+    
+    if (typeof sel != 'string') {
+        throw 'Child selector must be string';
+    }
+    
+    var children = parElm.querySelectorAll(sel);
+    var result = {'data': new Array()};
+    var i;
+    
+    if (children.length == 0) {
+        return result.data;
+    }
+    
+    for (i = 0; i < children.length; i++) {
+        result.data.push(Bogey.utils.findOffset(children.item(i)));
+    }
+    
+    return result;
+}
+
 Bogey.utils.trim = function(str)
 {                    
     if (typeof str != 'string') {
