@@ -543,6 +543,16 @@ var Dummy = function(usrService)
         }  
         
         elm.op = elm.op.toLowerCase();
+        
+        // check 'func_before'
+        if (elm.func_before !== undefined) {
+            if (typeof elm.func_before != 'function') {
+                throw 'Property "func_before" must be function';
+            }
+            
+            elm.func_before.call(obj, elm);
+        }
+        
         elm = checkProperties(elm);
                
         switch(elm.op){
@@ -637,11 +647,7 @@ var Dummy = function(usrService)
         if (key.length == 0) {
             throw 'Dummy schema variable key length cannot be zero';
         }
-        
-        if (val === undefined) {
-            throw 'Dummy schema variable cannot be undefined';
-        }
-        
+                
         dummySchemaVarsStack[key] = val;
     }
     
@@ -748,6 +754,30 @@ var Dummy = function(usrService)
         return service;
     }
     
+    /**
+     * Method that returns dummy variable by name.
+     *
+     * Simple method that returns dummy variable by name.
+     *
+     * @access privileged
+     * 
+     * @param string name of the variable
+     * 
+     * @return mixed variable value.
+     * 
+     * @throws string 
+     * 
+     */     
+    
+    this.getDummyVar = function(name)
+    {
+        if (typeof name != 'string') {
+            throw 'Dummy variable name must be string';
+        }
+        
+        return dummySchemaVarsStack[name];
+    }
+    
     /* Privileged get methods ends here */
     
     /* Privileged set methods starts here */
@@ -772,6 +802,33 @@ var Dummy = function(usrService)
         }
         
         service = usrService;
+    }
+    
+    /**
+     * Method that sets value to the dummy variable by name.
+     *
+     * Simple method that sets value to the dummy variable by name.
+     *
+     * @access privileged
+     * 
+     * @param string name of the variable
+     * @param mixed value of the variable
+     * 
+     * @throws string 
+     * 
+     */     
+    
+    this.setDummyVar = function(name, value)
+    {
+        if (typeof name != 'string') {
+            throw 'Dummy var name must be string';
+        }
+        
+        if (dummySchemaVarsStack[name] === undefined) {
+            throw 'Dummy var: "' + name + '" does not exist';
+        }
+        
+        dummySchemaVarsStack[name] = value;
     }
     
     /* Privileged set methods ends here */   
