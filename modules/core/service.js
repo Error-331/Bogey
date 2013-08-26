@@ -1019,7 +1019,6 @@ var Service = function(configObj, usrServiceName)
         // evalute page
         var result = JSON.parse(curPage.evaluate(function(schema, format) {
             try {     
-                alert(schema);
                 schema = JSON.parse(schema);
                 
                 var validator = new Bogey.SchemaValidator(schema, format);
