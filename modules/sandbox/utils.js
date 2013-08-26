@@ -6,7 +6,7 @@ if (Bogey.utils == undefined){
     Bogey.utils = {};
 }
 
-Bogey.utils.findOffset = function (obj) 
+Bogey.utils.findOffset = function(obj) 
 {
     var obj2 = obj;
     
@@ -61,6 +61,20 @@ Bogey.utils.findChildrenOffset = function(parElm, sel)
     }
     
     return result;
+}
+
+Bogey.utils.findSelectOffset = function(obj) 
+{
+    if (obj.tagName.toLowerCase() != 'select') {
+        throw 'Function only accepts "select" elements';
+    }
+
+    var offset = Bogey.utils.findOffset(obj);
+    
+    offset.size = obj.size;
+    offset.selectedIndex = obj.selectedIndex;
+
+    return offset;
 }
 
 Bogey.utils.trim = function(str)

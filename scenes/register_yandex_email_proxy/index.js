@@ -1,4 +1,7 @@
-var ym = require('../../modules/yandex/services/mail').create({
+var newScenario = require('../../modules/core/scenario').create();
+//var newScenario = require('../../modules/yandex/scenarios/register_mail').create();
+
+/*var ym = require('../../modules/yandex/services/mail').create({
     'viewportWidth': 1024,
     'viewportHeight': 768,
     
@@ -9,4 +12,4 @@ var ym = require('../../modules/yandex/services/mail').create({
     'reloginOnStart': true
 });
 
-ym.registerMailAccount();
+ym.registerMailAccount();*/

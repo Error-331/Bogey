@@ -91,5 +91,37 @@ exports.schema = {
         
         delay_before: 1000,
         delay_after: 1000        
-    }
+    },
+    
+    step7: {
+        type: 'dummy',
+        op: 'fillTextInput',
+        
+        left: '$password.left',
+        top: '$password.top',
+        
+        offset_left: 3,
+        offset_top: 3,
+        
+        text: 'test12333',
+        
+        delay_before: 1000,
+        delay_after: 2000
+    },    
+    
+    step8: {
+        type: 'dummy',
+        op: 'fillTextInput',
+        
+        left: '$passwordConfirm.left',
+        top: '$passwordConfirm.top',
+        
+        offset_left: 3,
+        offset_top: 3,
+        
+        text: 'test12333',
+        
+        delay_before: 1000,
+        delay_after: 2000
+    }     
 }

@@ -38,7 +38,7 @@ Bogey.yandex.schemas.regForm = {
     },    
     elm6: {
         sel: 'select#hint_question_id',
-        func: 'Bogey.utils.findOffset',
+        func: 'Bogey.utils.findSelectOffset',
         varName: 'hintQuestionId'
     },   
     elm7: {

@@ -40,6 +40,9 @@
 var deferred = require('../async/deferred');
 var respmessage = require('../io/respmessage');
 
+var syst = require('system');
+var args = syst.args;
+
 var Scenario = function(usrScenarioName)
 {
     /* Private members starts here */
@@ -70,12 +73,109 @@ var Scenario = function(usrScenarioName)
      * @var string error description
      */     
     
-    var errorDesc = '';    
+    var errorDesc = '';  
+    
+    /**
+     * @access private
+     * @var object options that were extracted from the command line
+     */     
+    
+    var options = {};
+    
+    /**
+     * @access private
+     * @var string output stream (all, console, stdout)
+     */        
+    
+    var outputStream = 'all';
     
     /* Private members ends here */
     
-    /* Private core methods starts here */  
+    /* Private core methods starts here */ 
+    
+    /**
+     * Method that extracts arguments from the command line.
+     *
+     * Method extracts all the necessary arguments needed to run the scenario. Arguments must be separated by blank space and 
+     * present key/value pairs separated by the '=' sign.
+     *
+     * @access private
+     * 
+     */ 
+
+    function extractDataFromArgs()
+    {
+        console.log('551');
+        phantom.exit();
+    }    
+    
+    /**
+     * Method that configures current scenario.
+     *
+     * This method is default configuration method and will be called each time the scenario is created. This method tries to 
+     * extract necessary configuration options from the command line and configure current scenario based on this options.
+     *
+     * @access private
+     *
+     */      
+    
+    function configureScenario()
+    { 
+        var key = null;
+        
+        try {         
+            for (key in args) {
+                if (args[key].indexOf('output=') != -1) {
+                    setOutput(args[key].substr(7));
+                }                   
+            }                         
+        } catch(e) {
+            obj.sendErrorResponse(e);
+            phantom.exit();
+        }
+   phantom.exit();
+
+               obj.sendResponse(outputStream);
+               phantom.exit();
+        
+    }    
+    
     /* Private core methods ends here */
+    
+    /* Private get methods starts here */
+    /* Private get methods ends here */
+    
+    /* Private set methods starts here */
+    
+    /**
+     * Method that sets current output stream.
+     *
+     * All the data (expect some thrown errors) will be sent to console ('console'), stdout ('stdout') or both ('all').
+     *
+     * @access private
+     * 
+     * @param string usrOutput output stream
+     * 
+     * @throws string 
+     * 
+     */     
+    
+    function setOutput(usrOutput)
+    {
+        if (typeof usrOutput != 'string') {
+            throw 'Output stream parameter must be string';
+        }
+        
+        usrOutput = usrOutput.toLowerCase();
+        
+        if (usrOutput != 'all' && usrOutput != 'console' && usrOutput != 'stdout') {
+            throw 'Invalid output stream';
+        }
+        
+        outputStream = usrOutput; 
+    }
+    
+    /* Private set methods ends here */    
     
     /* Privileged core methods starts here */
             
@@ -99,9 +199,19 @@ var Scenario = function(usrScenarioName)
                 data = {'data': data};
             }
         }
-             
+        
         var resp = respmessage.create(scenarioName, false, data);
-        console.log(JSON.stringify(resp)); 
+        resp = JSON.stringify(resp);
+
+        if (outputStream == 'all') {
+            syst.stdout.write(resp);
+            console.log(resp);
+        } else if (outputStream == 'console') {
+            console.log(resp);
+        } else if (outputStream == 'stdout') {
+           syst.stdout.write('123');
+           syst.stdout.write(resp);
+        }             
     }    
     
     /**
@@ -126,7 +236,16 @@ var Scenario = function(usrScenarioName)
         }
              
         var resp = respmessage.create(scenarioName, true, data);
-        console.log(JSON.stringify(resp)); 
+        resp = JSON.stringify(resp);
+        
+        if (outputStream == 'all') {
+            syst.stdout.write(resp);
+            console.log(resp);
+        } else if (outputStream == 'console') {
+            console.log(resp);
+        } else if (outputStream == 'stdout') {
+           syst.stdout.write(resp);
+        }   
     }   
     
     /**
@@ -284,6 +403,11 @@ var Scenario = function(usrScenarioName)
     
     /* Privileged set methods ends here */    
 
+    // configure scenario
+
+    extractDataFromArgs();
+    configureScenario();
+
     this.setScenarioName(usrScenarioName);
 }
 
@@ -291,5 +415,5 @@ exports.constFunc = Scenario;
 exports.create = function create(scenarioName) {
     "use strict";
 
-    new Scenario(scenarioName).start();
+    return new Scenario(scenarioName);
 };
