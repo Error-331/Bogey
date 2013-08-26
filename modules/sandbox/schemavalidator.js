@@ -67,14 +67,63 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
         return result;
     }    
     
+    function runFuncParam(usrScheme, rootElm)
+    {       
+        var func = null;
+        var tmpArr;
+            
+        var extractFuncFormString = function(usrFunc)
+        {
+            var func = null; 
+            var i = 0;
+            
+            usrFunc = usrFunc.split('.');
+                
+            for (i = 0; i < usrFunc.length; i++) {
+                if (i == 0) {
+                    func = window[usrFunc[i]];
+                } else {
+                    func = func[usrFunc[i]];
+                }                
+            }
+                
+            return func;            
+        }
+            
+        if (typeof usrScheme.func == 'function') {
+            return usrScheme.func(rootElm);
+        } else if (typeof usrScheme.func == 'string') {                
+            usrScheme.func = extractFuncFormString(usrScheme.func);
+            return usrScheme.func(rootElm);
+        } else if (typeof usrScheme.func == 'object') {
+            if (usrScheme.func.length <= 0) {
+                throw 'Function array cannot be zero length';
+            }
+            
+            tmpArr = new Array();
+                
+            tmpArr.push(rootElm);     
+            tmpArr = tmpArr.concat(usrScheme.func.slice(1));               
+
+            if (typeof usrScheme.func[0] == 'string') {                                  
+                func = extractFuncFormString(usrScheme.func[0]);
+                return func.apply(null, tmpArr);
+            } else if (typeof usrScheme.func[0] == 'function') {           
+                return usrScheme.func[0].apply(null, tmpArr);
+            } else {
+                throw '"func" property must be function or string';
+            }
+        } else {
+            throw '"func" property must be function, string or array';
+        }     
+    }
+    
     function validate(usrScheme, rootElm)
     {
         var result = new Array();
         var subRes = null;
-        
-        var func = null;
+    
         var funcRes = null;
-        var i = 0;
         
         // check 'text' property
         if (usrScheme.text != undefined) {
@@ -98,24 +147,7 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
         
         // check 'func' property
         if (usrScheme.func != undefined) {
-            if (typeof usrScheme.func == 'function') {
-                funcRes = usrScheme.func(rootElm);
-            } else if (typeof usrScheme.func == 'string') {
-                usrScheme.func = usrScheme.func.split('.');
-                
-                for (i = 0; i < usrScheme.func.length; i++) {
-                    if (i == 0) {
-                        func = window[usrScheme.func[i]];
-                    } else {
-                        func = func[usrScheme.func[i]];
-                    }                
-                }
-                
-                usrScheme.func = func;
-                funcRes = usrScheme.func(rootElm)
-            } else {
-                throw '"func" property must be function';
-            }
+            funcRes = runFuncParam(usrScheme, rootElm);        
         } else {
             funcRes = {};
         }
@@ -157,39 +189,45 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
         
         for (elm in usrScheme) {
             // check 'sel' property
-            if (usrScheme[elm].sel != undefined) {
-                if (typeof usrScheme[elm].sel != 'string') {
-                    throw '"sel" property is not a string';
-                }
+            if (usrScheme[elm].sel === undefined) {
+                throw '"sel" property is not present';             
+            }
+            
+            if (typeof usrScheme[elm].sel != 'string') {
+                throw '"sel" property is not a string';
+            }
                 
-                if (rootElm == undefined) {
-                    selRes = document.querySelectorAll(usrScheme[elm].sel);
-                } else {
-                    selRes = rootElm.querySelectorAll(usrScheme[elm].sel);
-                }
+            if (rootElm == undefined) {
+                selRes = document.querySelectorAll(usrScheme[elm].sel);
+            } else {
+                selRes = rootElm.querySelectorAll(usrScheme[elm].sel);
+            }
                 
-                if (selRes.length <= 0) {
+            result = new Array();    
+                
+            if (selRes.length <= 0) {
+                // check 'defValue' property
+                if (usrScheme[elm].defValue === undefined) {
                     throw 'Element not found for: ' + usrScheme[elm].sel;
-                }
+                }                
                 
+                result.push(usrScheme[elm].defValue); 
+            } else {
                 // check each element
-                result = new Array();
                 for (elmDOM = 0; elmDOM < selRes.length; elmDOM++) {                    
                     subResult = validate(usrScheme[elm], selRes.item(elmDOM));
                     
                     if (subResult != false) {
                         result.push(subResult);
                     }                  
-                } 
-                                
-                if (result.length <= 0) {
-                    throw 'Schema validation fail';
-                }
+                }                                 
+            }
+                                                
+            if (result.length <= 0) {
+                throw 'Schema validation fail';
+            }
                 
-                globResult.push(result);
-            } else {
-                throw '"sel" property is not present';
-            }                                  
+            globResult.push(result);                                          
         }
         
         return globResult;
