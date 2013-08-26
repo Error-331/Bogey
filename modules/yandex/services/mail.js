@@ -87,11 +87,14 @@ var Mail = function(configObj)
      * @var int logout operation timeout in milliseconds
      */       
     
-    var logOutTimeout = 10000;    
+    var logOutTimeout = 10000;   
     
-    var extractRegPageCaptchaTimeout = 3500;
+    /**
+     * @access private
+     * @var int user mail registration operation timeout in milliseconds
+     */           
     
-    var mainPageMainLinkClickDelay = 3000;
+    var registerMailAccountTimeout = 60000
       
     /* Private members ends here */
     
@@ -110,6 +113,8 @@ var Mail = function(configObj)
     function openMainPage()
     {
         var curPage = obj.getPage();
+        var curPageName = obj.getCurPageName();
+        
         var def = deferred.create();
         
         // reject if timeout
@@ -123,14 +128,18 @@ var Mail = function(configObj)
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Opening main page...'); 
         
         // check if main page is already open
-        if (obj.getCurPageURL() == mainPageURL) {
+        if (obj.getCurPageURL() == mainPageURL || curPageName == 'mainPage') {
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Main page already opened...'); 
+            
+            this.setCurPageName('mainPage');
             def.resolve();
         } else {         
             // open main page
             curPage.open(mainPageURL, function(status) {
                 if (status == 'success' && !def.isProcessed()) {
                     obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'success', 'Main page successfuly opened...'); 
+                    
+                    obj.setCurPageName('mainPage');
                     def.resolve();
                 } else {
                     obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Cannot open main page...'); 
@@ -144,9 +153,11 @@ var Mail = function(configObj)
     
     function openRegPage()
     {
-        var curPage = obj.getPage();
-        var def = deferred.create();  
+        var curPage = obj.getPage();      
+        var curPageName = obj.getCurPageName();
         
+        var def = deferred.create();  
+         
         // reject if timeout
         setTimeout(function(){
             if (!def.isProcessed()) {
@@ -156,6 +167,13 @@ var Mail = function(configObj)
         }, openRegPageTimeout);      
         
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Opening registration page...'); 
+        
+        // check if the registration page is already open
+        if (curPageName == 'regPage') {
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Registration page is already loaded...');
+            def.resolve();
+            return def.promise();
+        }
         
         // check if we already logged in
         isLogedIn().done(function(){
@@ -184,8 +202,22 @@ var Mail = function(configObj)
             }
                        
             // page change callback
-            obj.pushPageLoadFunc(function(status){                   
-                obj.takeSnapshot('jpeg', 'test', '', 1024, 768, 5000);
+            obj.pushPageLoadFunc(function(status){      
+                if (status == 'success') {
+                    obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Checking registration page...');
+                    obj.validatePageBySchema('yandex/schemas/sandbox/mail/validation/regform.js', 'yandex', 'regForm', 'plain-objects', ['sandbox/utils.js']).done(function(result){                          
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Registration page valid...');
+                        obj.setCurPageName('regPage');
+                        
+                        def.resolve(result);      
+                    }).fail(function(error){
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Invalid registration page...');
+                        def.reject(error);                             
+                    });                                           
+                } else {
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Error while redirecting to registration page...');
+                    def.reject(obj.createErrorObject(3, 'Error while redirecting to registration page'));
+                }                                          
             });                       
                        
             obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Not logged in, trying to open registration page...');      
@@ -319,6 +351,44 @@ var Mail = function(configObj)
         return def.promise();
     }    
     
+    function registerMailAccount(usrAccout)
+    {
+        var def = deferred.create();  
+        
+        // reject if timeout
+        setTimeout(function(){
+            if (!def.isProcessed()) {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Mail account registration takes too long...');
+                def.reject(obj.createErrorObject(1, 'Logout timeout'));
+            }
+        }, registerMailAccountTimeout);   
+        
+        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting mail account registration process...'); 
+        
+        // open registration page
+        openRegPage().done(function(){
+            obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Entering account data...');
+       
+            // enter account data
+            var schema = require('../schemas/dummy/mail/enterregdata').schema;
+
+            obj.runDummySchema(schema).done(function(){                             
+                obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');
+                obj.takeSnapshot('jpeg', 'test', '', 1024, 768, 4000);
+            }).fail(function(error){
+                console.log(error);
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema (registration data)...');
+                def.reject(obj.createErrorObject(4, error));
+            });   
+                       
+        }).fail(function(error) {
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot register new mail account...');
+            def.reject(error);
+        });
+        
+        return def.promise();
+    }
+    
     /* Private core methods ends here */
     
     /* Privileged core methods starts here */
@@ -365,9 +435,17 @@ var Mail = function(configObj)
         try {
             return obj.startOp(openRegPage);
         } catch(e) {
-            console.log();
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "openRegPage"...');
         }            
+    }
+    
+    this.registerMailAccount = function(usrAccount)
+    {
+        try {
+            return obj.startOp(registerMailAccount, usrAccount);
+        } catch(e) {
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "registerMailAccount"...');
+        }          
     }
     
     /* Privileged core methods ends here */

@@ -47,8 +47,49 @@ exports.schema = {
         offset_left: 3,
         offset_top: 3,
         
-        text: 'Test1',
+        text: 'test12333',
         
-        delay_before: 1000
-    },       
+        delay_before: 1000,
+        delay_after: 2000
+    },      
+    
+    step5: {
+        type: 'sandbox',
+        format: 'plain-objects',
+        scripts: ['sandbox/utils.js'],
+        
+        sandbox_schema: {
+            elm1: {
+                sel: 'ol#suggest',
+                func: ['Bogey.utils.findChildrenOffset', 'span'],
+                varName: 'suggest'
+            }            
+        }  
+    },
+    
+    step6: {
+        type: 'dummy',
+        op: 'click',
+                
+        left: '$suggest.left',
+        top: '$suggest.top',
+        
+        offset_left: 1,
+        offset_top: 1,
+        
+        func_before: function(elm){
+            var data = this.getDummyVar('suggest').data;
+
+            if (data.length == 0) {
+                data = {top: 0, left: 0, width: 0, height: 0};
+                this.setDummyVar('suggest', data);
+                return;
+            }
+            
+            this.setDummyVar('suggest', data[Math.floor((Math.random() * data.length)+1)]);
+        },
+        
+        delay_before: 1000,
+        delay_after: 1000        
+    }
 }
