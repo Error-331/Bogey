@@ -87,7 +87,7 @@ var Scenario = function(usrScenarioName)
      * @var string output stream (all, console, stdout)
      */        
     
-    var outputStream = 'all';
+    var outputStream = 'console';
     
     /* Private members ends here */
     
@@ -105,8 +105,16 @@ var Scenario = function(usrScenarioName)
 
     function extractDataFromArgs()
     {
-        console.log('551');
-        phantom.exit();
+        var key = null;
+        var res;
+
+        for (key in args) {
+            res = args[key].split('=');
+            
+            if (res.length == 2) {
+                options[res[0]] = res[1];
+            }
+        } 
     }    
     
     /**
@@ -123,21 +131,14 @@ var Scenario = function(usrScenarioName)
     { 
         var key = null;
         
-        try {         
-            for (key in args) {
-                if (args[key].indexOf('output=') != -1) {
-                    setOutput(args[key].substr(7));
-                }                   
-            }                         
+        try {    
+            if (options['output'] != undefined) {
+                setOutput(options['output']);
+            }                                 
         } catch(e) {
             obj.sendErrorResponse(e);
             phantom.exit();
-        }
-   phantom.exit();
-
-               obj.sendResponse(outputStream);
-               phantom.exit();
-        
+        }        
     }    
     
     /* Private core methods ends here */
@@ -209,7 +210,6 @@ var Scenario = function(usrScenarioName)
         } else if (outputStream == 'console') {
             console.log(resp);
         } else if (outputStream == 'stdout') {
-           syst.stdout.write('123');
            syst.stdout.write(resp);
         }             
     }    
