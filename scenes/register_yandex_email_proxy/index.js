@@ -1,5 +1,4 @@
-var newScenario = require('../../modules/core/scenario').create();
-//var newScenario = require('../../modules/yandex/scenarios/register_mail').create();
+var newScenario = require('../../modules/yandex/scenarios/register_mail').create().start();
 
 /*var ym = require('../../modules/yandex/services/mail').create({
     'viewportWidth': 1024,

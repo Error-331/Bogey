@@ -1,5 +1,6 @@
 // Modules include
 var scenario = require('../../core/scenario');
+var yandexMail = require('../services/mail');
 
 var RegisterMail = function()
 { 
@@ -13,6 +14,8 @@ var RegisterMail = function()
      */        
     
     var obj = this;  
+    
+    var curYandexMail = null;
                 
     /* Private members ends here */
     
@@ -38,6 +41,8 @@ var RegisterMail = function()
     
     this.start = function() 
     {      
+        curYandexMail = yandexMail.create(obj.getOptions());
+        curYandexMail.registerMailAccount();
     }  
     
     /**

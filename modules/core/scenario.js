@@ -246,8 +246,8 @@ var Scenario = function(usrScenarioName)
         } else if (outputStream == 'stdout') {
            syst.stdout.write(resp);
         }   
-    }   
-    
+    } 
+        
     /**
      * Method that starts current scenario.
      *
@@ -422,7 +422,7 @@ var Scenario = function(usrScenarioName)
     // configure scenario
     extractDataFromArgs();
     configureScenario();
-
+    
     this.setScenarioName(usrScenarioName);
 }
 
