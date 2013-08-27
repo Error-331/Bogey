@@ -280,6 +280,22 @@ var Scenario = function(usrScenarioName)
     /* Privileged get methods starts here */
     
     /**
+     * Method that returns current scenario options.
+     *
+     * This options were extracted from the command line.
+     *
+     * @access privileged
+     * 
+     * @return object scenario options.
+     * 
+     */    
+    
+    this.getOptions = function()
+    {
+        return options;
+    }
+    
+    /**
      * Method that returns current scenario name.
      *
      * Simple method that returns current scenario name.
@@ -404,7 +420,6 @@ var Scenario = function(usrScenarioName)
     /* Privileged set methods ends here */    
 
     // configure scenario
-
     extractDataFromArgs();
     configureScenario();
 
