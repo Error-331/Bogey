@@ -1031,6 +1031,7 @@ var Service = function(configObj, usrServiceName)
         }, JSON.stringify(schema.sandbox_schema), format));         
         
         if (result.error != undefined && result.error == true) {
+            console.log(JSON.stringify(result));
             def.reject(obj.createErrorObject(2, result.message));
         } else {
             def.resolve(result);

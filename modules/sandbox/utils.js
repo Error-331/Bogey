@@ -23,7 +23,11 @@ Bogey.utils.findOffset = function(obj)
                         
             obj = obj.offsetParent;
             obj2 = obj2.parentNode;
-                        
+              
+            if (!obj) {
+                break;
+            }  
+              
             while (obj2 != obj) {
                 curleft -= obj2.scrollLeft;
                 curtop -= obj2.scrollTop;
@@ -51,15 +55,15 @@ Bogey.utils.findChildrenOffset = function(parElm, sel)
     var children = parElm.querySelectorAll(sel);
     var result = {'data': new Array()};
     var i;
-    
+
     if (children.length == 0) {
         return result.data;
     }
-    
+
     for (i = 0; i < children.length; i++) {
         result.data.push(Bogey.utils.findOffset(children.item(i)));
     }
-    
+
     return result;
 }
 

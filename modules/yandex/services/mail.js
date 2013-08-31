@@ -354,6 +354,7 @@ var Mail = function(configObj)
     function registerMailAccount(usrAccout)
     {
         var def = deferred.create();  
+        var dummyVars = {};
         
         // reject if timeout
         setTimeout(function(){
@@ -365,6 +366,71 @@ var Mail = function(configObj)
         
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting mail account registration process...'); 
         
+        // check input data
+        if (typeof usrAccout != 'object') {
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Input data is not an object...');
+            def.reject(obj.createErrorObject(5, 'Input data is not an object'));
+            return def.promise();
+        }
+        
+        if (typeof usrAccout.firstName != 'string' || usrAccout.firstName.length <=0){
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'First name is not a string...');
+            def.reject(obj.createErrorObject(5, 'First name is not a string'));  
+            return def.promise();
+        }
+        
+        if (typeof usrAccout.lastName != 'string' || usrAccout.lastName.length <=0){
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Last name is not a string...');
+            def.reject(obj.createErrorObject(5, 'Last name is not a string'));  
+            return def.promise();
+        }     
+        
+        if (typeof usrAccout.login != 'string' || usrAccout.login.length <=0){
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Login is not a string...');
+            def.reject(obj.createErrorObject(5, 'Login is not a string'));  
+            return def.promise();
+        }          
+        
+        if (typeof usrAccout.password != 'string' || usrAccout.password.length <=0){
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Password is not a string...');
+            def.reject(obj.createErrorObject(5, 'Password is not a string'));  
+            return def.promise();
+        }    
+        
+        if (typeof usrAccout.passwordConfirm != 'string' || usrAccout.passwordConfirm.length <=0){
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Password confirmation is not a string...');
+            def.reject(obj.createErrorObject(5, 'Password confirmation is not a string'));  
+            return def.promise();
+        }          
+        
+        if (typeof usrAccout.optionIndex != 'number' || usrAccout.optionIndex < 1 || usrAccout.optionIndex > 11){
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Hint question option is not a number...');
+            def.reject(obj.createErrorObject(5, 'Hint question option is not a number'));  
+            return def.promise();
+        }     
+        
+        if (typeof usrAccout.hintAnswer != 'string' || usrAccout.hintAnswer.length <=0){
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Hint answer is not a string...');
+            def.reject(obj.createErrorObject(5, 'Hint answer is not a string'));  
+            return def.promise();
+        }    
+        
+        if (typeof usrAccout.phoneNumber != 'string' || usrAccout.phoneNumber.length <=0){
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Phone number is not a string...');
+            def.reject(obj.createErrorObject(5, 'Phone number is not a string'));  
+            return def.promise();
+        }         
+
+        // prepare dummy vars
+        dummyVars.firstName = {'text': usrAccout.firstName};
+        dummyVars.lastName = {'text': usrAccout.lastName};
+        dummyVars.login = {'text': usrAccout.login};
+        dummyVars.password = {'text': usrAccout.password};
+        dummyVars.passwordConfirm = {'text': usrAccout.passwordConfirm};
+        dummyVars.hintQuestionId = {'optionIndex': usrAccout.optionIndex};
+        dummyVars.hintAnswer = {'text': usrAccout.hintAnswer};
+        dummyVars.phoneNumber = {'text': usrAccout.phoneNumber};
+        
         // open registration page
         openRegPage().done(function(){
             obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Entering account data...');
@@ -372,11 +438,10 @@ var Mail = function(configObj)
             // enter account data
             var schema = require('../schemas/dummy/mail/enterregdata').schema;
 
-            obj.runDummySchema(schema).done(function(){                             
+            obj.runDummySchema(schema, dummyVars).done(function(){                             
                 obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');
-                obj.takeSnapshot('jpeg', 'test', '', 1024, 768, 4000);
+                obj.takeSnapshot('jpeg', 'test', '', 1024, 768);
             }).fail(function(error){
-                console.log(error);
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema (registration data)...');
                 def.reject(obj.createErrorObject(4, error));
             });   

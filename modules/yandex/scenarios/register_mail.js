@@ -41,8 +41,14 @@ var RegisterMail = function()
     
     this.start = function() 
     {      
-        curYandexMail = yandexMail.create(obj.getOptions());
-        curYandexMail.registerMailAccount();
+        var options = obj.getOptions();
+        
+        if (options.optionIndex != undefined) {
+            options.optionIndex = parseInt(options.optionIndex);
+        }
+        
+        curYandexMail = yandexMail.create(options);
+        curYandexMail.registerMailAccount(options);
     }  
     
     /**
