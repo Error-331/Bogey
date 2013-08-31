@@ -97,7 +97,12 @@ var Scenario = function(usrScenarioName)
      * Method that extracts arguments from the command line.
      *
      * Method extracts all the necessary arguments needed to run the scenario. Arguments must be separated by blank space and 
-     * present key/value pairs separated by the '=' sign.
+     * present key/value pairs separated by the '=' sign. This method tries to convert types of some of the options, among them:
+     * 
+     * viewportWidth
+     * viewportHeight
+     * debugSandbox 
+     * reloginOnStart
      *
      * @access private
      * 
@@ -107,13 +112,36 @@ var Scenario = function(usrScenarioName)
     {
         var key = null;
         var res;
+        
+        var prop;
+        var val;
 
         for (key in args) {
             res = args[key].split('=');
-            
+
             if (res.length == 2) {
-                options[res[0]] = res[1];
+                prop = res[0];
+                val = res[1];
+
+                options[prop] = val;
             }
+            
+            // convert types of the common options
+            switch(prop) {
+                case 'viewportWidth':
+                case 'viewportHeight':
+                    options[prop] = parseInt(val);
+                    break;
+                case 'debugSandbox':
+                case 'reloginOnStart':
+                    val = val.toLowerCase();
+                    if (val == 'true') {
+                        options[prop] = true;
+                    } else if (val == 'false') {
+                        options[prop] = false;
+                    }
+                    break;
+            }                  
         } 
     }    
     
