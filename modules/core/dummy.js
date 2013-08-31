@@ -493,6 +493,82 @@ var Dummy = function(usrService)
         
         return def;
     }
+    
+    function selectOption(elm)
+    {
+        var def = deferred.create();
+        var page = service.getPage();  
+        
+        var execFunc = function(){
+            var diff = 0;
+            var i;
+            
+            page.sendEvent('mousemove', elm.left, elm.top, 'left');
+            page.sendEvent('click');   
+
+            diff = elm.selectedIndex - elm.optionIndex;
+                
+            if (diff < 0) {
+                for (i = elm.selectedIndex; i < elm.optionIndex; i++) {
+                    page.sendEvent('keypress', page.event.key.Down, null, null); 
+                }
+                
+                page.sendEvent('click');             
+            } else if (diff > 0) {
+                for (i = elm.selectedIndex; i > elm.optionIndex; i--) {
+                    page.sendEvent('keypress', page.event.key.Up, null, null); 
+                }   
+                
+                page.sendEvent('click');
+            } else {
+                for (i = 1; i < elm.optionIndex; i++) {
+                    page.sendEvent('keypress', page.event.key.Down, null, null); 
+                }                   
+                
+                page.sendEvent('click');  
+            }
+                
+            page.sendEvent('keypress', elm.text, null, null);  
+        }   
+
+        // check coords
+        try{
+            checkCoords(elm);
+        } catch(e) {
+            def.reject(e);
+            return def;
+        }  
+        
+        // check offset
+        try{
+            elm = checkOffset(elm);
+        } catch(e) {
+            def.reject(e);
+            return def;            
+        }        
+        
+        // check option
+        if (typeof elm.optionIndex != 'number') {
+            def.reject('Invalid parameter "option"');
+            return def;
+        }
+
+        // check delay_before
+        checkDelayBefore(elm, execFunc).done(function(){
+            // check delay_after
+            checkDelayAfter(elm).done(function(){
+                def.resolve();
+            }).fail(function(error){
+                def.reject(error);
+                return def;
+            });
+        }).fail(function(error){
+            def.reject(error);
+            return def;            
+        });
+        
+        return def;
+    }
         
     function runSandboxSchemaElm(elm)
     {
@@ -562,6 +638,10 @@ var Dummy = function(usrService)
                 
             case 'filltextinput':
                 subDef = fillTextInput(elm);
+                break;
+                
+            case 'selectoption' :
+                subDef = selectOption(elm);
                 break;
             
             default:
