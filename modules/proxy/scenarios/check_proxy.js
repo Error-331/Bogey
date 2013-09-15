@@ -253,6 +253,10 @@ var CheckProxy = function()
                 realAddr = result['ip'];
                 isProxy = result['is_proxy'];              
                
+                if (realAddr == proxyAddr) {
+                    isProxy = true;
+                }
+               
                 obj.setIsError(false);           
                 obj.stop();
             } else {
