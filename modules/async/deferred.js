@@ -13,7 +13,7 @@
  *
  * Module deferred is a part of PhantomJS framework - Bogey.
  *
- * @package Phantasm
+ * @package Bogey
  * @author Selihov Sergei Stanislavovich <red331@mail.ru>
  * @copyright Copyright (c) 2013 Selihov Sergei Stanislavovich.
  * @license http://www.gnu.org/licenses/gpl.html GNU GENERAL PUBLIC LICENSE (Version 3)
