@@ -1,1 +1,1 @@
-require('../../modules/proxy/scenarios/check_proxy');
+var newScenario = require('../../modules/proxy/scenarios/check_proxy').create().start();

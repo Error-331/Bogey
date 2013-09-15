@@ -120,9 +120,9 @@ var CheckProxy = function()
     /* Private core methods starts here */
 
     /**
-     * Method that extracts arguments from the command line.
+     * Method that prepares proxy options.
      *
-     * Method extracts all arguments connected with proxy, validates them and stores them.
+     * Proxy options are received throught command line and passed to the corresponding setter methods.
      *
      * @access private
      * 
@@ -130,32 +130,29 @@ var CheckProxy = function()
      * 
      */ 
 
-    function extractDataFromArgs()
+    function prepareProxyOptions()
     {
-        var key = null;
-        var temp = '';
+        var options = obj.getOptions();
         
-        for (key in args) {           
-            if (args[key].indexOf('--proxy=') != -1) {               
-                if (args[key].indexOf(':') != -1) {
-                    setProxyAddr(args[key].substr(8, args[key].indexOf(':') - 8));
-                    setProxyPort(args[key].substr(args[key].indexOf(':') + 1));
-                } else {
-                    setProxyAddr(args[key].substr(8));
-                }
-            } else if (args[key].indexOf('--proxy-type=') != -1) {
-                setProxyType(args[key].substr(13));
-            } else if (args[key].indexOf('--proxy-auth=') != -1) {
-                temp = args[key].substr(13);
-                
-                if (temp.indexOf(':') == -1) {
-                    throw 'Invalid proxy auth parameters';
-                }
-                
-                setProxyLogin(temp.substr(0, temp.indexOf(':')));
-                setProxyPassword(temp.substr(temp.indexOf(':') + 1));
-            }
+        if (options['proxy-addr'] !== undefined) {
+            setProxyAddr(options['proxy-addr']);          
         }
+        
+        if (options['proxy-port'] !== undefined) {
+            setProxyPort(options['proxy-port']);
+        }        
+        
+        if (options['proxy-type'] !== undefined) {
+            setProxyType(options['proxy-type']);
+        }
+        
+        if (options['proxy-login'] !== undefined) {
+            setProxyLogin(options['proxy-login']);
+        }  
+        
+        if (options['proxy-password'] !== undefined) {
+            setProxyPassword(options['proxy-password']);
+        }          
     }
     
     /**
@@ -259,6 +256,7 @@ var CheckProxy = function()
                 obj.setIsError(false);           
                 obj.stop();
             } else {
+                obj.setErrorDesc('Cannot open gage site');
                 obj.setIsError(true);            
                 obj.stop();
             }
@@ -438,9 +436,9 @@ var CheckProxy = function()
     this.start = function() 
     {   
         try {
-            extractDataFromArgs();
+            prepareProxyOptions();
             checkProxy();            
-        } catch(e) {
+        } catch(e) {          
             obj.setErrorDesc(e);
             obj.setIsError(true);
             obj.stop();
@@ -479,7 +477,7 @@ var CheckProxy = function()
         }
     
         if (obj.getIsError() == true) {
-            obj.sendErrorResponse(obj.getIsErrorDesc());
+            obj.sendErrorResponse(obj.getErrorDesc());
         } else {
             obj.sendResponse(result);
         }
@@ -542,5 +540,9 @@ var CheckProxy = function()
     /* Privileged get methods ends here */
 }
 
-CheckProxy.prototype = scenario.create('check_proxy');
-new CheckProxy('check_proxy').start();
+exports.create = function create() {
+    "use strict";
+    
+    CheckProxy.prototype = scenario.create('check_proxy');
+    return new CheckProxy('check_proxy');
+};  

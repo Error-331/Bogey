@@ -238,7 +238,7 @@ var Scenario = function(usrScenarioName)
         } else if (outputStream == 'console') {
             console.log(resp);
         } else if (outputStream == 'stdout') {
-           syst.stdout.write(resp);
+            syst.stdout.write(resp);
         }             
     }    
     

@@ -73,6 +73,7 @@ var RegisterMail = function()
 
 exports.create = function create() {
     "use strict";
+    
     RegisterMail.prototype = scenario.create('register_mail');
     return new RegisterMail('register_mail');
 };  
