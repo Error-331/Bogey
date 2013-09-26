@@ -73,6 +73,13 @@ var Deferred = function()
     
     /**
      * @access private
+     * @var array of callback functions which will be executed after the current deferred object is resolved or rejected 
+     */       
+    
+    var alwaysFunctions = new Array();
+    
+    /**
+     * @access private
      * @var array arguments that will be passed to the callback functions when the deferred object is resolved
      */      
     
@@ -179,7 +186,53 @@ var Deferred = function()
         }   
         
         return obj;
-    };  
+    }; 
+    
+    /**
+     * Add handlers to be called when the deferred object is resolved or rejected.
+     *
+     * Simple method that adds handlers to be called when the deferred object is resolved or rejected. If the deferred object already been resolved or rejected, passed callback 
+     * functions will be called instantly upon calling resolve() or fail() methods.
+     *
+     * @access privileged
+     *
+     * @param function|array can take functions as arguments or arrays with functions
+     * 
+     * @return object current deferred object.
+     *
+     */     
+    
+    this.always = function()
+    {
+        if (arguments.length == 0) {
+            return;
+        }
+
+        var i = 0;
+        var j = 0;
+        
+        for(i = 0; i < arguments.length; i++){            
+            if (typeof arguments[i] == 'function') {
+                if (status == 'unknown') {
+                    alwaysFunctions.push(arguments[i]);
+                } else if (status == 'fail' || status == 'resolve') {
+                    arguments[i].apply(null);
+                }                             
+            } else if (typeof arguments[i] == 'object') {
+                for (j = 0; j < arguments[i].length; j++) {
+                    if (typeof arguments[i][j] == 'function') {
+                        if (status == 'unknown') {
+                            alwaysFunctions.push(arguments[i][j]);
+                        } else if (this.status == 'fail' || status == 'resolve') {
+                            arguments[i][j].apply(null);
+                        }   
+                    }
+                }
+            }
+        }   
+        
+        return obj;        
+    }
     
     /**
      * Resolve a deferred object and call any 'resolve' callbacks with the given args.
@@ -201,6 +254,10 @@ var Deferred = function()
             for (i = 0; i < resolveFunctions.length; i++) {
                 resolveFunctions[i].apply(null, resolveArgs);
             }
+            
+            for (i = 0; i < alwaysFunctions.length; i++) {
+                alwaysFunctions[i].apply(null);
+            }            
             
             status = 'resolve';
         }
@@ -226,6 +283,10 @@ var Deferred = function()
             for (i = 0; i < failFunctions.length; i++) {
                 failFunctions[i].apply(null, failArgs);
             }
+            
+            for (i = 0; i < alwaysFunctions.length; i++) {
+                alwaysFunctions[i].apply(null);
+            }               
             
             status = 'fail';
         }           

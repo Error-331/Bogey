@@ -97,6 +97,26 @@ var Promise = function(usrDeferred)
         deferred.fail.apply(deferred, arguments);    
         return obj;
     };  
+    
+    /**
+     * Add handlers to be called when the deferred object is resolved or rejected.
+     *
+     * Simple method that adds handlers to be called when the deferred object is resolved or rejected. If the deferred object already been resolved or rejected, passed callback 
+     * functions will be called instantly upon calling resolve() or fail() methods.
+     *
+     * @access privileged
+     *
+     * @param function|array can take functions as arguments or arrays with functions
+     * 
+     * @return object current deferred object.
+     *
+     */      
+    
+    this.always = function() 
+    {
+        deferred.always.apply(deferred, arguments);    
+        return obj;
+    };     
 
     /**
      * Checks if deferred object has been resolved.
