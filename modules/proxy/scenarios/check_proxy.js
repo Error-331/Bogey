@@ -100,6 +100,13 @@ var CheckProxy = function()
      */      
     
     var dnsblTest = false;
+   
+    /**
+     * @access private
+     * @var number proxy ping
+     */        
+   
+    var ping;
     
     /**
      * @access private
@@ -166,8 +173,16 @@ var CheckProxy = function()
     
     function checkProxy()
     {        
+        var sTime;
+        var eTime;
+        var pTime;
+        
         page.onLoadFinished = function(status) {
-            if (status == 'success') {               
+            if (status == 'success') {    
+                
+                eTime = new Date().getTime();
+                pTime = eTime - sTime;
+                            
                 // page evalute
                 var result = page.evaluate(function(){
                     var table = document.getElementsByTagName('table');
@@ -249,6 +264,7 @@ var CheckProxy = function()
                 locTest = result['loc'];
                 headerTest = result['header'];
                 dnsblTest = result['dnsbl'];
+                ping = pTime;
     
                 realAddr = result['ip'];
                 isProxy = result['is_proxy'];              
@@ -265,7 +281,8 @@ var CheckProxy = function()
                 obj.stop();
             }
         }
-
+        
+        sTime = new Date().getTime();
         page.open(checkURL);
     }
     
@@ -475,6 +492,7 @@ var CheckProxy = function()
             'loc': locTest,
             'header': headerTest,
             'dnsbl': dnsblTest,
+            'ping': ping,
             
             'real_address': realAddr,
             'is_proxy': isProxy
