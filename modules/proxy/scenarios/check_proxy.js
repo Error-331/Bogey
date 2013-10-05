@@ -179,7 +179,7 @@ var CheckProxy = function()
         
         page.onLoadFinished = function(status) {
             if (status == 'success') {    
-                
+
                 eTime = new Date().getTime();
                 pTime = eTime - sTime;
                             
@@ -256,7 +256,15 @@ var CheckProxy = function()
                     
                     return JSON.stringify(result);
                 });
-                             
+                
+                if (result === false) {
+                    obj.setErrorDesc('Cannot open gage site');
+                    obj.setIsError(true);            
+                    obj.stop();    
+                    
+                    return;
+                }
+
                 result = JSON.parse(result);
                 rDNSTest = result['rdns'];
                 wimiaTest = result['wimia'];
