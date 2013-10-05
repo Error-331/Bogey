@@ -120,6 +120,13 @@ var Service = function(configObj, usrServiceName)
      */      
     
     var pageLoadFuncStack = new Array();
+       
+    /**
+     * @access private
+     * @var array stack of callback functions which can be called when a new child window (but not deeper descendant windows) is created by the page
+     */     
+    
+    var pageCreatedFuncStack = new Array();
     
     /**
      * @access private
@@ -453,6 +460,26 @@ var Service = function(configObj, usrServiceName)
         }
     };
     
+    /**
+     * PhantomJS event handler method that is called when a new child window is created by the page.
+     *
+     * If there is a callback function on the 'pageCreatedFuncStack' it will be executed.
+     *
+     * @access private
+     * 
+     * @param object new page
+     * 
+     * @see pushPageCreatedFunc()
+     * @see popPageCreatedFunc()
+     * 
+     */      
+    
+    curPage.onPageCreated = function(page) {
+        if (pageCreatedFuncStack.length > 0) {
+            obj.popPageCreatedFunc()(page);
+        }
+    }
+    
     /* Pirvate event handlers ends here */
     
     /* Privileged core methods starts here */
@@ -606,6 +633,45 @@ var Service = function(configObj, usrServiceName)
     {
         return pageLoadFuncStack.pop();
     }  
+    
+    /**
+     * Method that pushes 'onPageCreated' callback function to the stack.
+     *
+     * Simple method that pushes 'onPageCreated' callback function to the stack.
+     *
+     * @access privileged
+     *
+     * @param function func callback function
+     * 
+     * @throws string 
+     *
+     */     
+    
+    this.pushPageCreatedFunc = function(func)
+    {
+        if (typeof func != 'function') {
+            throw 'Passed operation is not a function';
+        }
+        
+        pageCreatedFuncStack.push(func);        
+    }
+    
+    /**
+     * Method that pulls 'onPageCreated' callback function from the stack.
+     *
+     * Simple method that pulls 'onPageCreated' callback function from the stack.
+     *
+     * @access privileged
+     *
+     * @return object first 'onPageCreated' callback function from the stack.
+     * 
+     */       
+    
+    this.popPageCreatedFunc = function()
+    {
+        return pageCreatedFuncStack.pop();
+    }
+
     
     /**
      * Method that pushes viewport size object to the stack.
@@ -1275,6 +1341,26 @@ var Service = function(configObj, usrServiceName)
         
         serviceName = usrServiceName;        
     }
+    
+    /**
+     * Method that sets current page object.
+     *
+     * Simple method that sets current page object.
+     *
+     * @access privileged
+     * 
+     * @param object page new page
+     * 
+     */      
+    
+    this.setPage = function(page)
+    {
+        if (typeof page != 'object') {
+            throw 'New page must be of type object';
+        }
+        
+        curPage = page;
+    }    
     
     /**
      * Method that sets current page name.
