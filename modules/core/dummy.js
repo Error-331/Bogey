@@ -607,6 +607,36 @@ var Dummy = function(usrService)
     {
         var def = deferred.create();
         var subDef = null;
+        var res;
+        
+        var switchFunc = function() {
+            elm = checkProperties(elm);
+               
+            switch(elm.op){
+                case 'click':
+                    subDef = click(elm);
+                    break;
+                
+                case 'filltextinput':
+                    subDef = fillTextInput(elm);
+                    break;
+                
+                case 'selectoption' :
+                    subDef = selectOption(elm);
+                    break;
+            
+                default:
+                    def.reject('Unrecognised operation: "' + elm.op + '"');
+                    return def;
+                    break;
+            }        
+        
+            subDef.done(function(){
+                def.resolve();
+            }).fail(function(error){
+                def.reject(error);
+            });
+        }
         
         if (typeof elm != 'object') {
             def.reject('Schema element is not an object');
@@ -626,36 +656,15 @@ var Dummy = function(usrService)
                 throw 'Property "func_before" must be function';
             }
             
-            elm.func_before.call(obj, elm);
+            deferred.when(elm.func_before.call(obj, elm)).done(function(){
+                switchFunc();
+            }).fail(function(error){
+                def.reject(error);
+            });
+        } else {
+            switchFunc();
         }
-        
-        elm = checkProperties(elm);
-               
-        switch(elm.op){
-            case 'click':
-                subDef = click(elm);
-                break;
                 
-            case 'filltextinput':
-                subDef = fillTextInput(elm);
-                break;
-                
-            case 'selectoption' :
-                subDef = selectOption(elm);
-                break;
-            
-            default:
-                def.reject('Unrecognised operation: "' + elm.op + '"');
-                return def;
-                break;
-        }        
-        
-        subDef.done(function(){
-            def.resolve();
-        }).fail(function(error){
-            def.reject(error);
-        });
-        
         return def;
     }
     
