@@ -1359,6 +1359,10 @@ var Service = function(configObj, usrServiceName)
             throw 'New page must be of type object';
         }
         
+        page.onUrlChanged = curPage.onUrlChanged;     
+        page.onLoadFinished = curPage.onLoadFinished;
+        page.onPageCreated = curPage.onPageCreated;
+        
         curPage = page;
     }    
     
