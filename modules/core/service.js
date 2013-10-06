@@ -1351,6 +1351,8 @@ var Service = function(configObj, usrServiceName)
      * 
      * @param object page new page
      * 
+     * @see configureService();
+     * 
      */      
     
     this.setPage = function(page)
@@ -1362,7 +1364,13 @@ var Service = function(configObj, usrServiceName)
         page.onUrlChanged = curPage.onUrlChanged;     
         page.onLoadFinished = curPage.onLoadFinished;
         page.onPageCreated = curPage.onPageCreated;
-        
+                
+        page.viewportSize = curPage.viewportSize;   
+        page.libraryPath = curPage.libraryPath;
+            
+        page.onAlert = curPage.onAlert;
+        page.onConsoleMessage = curPage.onConsoleMessage;
+            
         curPage = page;
     }    
     
@@ -1472,8 +1480,7 @@ var Service = function(configObj, usrServiceName)
         }
         
         debugSandbox = usrDebugSandbox;
-
-        
+ 
         if (debugSandbox == true) {
             curPage.onAlert = function(msg) {
                 console.log('Page alert: ' + msg);
