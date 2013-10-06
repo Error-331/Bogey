@@ -603,6 +603,19 @@ var Dummy = function(usrService)
         return def;
     }
     
+    /**
+     * Method that processes "dummy" schema element.
+     *
+     * Method processes "dummy" schema element, based on the data of the element current method executes corresponding action.
+     *
+     * @access private
+     *
+     * @param object elm "dummy" schema element
+     * 
+     * @return object deferred object.
+     *
+     */    
+    
     function runDummySchemaElm(elm)
     {
         var def = deferred.create();
@@ -669,13 +682,13 @@ var Dummy = function(usrService)
     }
     
     /**
-     * Method that processes "dummy" schema element.
+     * Method that processes schema element.
      *
-     * Method processes "dummy" schema element, based on the data of the element current method executes corresponding action.
+     * Method processes schema element, based on the data of the element current method executes corresponding action.
      *
      * @access private
      *
-     * @param object elm "dummy" schema element
+     * @param object elm schema element
      * 
      * @return object deferred object.
      *
