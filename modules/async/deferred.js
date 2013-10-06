@@ -235,7 +235,93 @@ var Deferred = function()
     }
     
     /**
-     * Resolve a deferred object and call any 'resolve' callbacks with the given args.
+     * Add a way to create deferred/promise chain.
+     *
+     * Method resolves or rejects current deferred based on the supplied argument. If deferred (or promise) object is
+     * passed - current deferred will be resolve or rejected based on the state of the supplied deferred. If function is supplied 
+     * it will be executed and if it returns deferred(or promise), final result will be based on it. If supplied function 
+     * returns any other value or current method is supplied with other value (non function, non deferred/promise) and if it 
+     * resolves to true current deferred will be resolved and vice versa.
+     *
+     * @access privileged
+     *
+     * @param def mixed can be another deferred(promise) object, function or any other value
+     * 
+     * @return object promise.
+     *
+     */     
+    
+    this.when = function(def)
+    {   
+        if (!obj.isProcessed()) {
+            if (def instanceof Deferred || def instanceof promise.constFunc) {
+                    def.done(function(){
+                        obj.resolve.apply(obj, arguments);
+                    }).fail(function(){
+                        obj.reject.apply(obj, arguments);
+                    });
+            } else if (typeof def == 'function') {
+                var res = def();
+                
+                if (res instanceof Deferred || res instanceof promise.constFunc) {
+                    res.done(function(){
+                        obj.resolve.apply(obj, arguments);
+                    }).fail(function(){
+                        obj.reject.apply(obj, arguments);
+                    });                    
+                } else {
+                    if (res == true) {
+                        obj.resolve();
+                    } else {
+                        obj.reject();
+                    }
+                }
+            } else {
+                if (def == true) {
+                    obj.resolve();
+                } else {
+                    obj.reject();
+                }                
+            }
+        }
+        
+        return obj.promise();
+    }
+        
+    
+    /**
+     * Add a way to create deferred/promise chain.
+     *
+     * Method returns a promise object which will be resolved or rejected based on the code of the argument functions. 
+     *
+     * @access privileged
+     *
+     * @param doneFunc function which will be called if the current deferred object is resolved
+     * @param failFunc function which will be called if the current deferred object is rejected
+     * 
+     * @return object promise.
+     *
+     */    
+    
+    this.then = function(doneFunc, failFunc)
+    {
+        var def = new Deferred();
+        
+        obj.done(function(){
+            if (typeof doneFunc == 'function'){
+                doneFunc.apply(def, arguments);
+            } 
+        }).fail(function(){
+            if (typeof failFunc == 'function'){
+                failFunc.apply(def, arguments);
+            } 
+        });
+              
+        return def.promise();
+    }
+    
+    /**
+     * Resolve a deferred object and call any 'resolve' and 'always' callbacks with the given args.
      *
      * You can resolve deferred object once, any subsequent method calls will be ignored.
      *
@@ -249,6 +335,8 @@ var Deferred = function()
     {
         if (status == 'unknown') {
             var i = 0;
+            
+            status = 'resolve';
 
             resolveArgs = arguments;  
             for (i = 0; i < resolveFunctions.length; i++) {
@@ -256,15 +344,13 @@ var Deferred = function()
             }
             
             for (i = 0; i < alwaysFunctions.length; i++) {
-                alwaysFunctions[i].apply(null);
-            }            
-            
-            status = 'resolve';
+                alwaysFunctions[i].apply(null, resolveArgs);
+            }                      
         }
     };
     
     /**
-     * Reject a deferred object and call any 'reject' callbacks with the given args.
+     * Reject a deferred object and call any 'reject' and 'always' callbacks with the given args.
      *
      * You can reject deferred object once, any subsequent method calls will be ignored.
      *
@@ -278,6 +364,8 @@ var Deferred = function()
     {   
         if (status == 'unknown') {
             var i = 0;
+            
+            status = 'fail';
 
             failArgs = arguments;
             for (i = 0; i < failFunctions.length; i++) {
@@ -285,10 +373,8 @@ var Deferred = function()
             }
             
             for (i = 0; i < alwaysFunctions.length; i++) {
-                alwaysFunctions[i].apply(null);
-            }               
-            
-            status = 'fail';
+                alwaysFunctions[i].apply(null, failArgs);
+            }                 
         }           
     };  
     
@@ -372,6 +458,141 @@ var Deferred = function()
             
     /* Privileged core methods ends here */
 }
+
+/* Module functions starts here */
+
+/**
+ * Provides a way to execute callback functions based on one or more Deferred objects that represent asynchronous events.
+ *
+ * If a single argument is passed to this method and it is not a deferred or a promise, it will be treated as a resolved 
+ * deferred and any "done" callbacks attached will be executed immediately. The method will resolve its master deferred as soon 
+ * as all the deferreds resolve, or reject the master deferred as soon as one of the deferreds is rejected. If the master deferred 
+ * is resolved, it is passed the resolved values of all the deferreds that were passed to this method. 
+ *
+ * @access public
+ * 
+ * @param mixed array of deferred (promise) objects or other values
+ *
+ * @return object promise.
+ *
+ */  
+
+exports.when = function()
+{
+    "use strict";
+
+    var def = new Deferred();
+    
+    var defsNum = 0;
+    var defsRes = 0;
+    
+    var args = new Array();
+   
+    var key;
+    
+    for (key in arguments) {
+        if (typeof arguments[key] == 'object' && (arguments[key] instanceof Deferred || arguments[key] instanceof promise.constFunc)) {
+            defsNum++;
+            
+            arguments[key].done(function(){
+                defsRes++;
+                var key;
+                
+                for (key in arguments) {
+                    args.push(arguments[key]);
+                }
+                
+                if (defsRes >= defsNum) {
+                    def.resolve.apply(def, args);
+                }
+            }).fail(function(){
+                def.reject.apply(def, arguments);
+            });
+        } 
+    }
+    
+    if (defsNum == 0) {
+        def.resolve();
+    }
+        
+    return def.promise();
+}
+
+/**
+ * Provides a way to execute callback functions based on one or more Deferred objects that represent asynchronous events.
+ *
+ * If a single argument is passed to this method and it is not a deferred or a promise, it will be treated as a resolved 
+ * deferred and any "done" callbacks attached will be executed immediately. The method will resolve its master deferred as soon 
+ * as all the deferreds resolve or reject. If any of the deferred has been rejected, the master deferred will be also rejected.
+ *
+ * @access public
+ * 
+ * @param mixed array of deferred (promise) objects or other values
+ *
+ * @return object promise.
+ *
+ */  
+
+exports.whenAll = function()
+{
+    "use strict";
+
+    var def = new Deferred();
+    
+    var defsNum = 0;
+    var defsRes = 0;
+    
+    var args = new Array();
+   
+    var key;
+    var isRej = false;
+    
+    for (key in arguments) {
+        if (typeof arguments[key] == 'object' && (arguments[key] instanceof Deferred || arguments[key] instanceof promise.constFunc)) {
+            defsNum++;
+            
+            arguments[key].done(function(){
+                defsRes++;
+                var key;
+                
+                for (key in arguments) {
+                    args.push(arguments[key]);
+                }
+                
+                if (defsRes >= defsNum) {
+                    if (isRej == true) {
+                        def.resolve.apply(def, args);                        
+                    } else {
+                        def.reject.apply(def, args);  
+                    }
+                    
+                    def.resolve.apply(def, args);
+                }
+            }).fail(function(){
+                defsRes++;
+                isRej = true;
+                
+                var key;
+                
+                for (key in arguments) {
+                    args.push(arguments[key]);
+                }
+                
+                if (defsRes >= defsNum) {
+                    def.reject.apply(def, arguments);
+                }                
+            });
+        }
+    }
+    
+    if (defsNum == 0) {
+        def.resolve();
+    }
+        
+    return def.promise();    
+}
+
+/* Module functions ends here */
 
 exports.constFunc = Deferred;
 exports.create = function create() {

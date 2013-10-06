@@ -96,7 +96,48 @@ var Promise = function(usrDeferred)
     {
         deferred.fail.apply(deferred, arguments);    
         return obj;
-    };  
+    };
+    
+    /**
+     * Add a way to create deferred/promise chain.
+     *
+     * Method resolves or rejects current deferred based on the supplied argument. If deferred (or promise) object is
+     * passed - current deferred will be resolve or rejected based on the state of the supplied deferred. If function is supplied 
+     * it will be executed and if it returns deferred(or promise), final result will be based on it. If supplied function 
+     * returns any other value or current method is supplied with other value (non function, non deferred/promise) and if it 
+     * resolves to true current deferred will be resolved and vice versa.
+     *
+     * @access privileged
+     *
+     * @param def mixed can be another deferred(promise) object, function or any other value
+     * 
+     * @return object promise.
+     *
+     */      
+    
+    this.when = function()
+    {
+        return deferred.when.apply(deferred, arguments);    
+    }
+    
+    /**
+     * Add a way to create deferred/promise chain.
+     *
+     * Method returns a promise object which will be resolved or rejected based on the code of the argument functions. 
+     *
+     * @access privileged
+     *
+     * @param function which will be called if the current deferred object is resolved
+     * @param function which will be called if the current deferred object is rejected
+     * 
+     * @return object promise.
+     *
+     */       
+    
+    this.then = function()
+    {       
+        return deferred.then.apply(deferred, arguments);          
+    }
     
     /**
      * Add handlers to be called when the deferred object is resolved or rejected.
