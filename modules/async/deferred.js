@@ -489,8 +489,8 @@ exports.when = function()
     var args = new Array();
    
     var key;
-    
-    for (key in arguments) {
+
+    for (key = 0; key < arguments.length; key++) {
         if (typeof arguments[key] == 'object' && (arguments[key] instanceof Deferred || arguments[key] instanceof promise.constFunc)) {
             defsNum++;
             
@@ -498,7 +498,7 @@ exports.when = function()
                 defsRes++;
                 var key;
                 
-                for (key in arguments) {
+                for (key = 0; key < arguments.length; key++) {
                     args.push(arguments[key]);
                 }
                 
@@ -547,7 +547,7 @@ exports.whenAll = function()
     var key;
     var isRej = false;
     
-    for (key in arguments) {
+    for (key = 0; key < arguments.length; key++) {                   
         if (typeof arguments[key] == 'object' && (arguments[key] instanceof Deferred || arguments[key] instanceof promise.constFunc)) {
             defsNum++;
             
@@ -555,7 +555,7 @@ exports.whenAll = function()
                 defsRes++;
                 var key;
                 
-                for (key in arguments) {
+                for (key = 0; key < arguments.length; key++) {
                     args.push(arguments[key]);
                 }
                 
@@ -574,7 +574,7 @@ exports.whenAll = function()
                 
                 var key;
                 
-                for (key in arguments) {
+                for (key = 0; key < arguments.length; key++) {
                     args.push(arguments[key]);
                 }
                 
