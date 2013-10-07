@@ -149,7 +149,7 @@ var Mail = function(configObj)
     /**
      * Method that is responsible for opening main page of the service.
      *
-     * Simple method that tries to open main page of the service.
+     * Complex method that tries to open main page of the service.
      *
      * @access private
      *
@@ -195,7 +195,17 @@ var Mail = function(configObj)
         }
                 
         return def.promise();
-    }    
+    }  
+    
+    /**
+     * Method that is responsible for opening registration page of the service.
+     *
+     * Complex method that tries to open registration page of the service.
+     *
+     * @access private
+     *
+     * @return object operation promise.
+     */     
     
     function openRegPage()
     {
@@ -302,7 +312,7 @@ var Mail = function(configObj)
      *
      * Current uses schema to parse main page and to find out evidence that the current object logged in to mail.yandex or not.
      *
-     * @access privileged
+     * @access private
      * 
      * @return object promise.
      * 
@@ -337,6 +347,17 @@ var Mail = function(configObj)
         
         return def.promise();
     }    
+    
+    /**
+     * Method that tries to logout from the current service.
+     *
+     * Complex method that utilizes different methods to logout from the service.
+     *
+     * @access privileged
+     * 
+     * @return object promise.
+     * 
+     */       
     
     function logOut()
     {
@@ -398,6 +419,18 @@ var Mail = function(configObj)
         
         return def.promise();
     }    
+    
+    /**
+     * Method that registers mail account on the service.
+     *
+     * Complex method that utilizes all the necessary resources and methods to register mail account.
+     *
+     * @access private
+     * 
+     * @param object usrAccount mail account settings
+     *
+     * @return object promise.
+     */        
     
     function registerMailAccount(usrAccout)
     {
@@ -541,7 +574,17 @@ var Mail = function(configObj)
         } catch(e) {
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "openMainPage"...');
         }           
-    }  
+    } 
+    
+    /**
+     * Operation method that starts (or puts to the stack) operation 'openRegPage'.
+     *
+     * Method that starts operation that tries to open registration page of the service.
+     *
+     * @access privileged
+     *
+     * @return object operation promise.
+     */     
     
     this.openRegPage = function()
     {
@@ -551,6 +594,18 @@ var Mail = function(configObj)
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "openRegPage"...');
         }            
     }
+    
+    /**
+     * Operation method that starts (or puts to the stack) operation 'registerMailAccount'.
+     *
+     * Method that starts operation that tries to register mail account on the service.
+     *
+     * @access privileged
+     * 
+     * @param object usrAccount mail account settings
+     *
+     * @return object operation promise.
+     */       
     
     this.registerMailAccount = function(usrAccount)
     {
