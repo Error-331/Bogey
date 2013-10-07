@@ -56,7 +56,14 @@ var Service = function(configObj, usrServiceName)
      * @var object link to the current object
      */        
     
-    var obj = this;     
+    var obj = this;   
+    
+    /**
+     * @access private
+     * @var object current scenario (if any)
+     */     
+    
+    var scenario;
         
     /**
      * @access private
@@ -210,15 +217,19 @@ var Service = function(configObj, usrServiceName)
             return;
         }
 
-        if (configObj.persistCookies != undefined) {
+        if (configObj.scenario !== undefined) {   
+            obj.setScenario(configObj.scenario);
+        }
+
+        if (configObj.persistCookies !== undefined) {
             obj.setPersistCookies(configObj.persistCookies);
         }    
         
-        if (configObj.modulesPath != undefined) {
+        if (configObj.modulesPath !== undefined) {
             obj.setModulesPath(configObj.modulesPath);
         }
         
-        if (configObj.libraryPath != undefined) {
+        if (configObj.libraryPath !== undefined) {
             if (typeof configObj.libraryPath != 'string') {
                 throw '"libraryPath" parameter must be string';
             }
@@ -230,19 +241,19 @@ var Service = function(configObj, usrServiceName)
             }
         }
         
-        if (configObj.debugSandbox != undefined) {
+        if (configObj.debugSandbox !== undefined) {
             obj.setDebugSandbox(configObj.debugSandbox);
         }
         
-        if (configObj.viewportWidth != undefined) {
+        if (configObj.viewportWidth !== undefined) {
             obj.setViewportWidth(configObj.viewportWidth);
         }
         
-        if (configObj.viewportHeight != undefined) {
+        if (configObj.viewportHeight !== undefined) {
             obj.setViewportHeight(configObj.viewportHeight);
         }
         
-        if (configObj.reloginOnStart != undefined) {
+        if (configObj.reloginOnStart !== undefined) {
             obj.setReloginOnStart(configObj.reloginOnStart);
         }        
         
@@ -1214,6 +1225,22 @@ var Service = function(configObj, usrServiceName)
     }
     
     /**
+     * Method that returns current scenario.
+     *
+     * Simple method that returns current scenario.
+     *
+     * @access privileged
+     * 
+     * @return object scenario.
+     * 
+     */      
+    
+    this.getScenario = function()
+    {
+        return scenario;
+    }    
+    
+    /**
      * Method that returns 'persistCookies' option value.
      *
      * This option tells service whether to save or not to save cookies to the file.
@@ -1398,6 +1425,28 @@ var Service = function(configObj, usrServiceName)
         }
         
         curPageName = usrPageName;
+    }
+    
+    /**
+     * Method that sets current scenario.
+     *
+     * Simple method that sets current scenario.
+     *
+     * @access privileged
+     * 
+     * @param string usrScenario scenario
+     * 
+     * @throws string 
+     * 
+     */       
+    
+    this.setScenario = function(usrScenario)
+    {
+        if (typeof usrScenario != 'object') {
+            throw 'Scenario must be object';
+        }
+
+        scenario = usrScenario;
     }
     
     /**
