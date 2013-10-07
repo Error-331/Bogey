@@ -101,6 +101,52 @@ var Mail = function(configObj)
     /* Private core methods starts here */ 
     
     /**
+     * Method that saves captcha to the designated folder.
+     *
+     * Method uses supplied data to set clipping rectangle for the current page and save the snapshot of the captcha to the designated folder.
+     *
+     * @access private
+     * 
+     * @param int top offset of the clipping rectangle
+     * @param int left offset of the clipping rectangle
+     * @param int width of the clipping rectangle
+     * @param int height of the clipping rectangle
+     *
+     * @return string relative path to captcha snapshot.
+     */      
+    
+    function saveCaptchaImage(top, left, width, height)
+    {
+        var def = deferred.create();  
+        var curPage = obj.getPage();
+        var oldClipRect = curPage.clipRect;
+        
+        var path = 'captchas';
+        var name = 'captcha_' + Date.now();
+        
+        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Taking captcha snapshot...'); 
+                
+        curPage.clipRect = {
+            'top': top, 
+            'left': left, 
+            'width': width, 
+            'height': height
+        };
+        
+        obj.takeSnapshot('jpeg', name, path).done(function(fullPath){
+            obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'success', 'Captcha snapshot successful ("' + fullPath + '")...'); 
+            def.resolve(fullPath);
+        }).fail(function(err){
+            obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'fail', 'Captcha snapshot fail...'); 
+            def.reject(err);
+        }).always(function(){
+            curPage.clipRect = oldClipRect;
+        });
+        
+        return def.promise();
+    }
+    
+    /**
      * Method that is responsible for opening main page of the service.
      *
      * Simple method that tries to open main page of the service.
@@ -218,7 +264,12 @@ var Mail = function(configObj)
                     obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Error while redirecting to registration page...');
                     def.reject(obj.createErrorObject(3, 'Error while redirecting to registration page'));
                 }                                          
-            });                       
+            });   
+        
+            // page created callback
+            obj.pushPageCreatedFunc(function(page){      
+                obj.setPage(page);           
+            });         
                        
             obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Not logged in, trying to open registration page...');      
             
@@ -227,23 +278,20 @@ var Mail = function(configObj)
 
             obj.runDummySchema(schema).done(function(){                             
                 obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');
-                obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Checking for additional overlay...');
+                //obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Checking for additional overlay...');
                 
                 
                 // if additional overlay is open - click the button
-                schema = require('../schemas/dummy/mail/clickmakeemailoverlay').schema;
+                /*schema = require('../schemas/dummy/mail/clickmakeemailoverlay').schema;
                 obj.runDummySchema(schema).done(function(){ 
                     obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Additional overlay found...');
                 }).fail(function(error){
                     obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'No additional overlay found...');
-                });
+                });*/               
             }).fail(function(error){
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema for "click make email"...');
                 def.reject(obj.createErrorObject(4, error));
-            });  
-            
-            obj.takeSnapshot('jpeg', 'test', '', 1024, 768, 5000);
-            
+            });            
         });    
         
         return def.promise();
@@ -430,7 +478,7 @@ var Mail = function(configObj)
         dummyVars.hintQuestionId = {'optionIndex': usrAccout.optionIndex};
         dummyVars.hintAnswer = {'text': usrAccout.hintAnswer};
         dummyVars.phoneNumber = {'text': usrAccout.phoneNumber};
-        
+
         // open registration page
         openRegPage().done(function(){
             obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Entering account data...');
@@ -440,7 +488,7 @@ var Mail = function(configObj)
 
             obj.runDummySchema(schema, dummyVars).done(function(){                             
                 obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');
-                obj.takeSnapshot('jpeg', 'test', '', 1024, 768);
+                obj.takeSnapshot('jpeg', 'test', '', 1024, 768, 5000);
             }).fail(function(error){
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema (registration data)...');
                 def.reject(obj.createErrorObject(4, error));
@@ -512,8 +560,21 @@ var Mail = function(configObj)
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "registerMailAccount"...');
         }          
     }
-    
+        
     /* Privileged core methods ends here */
+    
+    /* Privileged event handlers starts here */
+    
+    this.onParseCaptchaByElm = function(elm)
+    {
+        var def = deferred.create();
+       
+        saveCaptchaImage(elm.top, elm.left, elm.width, elm.height);
+        
+        return def.promise();
+    }
+    
+    /* Privileged event handlers ends here */
     
     this.configureService(configObj);
 }
