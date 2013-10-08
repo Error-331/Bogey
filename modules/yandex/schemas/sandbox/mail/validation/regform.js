@@ -52,7 +52,7 @@ Bogey.yandex.schemas.regForm = {
         varName: 'phoneNumber'
     },   
     elm9: {
-        sel: 'img#captcha_img',
+        sel: 'img.b-captcha__captcha__text',
         func: 'Bogey.utils.findOffset',
         varName: 'captchaImg'
     },   
