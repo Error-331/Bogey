@@ -37,9 +37,9 @@
  */
 
 // Modules include
-var deferred = require('../async/deferred');
-var service = require('../core/service');
-var fileutils = require('../utils/fileutils');
+var deferred = require('../../async/deferred');
+var service = require('../../core/service');
+var fileutils = require('../../utils/fileutils');
 
 var Antigate = function(configObj)
 { 
@@ -73,8 +73,8 @@ var Antigate = function(configObj)
      * @var string path to the HTML file with captcha-image upload form
      */      
     
-    var uploadFormPath = '../modules/antigate/html/antigate_upload_form.html';
-    
+    var uploadFormPath = obj.getModulesPath() + 'antigate' + fileutils.getDirSeparator() + 'services' + fileutils.getDirSeparator() +  'html' + fileutils.getDirSeparator() + 'antigate_upload_form.html';
+
     /**
      * @access private
      * @var integer timeout in milliseconds after which captcha upload process will be canceled
@@ -216,7 +216,7 @@ var Antigate = function(configObj)
         if (this.getSystemKey().length <= 0) {
             this.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot check balance - API key is not set...');   
             
-            def.reject();
+            def.reject(obj.createErrorObject(5, 'API key is not set'));
             return def;
         }            
         
@@ -224,7 +224,7 @@ var Antigate = function(configObj)
         setTimeout(function(){
             if (!def.isDone()) {
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Balance check takes too long...');
-                def.reject();
+                def.reject(obj.createErrorObject(1, 'Balance check timeout'));
             }
         }, checkBalanceTimeout);        
 
@@ -241,12 +241,12 @@ var Antigate = function(configObj)
                     def.resolve(evalResult); 
                 } else {
                     obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Response: "' + evalResult + '"');                                                  
-                    def.reject(evalResult); 
+                    def.reject(obj.createErrorObject(5, evalResult)); 
                 }
          
             } else {
                 this.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Cannot check balance...');                                           
-                def.reject();
+                def.reject(obj.createErrorObject(5, 'Cannot check balance'));
             }        
         });
         
@@ -279,14 +279,14 @@ var Antigate = function(configObj)
         if (this.getSystemKey().length <= 0) {
             this.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot get captcha result - API key is not set...');   
             
-            def.reject();
+            def.reject(obj.createErrorObject(5, 'API key is not set'));
             return def;
         }            
         
         // check id
         if (typeof id != 'string' || id.length <= 0) {
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Captcha id is not valid...');
-            def.reject();
+            def.reject(obj.createErrorObject(5, 'Captcha id is not valid'));
             return def;
         }
         
@@ -318,24 +318,23 @@ var Antigate = function(configObj)
                         obj.logProcess(obj.getCurPageURL(), 'processing', status, 'unknown', 'Captcha is not parsed yet...');
                     } else if (response.indexOf('ERROR_KEY_DOES_NOT_EXIST') != -1) {
                         obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Captcha key ('+ id +') does not exist...');
-                        def.reject('ERROR_KEY_DOES_NOT_EXIST');
+                        def.reject(obj.createErrorObject(5, 'ERROR_KEY_DOES_NOT_EXIST'));
                         return;                        
                     } else if (response.indexOf('ERROR_NO_SUCH_CAPCHA_ID') != -1) {
                         obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Captcha key ('+ id +') does not exist...');
-                        def.reject('ERROR_NO_SUCH_CAPCHA_ID'); 
+                        def.reject(obj.createErrorObject(5, 'ERROR_NO_SUCH_CAPCHA_ID')); 
                         return;                        
                     } else if (response.indexOf('ERROR_WRONG_ID_FORMAT') != -1) {  
                         obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Captcha key ('+ id +') has wrong format...');
-                        def.reject('ERROR_WRONG_ID_FORMAT');
+                        def.reject(obj.createErrorObject(5, 'ERROR_WRONG_ID_FORMAT'));
                         return; 
                     } else if (response.indexOf('ERROR_CAPTCHA_UNSOLVABLE') != -1) {
                         obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Captcha is unsolvable...');
-                        def.reject('ERROR_CAPTCHA_UNSOLVABLE'); 
+                        def.reject(obj.createErrorObject(5, 'ERROR_CAPTCHA_UNSOLVABLE')); 
                         return;                                               
                     } else {
                         obj.logProcess(obj.getCurPageURL(), 'processing', status, 'unknown', 'Unidentified error...');
-                    }   
-                    
+                    }                      
                 } else {
                     obj.logProcess(obj.getCurPageURL(), 'processing', status, 'unknown', 'Cannot receive response from Antigate...');
                 } 
@@ -343,7 +342,7 @@ var Antigate = function(configObj)
                 // cannot get captcha result, exceeded number of tries
                 if (tries >= checkCaptchaTries) {           
                     obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot get captcha result, exceeded number of tries...');
-                    def.reject();    
+                    def.reject(obj.createErrorObject(5, 'Cannot get captcha result, exceeded number of tries'));    
                     return;
                 } 
                 
@@ -384,7 +383,7 @@ var Antigate = function(configObj)
         if (this.getSystemKey().length <= 0) {
             this.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot upload captcha - API key is not set...');   
             
-            def.reject();
+            def.reject(obj.createErrorObject(5, 'API key is not set'));
             return def;
         }            
         
@@ -392,14 +391,14 @@ var Antigate = function(configObj)
         try {
             fileutils.isValidImage(imagePath);
             fileutils.isReadable(uploadFormPath);
-        } catch(e) {
-            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', e);
-            def.reject();
+        } catch(err) {
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', err);
+            def.reject(obj.createErrorObject(5, err));
             return def;
         }
         
         obj.logProcess(obj.getCurPageURL(), 'processing', 'unknown', 'unknown', 'Opening local form file...');
-        
+
         curPage.open(uploadFormPath, function(status) {
             if (status == 'success') {
                 obj.logProcess(obj.getCurPageURL(), 'processing', status, 'unknown', 'Succesfully open local form file...');
@@ -479,7 +478,7 @@ var Antigate = function(configObj)
                 setTimeout(function(){
                     if (!def.isDone()) {
                         obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Uploading takes too long...');
-                        def.reject();
+                        def.reject(obj.createErrorObject(1, 'Uploading timeout'));
                     }
                 }, uploadImageOpTimeout);
 
@@ -500,17 +499,17 @@ var Antigate = function(configObj)
                             def.resolve(id);                            
                         } else {
                             obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Response: "' + response + '"');
-                            def.reject(response);
+                            def.reject(obj.createErrorObject(5, response));
                         } 
                     } else {
                         obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Upload fail...');
-                        def.reject();
+                        def.reject(obj.createErrorObject(5, 'Upload fail'));
                     }
                 });                
                 
             } else {
                 obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Cannot open local form file...');
-                def.reject();
+                def.reject(obj.createErrorObject(5, 'Cannot open local form file'));
                 return def;
             }           
         });        
@@ -538,18 +537,49 @@ var Antigate = function(configObj)
             return;
         }
         
-        obj.setSystemKey(configObj.systemKey);
+        if (configObj.systemKey !== undefined) {
+            obj.setSystemKey(configObj.systemKey);           
+        }
         
-        obj.setPhraseParam(configObj.phrase);
-        obj.setRegsenseParam(configObj.regsense);
-        obj.setNumericParam(configObj.numeric);
-        obj.setCalcParam(configObj.calc);
-        obj.setMinLenParam(configObj.minLen);
-        obj.setMaxLenParam(configObj.maxLen)
-        obj.setIsRussianParam(configObj.isRussian);
-        obj.setMaxBidParam(configObj.maxBid);
-        obj.setSoftIdParam(configObj.softId);
-        obj.setHeaderAcaoParam(configObj.headerAcao);         
+        if (configObj.phrase !== undefined) {
+            obj.setPhraseParam(configObj.phrase);
+        }
+        
+        if (configObj.regsense !== undefined) {
+            obj.setRegsenseParam(configObj.regsense);
+        }
+            
+        if (configObj.numeric !== undefined) {
+            obj.setNumericParam(configObj.numeric);
+        }    
+        
+        if (configObj.calc !== undefined) {
+            obj.setCalcParam(configObj.calc);
+        }
+
+        if (configObj.minLen !== undefined) {
+            obj.setMinLenParam(configObj.minLen);
+        }
+        
+        if (configObj.maxLen !== undefined) {
+            obj.setMaxLenParam(configObj.maxLen);
+        }
+
+        if (configObj.isRussian !== undefined) {
+            obj.setIsRussianParam(configObj.isRussian);
+        }
+        
+        if (configObj.maxBid !== undefined) {
+            obj.setMaxBidParam(configObj.maxBid);
+        }
+       
+        if (configObj.softId !== undefined) {
+            obj.setSoftIdParam(configObj.softId);
+        }
+
+        if (configObj.headerAcao !== undefined) {
+            obj.setHeaderAcaoParam(configObj.headerAcao);  
+        }      
     }  
 
     /**
@@ -838,6 +868,10 @@ var Antigate = function(configObj)
     
     this.setPhraseParam = function(phrase)
     {
+        if (typeof phrase == 'string') {
+            phrase = parseInt(phrase);
+        }
+        
         if (typeof phrase != 'number') {
             throw '"phrase" parameter must be numeric';
         }
@@ -865,6 +899,10 @@ var Antigate = function(configObj)
     
     this.setRegsenseParam = function(regsense)
     {
+        if (typeof regsense == 'string') {
+            regsense = parseInt(regsense);
+        }        
+        
         if (typeof regsense != 'number') {
             throw '"regsense" parameter must be numeric';
         }
@@ -892,6 +930,10 @@ var Antigate = function(configObj)
     
     this.setNumericParam = function(numeric)
     {
+        if (typeof numeric == 'string') {
+            numeric = parseInt(numeric);
+        }              
+        
         if (typeof numeric != 'number') {
             throw '"numeric" parameter must be numeric';
         }
@@ -921,6 +963,10 @@ var Antigate = function(configObj)
     
     this.setCalcParam = function(calc)
     {
+        if (typeof calc == 'string') {
+            calc = parseInt(calc);
+        }           
+        
         if (typeof calc != 'number') {
             throw '"calc" parameter must be numeric';
         }
@@ -948,6 +994,10 @@ var Antigate = function(configObj)
   
     this.setMinLenParam = function(minLen)
     {
+        if (typeof minLen == 'string') {
+            minLen = parseInt(minLen);
+        }         
+        
         if (typeof minLen != 'number') {
             throw '"min_len" parameter must be numeric';
         }
@@ -977,6 +1027,10 @@ var Antigate = function(configObj)
   
     this.setMaxLenParam = function(maxLen)
     {
+        if (typeof maxLen == 'string') {
+            maxLen = parseInt(maxLen);
+        }            
+        
         if (typeof maxLen != 'number') {
             throw '"max_len" parameter must be numeric';
         }
@@ -1006,6 +1060,10 @@ var Antigate = function(configObj)
     
     this.setIsRussianParam = function(isRussian)
     {
+        if (typeof isRussian == 'string') {
+            isRussian = parseInt(isRussian);
+        }          
+        
         if (typeof isRussian != 'number') {
             throw '"is_russian" parameter must be numeric';
         }
@@ -1033,6 +1091,10 @@ var Antigate = function(configObj)
     
     this.setMaxBidParam = function(bid)
     {
+        if (typeof bid == 'string') {
+            bid = parseInt(bid);
+        }           
+        
         if (typeof bid != 'number') {
             throw '"max_bid" parameter must be numeric';
         }
@@ -1088,6 +1150,10 @@ var Antigate = function(configObj)
     
     this.setHeaderAcaoParam = function(headerAcao)
     {
+        if (typeof headerAcao == 'string') {
+            headerAcao = parseInt(headerAcao);
+        }             
+        
         if (typeof headerAcao != 'number') {
             throw '"header_acao" parameter must be numeric';
         }
