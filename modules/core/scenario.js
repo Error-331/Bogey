@@ -116,7 +116,7 @@ var Scenario = function(usrScenarioName)
         var prop;
         var val;
 
-        for (key in args) {
+        for (key in args) {           
             res = args[key].split('=');
 
             if (res.length == 2) {

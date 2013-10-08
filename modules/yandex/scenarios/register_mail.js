@@ -1,6 +1,8 @@
 // Modules include
 var scenario = require('../../core/scenario');
+
 var yandexMail = require('../services/mail');
+var antigate = require('../../antigate/services/antigate');
 
 var RegisterMail = function()
 { 
@@ -15,7 +17,9 @@ var RegisterMail = function()
     
     var obj = this;  
     
-    var curYandexMail = null;
+    var curYandexMail;
+    
+    var curAntigate;
                 
     /* Private members ends here */
     
@@ -47,8 +51,19 @@ var RegisterMail = function()
             options.optionIndex = parseInt(options.optionIndex);
         }
         
+        options.scenario = obj;
+        
         curYandexMail = yandexMail.create(options);
         curYandexMail.registerMailAccount(options);
+        
+
+
+        options['isRussian'] = 0;
+        options['maxBid'] = 0;
+        options['softId'] = '';
+        options['headerAcao'] = 0;
+        
+        curAntigate = antigate.create(options);
     }  
     
     /**
@@ -66,6 +81,24 @@ var RegisterMail = function()
     }      
         
     /* Privileged core methods ends here */
+    
+    /* Priveleged event handlers starts here */
+    
+    this.onParseCaptchaByPath = function(path)
+    {
+        curAntigate.uploadImage(path).done(function(id){
+            curAntigate.checkCaptchaStatus(id).done(function(captcha){
+                console.log('Captcha is:' + captcha);
+                phantom.exit();
+            }).fail(function(){
+                phantom.exit();
+            });
+        }).fail(function(){
+            phantom.exit();
+        });
+    }
+    
+    /* Privileged event handlers ends here */
       
     /* Privileged get methods starts here */      
     /* Privileged get methods ends here */
