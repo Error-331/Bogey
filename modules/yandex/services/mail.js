@@ -60,7 +60,7 @@ var Mail = function(configObj)
      */        
     
     var obj = this;   
-    
+        
     /**
      * @access private
      * @var string main URL of the service
@@ -605,6 +605,7 @@ var Mail = function(configObj)
      * @param object usrAccount mail account settings
      *
      * @return object operation promise.
+     * 
      */       
     
     this.registerMailAccount = function(usrAccount)
@@ -620,11 +621,31 @@ var Mail = function(configObj)
     
     /* Privileged event handlers starts here */
     
+    /**
+     * Event handler that is called when the captcha needs to be parsed.
+     *
+     * Method recieves information about element that contains captcha on the page, saves the captcha to the file and sends it to 
+     * the current scenario for future parsing.
+     *
+     * @access privileged
+     * 
+     * @param object elm captcha element
+     *
+     * @return object operation promise.
+     * 
+     */      
+    
     this.onParseCaptchaByElm = function(elm)
     {
         var def = deferred.create();
        
-        saveCaptchaImage(elm.top, elm.left, elm.width, elm.height);
+        saveCaptchaImage(elm.top, elm.left, elm.width, elm.height).done(function(path){
+           obj.getScenario().onParseCaptchaByPath(path);
+        }).fail(function(err){
+            def.reject(err);
+        });
+        
+        
         
         return def.promise();
     }
