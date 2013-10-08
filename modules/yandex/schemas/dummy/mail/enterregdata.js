@@ -1,3 +1,6 @@
+// Modules include
+var deferred = require('../../../../async/deferred');
+
 exports.schema = {    
     step1: {
         type: 'sandbox',
@@ -17,9 +20,9 @@ exports.schema = {
         offset_left: 3,
         offset_top: 3,
         
-        text: '$firstName.text',
+        text: '$firstName.text'
         
-        delay_before: 1000
+        //delay_before: 1000
     },
     
     step3: {
@@ -32,9 +35,9 @@ exports.schema = {
         offset_left: 3,
         offset_top: 3,
         
-        text: '$lastName.text',
+        text: '$lastName.text'
         
-        delay_before: 1000
+        //delay_before: 1000
     },   
     
     step4: {
@@ -87,10 +90,10 @@ exports.schema = {
             }
             
             this.setDummyVar('suggest', data[Math.floor((Math.random() * data.length)+1)]);
-        },
+        }
         
-        delay_before: 1000,
-        delay_after: 1000        
+        //delay_before: 1000,
+        //delay_after: 1000        
     },
     
     step7: {
@@ -103,10 +106,10 @@ exports.schema = {
         offset_left: 3,
         offset_top: 3,
         
-        text: '$password.text',
+        text: '$password.text'
         
-        delay_before: 1000,
-        delay_after: 2000
+        //delay_before: 1000,
+        //delay_after: 2000
     },    
     
     step8: {
@@ -119,10 +122,10 @@ exports.schema = {
         offset_left: 3,
         offset_top: 3,
         
-        text: '$passwordConfirm.text',
+        text: '$passwordConfirm.text'
         
-        delay_before: 1000,
-        delay_after: 2000
+        //delay_before: 1000,
+        //delay_after: 2000
     },
     
     step9: {
@@ -143,10 +146,10 @@ exports.schema = {
         offset_left: 3,
         offset_top: 3,
         
-        optionIndex: '$hintQuestionId.optionIndex',
+        optionIndex: '$hintQuestionId.optionIndex'
         
-        delay_before: 1000,
-        delay_after: 2000
+        //delay_before: 1000,
+        //delay_after: 2000
     },
     
     step11: {
@@ -159,10 +162,10 @@ exports.schema = {
         offset_left: 3,
         offset_top: 3,
         
-        text: '$hintAnswer.text',
+        text: '$hintAnswer.text'
         
-        delay_before: 1000,
-        delay_after: 2000
+        //delay_before: 1000,
+        //delay_after: 2000
     },    
     
     step12: {
@@ -175,9 +178,48 @@ exports.schema = {
         offset_left: 3,
         offset_top: 3,
         
-        text: '$phoneNumber.text',
+        text: '$phoneNumber.text'
+       
+        //delay_before: 1000,
+        //delay_after: 2000
+    },
+    
+    step13: {
+        type: 'dummy',
+        op: 'fillTextInput',  
         
-        delay_before: 1000,
-        delay_after: 2000
-    }     
+        left: '$answer.left',
+        top: '$answer.top',  
+        
+        offset_left: 3,
+        offset_top: 3,
+        
+        text: '$answer.text',        
+        
+        func_before: function(elm){
+            var obj = this;
+            var def = deferred.create();
+            
+            var dumVar = this.getDummyVar('captchaImg');
+            var answer = this.getDummyVar('answer').data;
+            
+            dumVar.top = dumVar.top + 20;
+            
+            var subDef = this.getService().onParseCaptchaByElm(dumVar);
+
+            subDef.done(function(data){
+                answer.text = data;
+                
+                obj.setDummyVar('answer', answer);
+                def.resolve();
+            }).fail(function(err){
+                def.reject(err);
+            });
+
+            return def.promise();
+        }
+        
+        //delay_before: 1000,
+        //delay_after: 2000        
+    }
 }
