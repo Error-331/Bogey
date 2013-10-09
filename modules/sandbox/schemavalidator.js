@@ -236,7 +236,19 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
             result = new Array();    
             
             if (invert == true) {
-                 throw 'bubih';
+                if (selRes.length <= 0) {
+                    // check 'defValue' property
+                    if (usrScheme[elm].defValue === undefined) {
+                        throw 'Element not found for: ' + usrScheme[elm].sel;
+                    } else {
+                        throw 'Element found for: ' + usrScheme[elm].sel;
+                    }               
+                } else {
+                    // check each element
+                    if (selRes.length > 0) {
+                        throw 'Element found for: ' + usrScheme[elm].sel;
+                    }                                                 
+                }                                      
             } else {
                 if (selRes.length <= 0) {
                     // check 'defValue' property
