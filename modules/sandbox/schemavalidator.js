@@ -32,9 +32,21 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
     
     var format = 'raw';
     
+    /**
+     * @access private
+     * @var bool inverts work of the validator (if the element is found - error will be thrown)
+     */       
+    
+    var invert = false;
+    
     /* Private members ends here */
     
     /* Private core methods starts here */
+    
+    /*function throwError(elm, defErr)
+    {
+        
+    }*/
     
     function formatPlain(data)
     {    
@@ -187,7 +199,25 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
         
         var selRes = null;
         
+        // check for params element
         for (elm in usrScheme) {
+            if (elm.toLowerCase() == 'params') {
+                
+                if (usrScheme[elm].invert !== undefined) {
+                    setInvert(usrScheme[elm].invert);
+                }
+                
+                break;
+            }
+        }
+        
+        // traverse all elements
+        for (elm in usrScheme) {   
+            // skip params
+            if (elm.toLowerCase() == 'params') {
+                continue;
+            }
+            
             // check 'sel' property
             if (usrScheme[elm].sel === undefined) {
                 throw '"sel" property is not present';             
@@ -204,36 +234,69 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
             }
                 
             result = new Array();    
-                
-            if (selRes.length <= 0) {
-                // check 'defValue' property
-                if (usrScheme[elm].defValue === undefined) {
-                    throw 'Element not found for: ' + usrScheme[elm].sel;
-                }                
-                
-                result.push(usrScheme[elm].defValue); 
+            
+            if (invert == true) {
+                 throw 'bubih';
             } else {
-                // check each element
-                for (elmDOM = 0; elmDOM < selRes.length; elmDOM++) {                    
-                    subResult = validate(usrScheme[elm], selRes.item(elmDOM));
-                    
-                    if (subResult != false) {
-                        result.push(subResult);
-                    }                  
-                }                                 
-            }
-                                                
-            if (result.length <= 0) {
-                throw 'Schema validation fail';
-            }
+                if (selRes.length <= 0) {
+                    // check 'defValue' property
+                    if (usrScheme[elm].defValue === undefined) {
+                        throw 'Element not found for: ' + usrScheme[elm].sel;
+                    }                
                 
-            globResult.push(result);                                          
+                    result.push(usrScheme[elm].defValue); 
+                } else {
+                    // check each element
+                    for (elmDOM = 0; elmDOM < selRes.length; elmDOM++) {                    
+                        subResult = validate(usrScheme[elm], selRes.item(elmDOM));
+                    
+                        if (subResult != false) {
+                            result.push(subResult);
+                        }                  
+                    }                                 
+                }
+                                                
+                if (result.length <= 0) {
+                    throw 'Schema validation fail';
+                }
+                
+                globResult.push(result);   
+            }                                                     
         }
         
         return globResult;
     }    
     
     /* Private core methods ends here */ 
+    
+    /* Private get methods starts here */    
+    /* Private get methods ends here */
+    
+    /* Private set methods starts here */
+    
+    /**
+     * Method that sets value for "invert" property.
+     *
+     * Simple method that sets value for "invert" property.
+     *
+     * @access private
+     * 
+     * @param bool val new value for the property
+     * 
+     * @throws string 
+     * 
+     */      
+    
+    function setInvert(val)
+    {
+        if (typeof val != 'boolean') {
+            throw 'Value for "invert" property must be boolean';
+        }
+        
+        invert = val;
+    }
+    
+    /* Private set methods ends here */
     
     /* Privileged core methods starts here */
     
