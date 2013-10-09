@@ -94,7 +94,7 @@ var Mail = function(configObj)
      * @var int user mail registration operation timeout in milliseconds
      */           
     
-    var registerMailAccountTimeout = 60000
+    var registerMailAccountTimeout = 180000
       
     /* Private members ends here */
     
@@ -524,7 +524,12 @@ var Mail = function(configObj)
                 obj.takeSnapshot('jpeg', 'test', '', 1024, 768, 5000);
             }).fail(function(error){
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema (registration data)...');
-                def.reject(obj.createErrorObject(4, error));
+                
+                if (typeof error == 'object') {
+                    def.reject(error);
+                } else {
+                    def.reject(obj.createErrorObject(4, error));
+                }
             });   
                        
         }).fail(function(error) {
@@ -640,13 +645,15 @@ var Mail = function(configObj)
         var def = deferred.create();
        
         saveCaptchaImage(elm.top, elm.left, elm.width, elm.height).done(function(path){
-           obj.getScenario().onParseCaptchaByPath(path);
+           obj.getScenario().onParseCaptchaByPath(path).done(function(data) {
+               def.resolve(data);
+           }).fail(function(err){
+               def.reject(err);
+           });
         }).fail(function(err){
             def.reject(err);
         });
-        
-        
-        
+
         return def.promise();
     }
     
