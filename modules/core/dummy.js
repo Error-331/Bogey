@@ -298,7 +298,7 @@ var Dummy = function(usrService)
      * @param object elm current schema element
      * @param function func user defined function
      * 
-     * @return object deferred object.    
+     * @return object promise.    
      *
      */     
     
@@ -308,13 +308,13 @@ var Dummy = function(usrService)
         
         if (typeof func != 'function') {
             def.reject('Parameter "func" must be function');
-            return def;
+            return def.promise();
         }
         
         if (elm.delay_before != undefined) {
             if (typeof elm.delay_before != 'number' || elm.delay_before <= 0) {
                 def.reject('Invalid "delay_before" parameter: "' + elm.delay_before + '"');
-                return def;
+                return def.promise();
             }
             
             setTimeout(function(){
@@ -326,7 +326,7 @@ var Dummy = function(usrService)
             def.resolve();   
         }
                
-        return def;
+        return def.promise();
     }
     
     /**
@@ -338,7 +338,7 @@ var Dummy = function(usrService)
      *
      * @param object elm current schema element
      * 
-     * @return object deferred object.    
+     * @return object promise.    
      *
      */      
     
@@ -349,7 +349,7 @@ var Dummy = function(usrService)
         if (elm.delay_after != undefined) {
             if (typeof elm.delay_after != 'number' || elm.delay_after <= 0) {
                 def.reject('Invalid "delay_after" parameter: "' + elm.delay_after + '"');
-                return def;
+                return def.promise();
             }
             
             setTimeout(function(){
@@ -359,7 +359,7 @@ var Dummy = function(usrService)
             def.resolve();   
         }
                
-        return def;        
+        return def.promise();        
     }
     
     /**
@@ -371,7 +371,7 @@ var Dummy = function(usrService)
      *
      * @param object elm current element of the schema
      * 
-     * @return object deferred object.  
+     * @return object promise.  
      *
      */    
     
@@ -390,7 +390,7 @@ var Dummy = function(usrService)
             checkCoords(elm);
         } catch(e) {
             def.reject(e);
-            return def;
+            return def.promise();
         }    
         
         // check offset
@@ -398,14 +398,14 @@ var Dummy = function(usrService)
             elm = checkOffset(elm);
         } catch(e) {
             def.reject(e);
-            return def;            
+            return def.promise();            
         }
                 
         // check mouse button
         if (elm.btn != undefined) {
             if (typeof elm.btn != 'string') {
                 def.reject('"btn" parameter must be string');
-                return def;
+                return def.promise();
             }
             
             elm.btn = elm.btn.toLowerCase();
@@ -420,14 +420,14 @@ var Dummy = function(usrService)
                 def.resolve();
             }).fail(function(error){
                 def.reject(error);
-                return def;
+                return def.promise();
             });
         }).fail(function(error){
             def.reject(error);
-            return def;            
+            return def.promise();            
         });
                 
-        return def;
+        return def.promise();
     }
     
     /**
@@ -439,7 +439,7 @@ var Dummy = function(usrService)
      *
      * @param object elm current element of the schema
      * 
-     * @return object deferred object.  
+     * @return object promise.  
      *
      */        
     
@@ -460,7 +460,7 @@ var Dummy = function(usrService)
             checkCoords(elm);
         } catch(e) {
             def.reject(e);
-            return def;
+            return def.promise();
         }  
         
         // check offset
@@ -468,13 +468,13 @@ var Dummy = function(usrService)
             elm = checkOffset(elm);
         } catch(e) {
             def.reject(e);
-            return def;            
+            return def.promise();            
         }        
         
         // check text
         if (typeof elm.text != 'string') {
             def.reject('Invalid parameter "text"');
-            return def;
+            return def.promise();
         }
 
         // check delay_before
@@ -484,14 +484,14 @@ var Dummy = function(usrService)
                 def.resolve();
             }).fail(function(error){
                 def.reject(error);
-                return def;
+                return def.promise();
             });
         }).fail(function(error){
             def.reject(error);
-            return def;            
+            return def.promise();            
         });
         
-        return def;
+        return def.promise();
     }
     
     function selectOption(elm)
@@ -536,7 +536,7 @@ var Dummy = function(usrService)
             checkCoords(elm);
         } catch(e) {
             def.reject(e);
-            return def;
+            return def.promise();
         }  
         
         // check offset
@@ -544,13 +544,13 @@ var Dummy = function(usrService)
             elm = checkOffset(elm);
         } catch(e) {
             def.reject(e);
-            return def;            
+            return def.promise();            
         }        
         
         // check option
         if (typeof elm.optionIndex != 'number') {
             def.reject('Invalid parameter "option"');
-            return def;
+            return def.promise();
         }
 
         // check delay_before
@@ -560,14 +560,14 @@ var Dummy = function(usrService)
                 def.resolve();
             }).fail(function(error){
                 def.reject(error);
-                return def;
+                return def.promise();
             });
         }).fail(function(error){
             def.reject(error);
-            return def;            
+            return def.promise();            
         });
         
-        return def;
+        return def.promise();
     }
         
     function runSandboxSchemaElm(elm)
@@ -577,7 +577,7 @@ var Dummy = function(usrService)
         
         if (typeof elm != 'object') {
             def.reject('Schema element is not an object');
-            return def;
+            return def.promise();
         }        
         
         service.validatePageByDummySchema(elm).done(function(result){
@@ -600,7 +600,7 @@ var Dummy = function(usrService)
             def.reject(error.message);
         });
         
-        return def;
+        return def.promise();
     }
     
     /**
@@ -612,7 +612,7 @@ var Dummy = function(usrService)
      *
      * @param object elm "dummy" schema element
      * 
-     * @return object deferred object.
+     * @return object promise.
      *
      */    
     
@@ -640,7 +640,7 @@ var Dummy = function(usrService)
             
                 default:
                     def.reject('Unrecognised operation: "' + elm.op + '"');
-                    return def;
+                    return def.promise();
                     break;
             }        
         
@@ -653,12 +653,12 @@ var Dummy = function(usrService)
         
         if (typeof elm != 'object') {
             def.reject('Schema element is not an object');
-            return def;
+            return def.promise();
         }
         
         if (typeof elm.op != 'string') {
             def.reject('Schema operation cannot be undefined');
-            return def;
+            return def.promise();
         }  
         
         elm.op = elm.op.toLowerCase();
@@ -666,7 +666,8 @@ var Dummy = function(usrService)
         // check 'func_before'
         if (elm.func_before !== undefined) {
             if (typeof elm.func_before != 'function') {
-                throw 'Property "func_before" must be function';
+                def.reject('Property "func_before" must be function');
+                return def.promise();
             }
             
             deferred.when(elm.func_before.call(obj, elm)).done(function(){
@@ -678,7 +679,7 @@ var Dummy = function(usrService)
             switchFunc();
         }
                 
-        return def;
+        return def.promise();
     }
     
     /**
@@ -690,7 +691,7 @@ var Dummy = function(usrService)
      *
      * @param object elm schema element
      * 
-     * @return object deferred object.
+     * @return object promise.
      *
      */       
         
@@ -733,7 +734,7 @@ var Dummy = function(usrService)
             def.reject(error);
         });
         
-        return def;
+        return def.promise();
     }
     
     /* Private core methods ends here */    
@@ -788,7 +789,7 @@ var Dummy = function(usrService)
      *
      * @param object schema "dummy" schema
      * 
-     * @return object deferred object.
+     * @return object promise.
      * 
      * @throws string   
      *
@@ -833,7 +834,7 @@ var Dummy = function(usrService)
         }
         
         loopFunc();
-        return def;
+        return def.promise();
     }
     
     /* Privileged core methods ends here */
