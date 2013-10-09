@@ -43,10 +43,29 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
     
     /* Private core methods starts here */
     
-    /*function throwError(elm, defErr)
+    /**
+     * Method that throws error connected with the supplied element.
+     *
+     * Method checks whether the element contains 'errorMes' property and if it is present throws error with the message in 
+     * this property. If the method does not contain this property - default message will be thrown.
+     *
+     * @access private
+     * 
+     * @param object elm current schema element
+     * @param string defErr default error message
+     * 
+     * @throws string 
+     * 
+     */      
+    
+    function throwError(elm, defErr)
     {
-        
-    }*/
+        if (elm.errorMes !== undefined) {
+            throw elm.errorMes;
+        } else {
+            throw defErr;
+        }
+    }
     
     function formatPlain(data)
     {    
@@ -109,7 +128,7 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
             return usrScheme.func(rootElm);
         } else if (typeof usrScheme.func == 'object') {
             if (usrScheme.func.length <= 0) {
-                throw 'Function array cannot be zero length';
+                throwError(usrScheme, 'Function array cannot be zero length');
             }
             
             tmpArr = new Array();
@@ -123,10 +142,10 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
             } else if (typeof usrScheme.func[0] == 'function') {           
                 return usrScheme.func[0].apply(null, tmpArr);
             } else {
-                throw '"func" property must be function or string';
+                throwError(usrScheme, '"func" property must be function or string');
             }
         } else {
-            throw '"func" property must be function, string or array';
+            throwError(usrScheme, '"func" property must be function, string or array');
         }     
     }
     
@@ -150,10 +169,10 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
                         return false;
                     }
                 } else {
-                    throw '"text" property parameters mismatch';
+                    throwError(usrScheme, '"text" property parameters mismatch'); 
                 }
             } else {
-                throw '"text" property must be string or object';
+                throwError(usrScheme, '"text" property must be string or object'); 
             }
         }    
         
@@ -167,7 +186,7 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
         // check 'varName' property      
         if (usrScheme.varName !== undefined) {
             if (typeof usrScheme.varName != 'string' || usrScheme.varName.length <= 0) {
-                throw '"varName" property must be string and its length must be greater than zero';
+                throwError(usrScheme, '"varName" property must be string and its length must be greater than zero'); 
             }
             
             funcRes.varName = usrScheme.varName
@@ -181,7 +200,7 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
             if (typeof usrScheme.sub == 'object') {
                 result.push(traverse(usrScheme.sub, rootElm));
             } else {
-                throw '"sub" property must be object';
+                throwError(usrScheme, '"sub" property must be object');  
             }
         }  
         
@@ -220,11 +239,11 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
             
             // check 'sel' property
             if (usrScheme[elm].sel === undefined) {
-                throw '"sel" property is not present';             
+                throwError(usrScheme[elm], '"sel" property is not present');         
             }
             
             if (typeof usrScheme[elm].sel != 'string') {
-                throw '"sel" property is not a string';
+                throwError(usrScheme[elm], '"sel" property is not a string');   
             }
                 
             if (rootElm == undefined) {
@@ -239,21 +258,21 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
                 if (selRes.length <= 0) {
                     // check 'defValue' property
                     if (usrScheme[elm].defValue === undefined) {
-                        throw 'Element not found for: ' + usrScheme[elm].sel;
+                        throwError(usrScheme[elm], 'Element not found for: ' + usrScheme[elm].sel);  
                     } else {
-                        throw 'Element found for: ' + usrScheme[elm].sel;
+                        throwError(usrScheme[elm], 'Element found for: ' + usrScheme[elm].sel);  
                     }               
                 } else {
                     // check each element
                     if (selRes.length > 0) {
-                        throw 'Element found for: ' + usrScheme[elm].sel;
+                        throwError(usrScheme[elm], 'Element found for: ' + usrScheme[elm].sel);  
                     }                                                 
                 }                                      
             } else {
                 if (selRes.length <= 0) {
                     // check 'defValue' property
                     if (usrScheme[elm].defValue === undefined) {
-                        throw 'Element not found for: ' + usrScheme[elm].sel;
+                        throwError(usrScheme[elm], 'Element not found for: ' + usrScheme[elm].sel);  
                     }                
                 
                     result.push(usrScheme[elm].defValue); 
