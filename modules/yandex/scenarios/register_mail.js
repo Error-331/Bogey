@@ -1,5 +1,6 @@
 // Modules include
 var scenario = require('../../core/scenario');
+var deferred = require('../../async/deferred');
 
 var yandexMail = require('../services/mail');
 var antigate = require('../../antigate/services/antigate');
@@ -53,17 +54,14 @@ var RegisterMail = function()
         
         options.scenario = obj;
         
-        curYandexMail = yandexMail.create(options);
-        curYandexMail.registerMailAccount(options);
-        
-
-
-        options['isRussian'] = 0;
-        options['maxBid'] = 0;
-        options['softId'] = '';
-        options['headerAcao'] = 0;
-        
         curAntigate = antigate.create(options);
+        curYandexMail = yandexMail.create(options);
+        
+        curYandexMail.registerMailAccount(options).done(function(data){
+            
+        }).fail(function(err){
+            obj.stop();
+        });
     }  
     
     /**
@@ -77,7 +75,7 @@ var RegisterMail = function()
     
     this.stop = function() 
     {
-
+        phantom.exit();
     }      
         
     /* Privileged core methods ends here */
@@ -86,16 +84,19 @@ var RegisterMail = function()
     
     this.onParseCaptchaByPath = function(path)
     {
+        var def = deferred.create();
+        
         curAntigate.uploadImage(path).done(function(id){
             curAntigate.checkCaptchaStatus(id).done(function(captcha){
-                console.log('Captcha is:' + captcha);
-                phantom.exit();
-            }).fail(function(){
-                phantom.exit();
+               def.resolve(captcha);
+            }).fail(function(err){
+                def.reject(err);
             });
-        }).fail(function(){
-            phantom.exit();
+        }).fail(function(err){
+            def.reject(err);
         });
+        
+        return def.promise();
     }
     
     /* Privileged event handlers ends here */

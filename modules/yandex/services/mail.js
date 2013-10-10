@@ -375,7 +375,7 @@ var Mail = function(configObj)
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting logout process...');
         
         // checking top toolbar
-        obj.validatePageBySchema('yandex/schemas/sandbox/validation/mailtoptoolbar.js', 'yandex', 'mailTopToolbar', 'plain-objects', ['sandbox/utils.js']).done(function(result){
+        obj.validatePageBySchema('yandex/schemas/sandbox/mail/validation/mailtoptoolbar.js', 'yandex', 'mailTopToolbar', 'plain-objects', ['sandbox/utils.js']).done(function(result){
             obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Top toolbar found, trying to log out...');
                       
             // page change callback
@@ -519,17 +519,20 @@ var Mail = function(configObj)
             // enter account data
             var schema = require('../schemas/dummy/mail/enterregdata').schema;
 
+            // fill registration data
             obj.runDummySchema(schema, dummyVars).done(function(){                             
                 obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');
-                obj.takeSnapshot('jpeg', 'test', '', 1024, 768, 5000);
+                
             }).fail(function(error){
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema (registration data)...');
-                
+                obj.takeSnapshot('jpeg', 'test', '', 1024, 768);
                 if (typeof error == 'object') {
-                    def.reject(error);
+                   // def.reject(error);
                 } else {
-                    def.reject(obj.createErrorObject(4, error));
+                    //def.reject(obj.createErrorObject(4, error));
                 }
+            }).always(function(){
+                obj.takeSnapshot('jpeg', 'test', '', 1024, 768, 1000);
             });   
                        
         }).fail(function(error) {
