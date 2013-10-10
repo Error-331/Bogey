@@ -257,12 +257,11 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
             if (invert == true) {
                 if (selRes.length <= 0) {
                     // check 'defValue' property
-                    if (usrScheme[elm].defValue === undefined) {
-                        throwError(usrScheme[elm], 'Element not found for: ' + usrScheme[elm].sel);  
-                    } else {
-                        throwError(usrScheme[elm], 'Element found for: ' + usrScheme[elm].sel);  
+                    if (usrScheme[elm].defValue !== undefined) {
+                        throwError(usrScheme[elm], 'Element found for: ' + usrScheme[elm].sel);   
                     }               
                 } else {
+                    throw selRes.length.toString();
                     // check each element
                     if (selRes.length > 0) {
                         throwError(usrScheme[elm], 'Element found for: ' + usrScheme[elm].sel);  
@@ -280,13 +279,17 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
                     // check each element
                     for (elmDOM = 0; elmDOM < selRes.length; elmDOM++) {                    
                         subResult = validate(usrScheme[elm], selRes.item(elmDOM));
-                    
+
                         if (subResult != false) {
                             result.push(subResult);
+                        } else {
+                            if (usrScheme[elm].defData !== undefined) {
+                                result.push([usrScheme[elm].defData]);
+                            }
                         }                  
                     }                                 
                 }
-                                                
+               
                 if (result.length <= 0) {
                     throw 'Schema validation fail';
                 }
