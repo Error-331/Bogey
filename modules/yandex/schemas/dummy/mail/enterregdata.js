@@ -20,9 +20,9 @@ exports.schema = {
         offset_left: 3,
         offset_top: 3,
         
-        text: '$firstName.text'
+        text: '$firstName.text',
         
-        //delay_before: 1000
+        delay_before: 1000
     },
     
     step3: {
@@ -35,9 +35,9 @@ exports.schema = {
         offset_left: 3,
         offset_top: 3,
         
-        text: '$lastName.text'
+        text: '$lastName.text',
         
-        //delay_before: 1000
+        delay_before: 1000
     },   
     
     step4: {
@@ -65,7 +65,8 @@ exports.schema = {
             elm1: {
                 sel: 'ol#suggest',
                 func: ['Bogey.utils.findChildrenOffset', 'span'],
-                varName: 'suggest'
+                varName: 'suggest',
+                defData: {"data":[{"top":0,"left":0,"width":0,"height":0}],"varName":"suggest"}
             }            
         }  
     },
@@ -90,10 +91,10 @@ exports.schema = {
             }
             
             this.setDummyVar('suggest', data[Math.floor((Math.random() * data.length)+1)]);
-        }
+        },
         
-        //delay_before: 1000,
-        //delay_after: 1000        
+        delay_before: 1000,
+        delay_after: 1000        
     },
     
     step7: {
@@ -106,10 +107,10 @@ exports.schema = {
         offset_left: 3,
         offset_top: 3,
         
-        text: '$password.text'
+        text: '$password.text',
         
-        //delay_before: 1000,
-        //delay_after: 2000
+        delay_before: 1000,
+        delay_after: 2000
     },    
     
     step8: {
@@ -122,10 +123,10 @@ exports.schema = {
         offset_left: 3,
         offset_top: 3,
         
-        text: '$passwordConfirm.text'
+        text: '$passwordConfirm.text',
         
-        //delay_before: 1000,
-        //delay_after: 2000
+        delay_before: 1000,
+        delay_after: 2000
     },
     
     step9: {
@@ -134,7 +135,7 @@ exports.schema = {
         scripts: ['sandbox/utils.js'],
         
         sandbox_schema: require('../../sandbox/mail/validation/regform').schema      
-    },    
+    },   
     
     step10: {
         type: 'dummy',
@@ -143,13 +144,13 @@ exports.schema = {
         left: '$hintQuestionId.left',
         top: '$hintQuestionId.top',
         
-        offset_left: 3,
+        offset_left: 20,
         offset_top: 3,
         
-        optionIndex: '$hintQuestionId.optionIndex'
+        optionIndex: '$hintQuestionId.optionIndex',
         
-        //delay_before: 1000,
-        //delay_after: 2000
+        delay_before: 1000,
+        delay_after: 2000
     },
     
     step11: {
@@ -162,10 +163,10 @@ exports.schema = {
         offset_left: 3,
         offset_top: 3,
         
-        text: '$hintAnswer.text'
+        text: '$hintAnswer.text',
         
-        //delay_before: 1000,
-        //delay_after: 2000
+        delay_before: 1000,
+        delay_after: 2000
     },    
     
     step12: {
@@ -178,13 +179,35 @@ exports.schema = {
         offset_left: 3,
         offset_top: 3,
         
-        text: '$phoneNumber.text'
+        text: '$phoneNumber.text',
        
-        //delay_before: 1000,
-        //delay_after: 2000
+        delay_before: 1000,
+        delay_after: 2000
     },
     
     step13: {
+        type: 'dummy',
+        op: 'click',
+                
+        left: '$submitBtn.left',
+        top: '$submitBtn.top',
+        
+        offset_left: 5,
+        offset_top: 5,
+                
+        delay_before: 1000,
+        delay_after: 3000   
+    },    
+    
+    step14: {
+        type: 'sandbox',
+        format: 'plain-objects',
+        scripts: ['sandbox/utils.js'],
+        
+        sandbox_schema: require('../../sandbox/mail/validation/invalidregformdata').schema     
+    },    
+    
+    step15: {
         type: 'dummy',
         op: 'fillTextInput',  
         
@@ -200,26 +223,38 @@ exports.schema = {
             var obj = this;
             var def = deferred.create();
             
-            var dumVar = this.getDummyVar('captchaImg');
-            var answer = this.getDummyVar('answer').data;
+            var img = this.getDummyVar('captchaImg');
+            var answer = this.getDummyVar('answer');
             
-            dumVar.top = dumVar.top + 20;
-            
-            var subDef = this.getService().onParseCaptchaByElm(dumVar);
+            var subDef = this.getService().onParseCaptchaByElm(img);
 
             subDef.done(function(data){
                 answer.text = data;
-                
+
                 obj.setDummyVar('answer', answer);
-                def.resolve();
+                def.resolve(data);
             }).fail(function(err){
                 def.reject(err);
             });
 
             return def.promise();
-        }
+        },
         
-        //delay_before: 1000,
-        //delay_after: 2000        
+        delay_before: 1000,
+        delay_after: 2000        
+    },
+    
+    step16: {
+        type: 'dummy',
+        op: 'click',
+                
+        left: '$submitBtn.left',
+        top: '$submitBtn.top',
+        
+        offset_left: 5,
+        offset_top: 5,
+                
+        delay_before: 1000,
+        delay_after: 3000   
     }
 }
