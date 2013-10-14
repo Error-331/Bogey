@@ -432,7 +432,7 @@ var Mail = function(configObj)
      * @return object promise.
      */        
     
-    function registerMailAccount(usrAccout)
+    function registerMailAccount(usrAccount)
     {
         var def = deferred.create();  
         var dummyVars = {};
@@ -448,69 +448,73 @@ var Mail = function(configObj)
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting mail account registration process...'); 
         
         // check input data
-        if (typeof usrAccout != 'object') {
+        if (typeof usrAccount != 'object') {
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Input data is not an object...');
             def.reject(obj.createErrorObject(5, 'Input data is not an object'));
             return def.promise();
         }
         
-        if (typeof usrAccout.firstName != 'string' || usrAccout.firstName.length <=0){
+        if (typeof usrAccount.firstName != 'string' || usrAccount.firstName.length <=0){
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'First name is not a string...');
             def.reject(obj.createErrorObject(5, 'First name is not a string'));  
             return def.promise();
         }
         
-        if (typeof usrAccout.lastName != 'string' || usrAccout.lastName.length <=0){
+        if (typeof usrAccount.lastName != 'string' || usrAccount.lastName.length <=0){
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Last name is not a string...');
             def.reject(obj.createErrorObject(5, 'Last name is not a string'));  
             return def.promise();
         }     
         
-        if (typeof usrAccout.login != 'string' || usrAccout.login.length <=0){
+        if (typeof usrAccount.login != 'string' || usrAccount.login.length <=0){
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Login is not a string...');
             def.reject(obj.createErrorObject(5, 'Login is not a string'));  
             return def.promise();
         }          
         
-        if (typeof usrAccout.password != 'string' || usrAccout.password.length <=0){
+        if (typeof usrAccount.password != 'string' || usrAccount.password.length <=0){
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Password is not a string...');
             def.reject(obj.createErrorObject(5, 'Password is not a string'));  
             return def.promise();
         }    
         
-        if (typeof usrAccout.passwordConfirm != 'string' || usrAccout.passwordConfirm.length <=0){
+        if (typeof usrAccount.passwordConfirm != 'string' || usrAccount.passwordConfirm.length <=0){
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Password confirmation is not a string...');
             def.reject(obj.createErrorObject(5, 'Password confirmation is not a string'));  
             return def.promise();
         }          
         
-        if (typeof usrAccout.optionIndex != 'number' || usrAccout.optionIndex < 1 || usrAccout.optionIndex > 11){
+        if (typeof usrAccount.optionIndex != 'number' || usrAccount.optionIndex < 1 || usrAccount.optionIndex > 11){
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Hint question option is not a number...');
             def.reject(obj.createErrorObject(5, 'Hint question option is not a number'));  
             return def.promise();
         }     
         
-        if (typeof usrAccout.hintAnswer != 'string' || usrAccout.hintAnswer.length <=0){
+        if (typeof usrAccount.hintAnswer != 'string' || usrAccount.hintAnswer.length <=0){
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Hint answer is not a string...');
             def.reject(obj.createErrorObject(5, 'Hint answer is not a string'));  
             return def.promise();
         }    
+        console.log(typeof usrAccount.phoneNumber);
+        if (usrAccount.phoneNumber === undefined) {
+            usrAccount.phoneNumber = '';
+        }
         
-        if (typeof usrAccout.phoneNumber != 'string' || usrAccout.phoneNumber.length <=0){
+        if (typeof usrAccount.phoneNumber != 'string'){
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Phone number is not a string...');
             def.reject(obj.createErrorObject(5, 'Phone number is not a string'));  
             return def.promise();
         }         
 
         // prepare dummy vars
-        dummyVars.firstName = {'text': usrAccout.firstName};
-        dummyVars.lastName = {'text': usrAccout.lastName};
-        dummyVars.login = {'text': usrAccout.login};
-        dummyVars.password = {'text': usrAccout.password};
-        dummyVars.passwordConfirm = {'text': usrAccout.passwordConfirm};
-        dummyVars.hintQuestionId = {'optionIndex': usrAccout.optionIndex};
-        dummyVars.hintAnswer = {'text': usrAccout.hintAnswer};
-        dummyVars.phoneNumber = {'text': usrAccout.phoneNumber};
+        dummyVars.firstName = {'text': usrAccount.firstName};
+        dummyVars.lastName = {'text': usrAccount.lastName};
+        dummyVars.login = {'text': usrAccount.login};
+        dummyVars.password = {'text': usrAccount.password};
+        dummyVars.passwordConfirm = {'text': usrAccount.passwordConfirm};
+        dummyVars.hintQuestionId = {'optionIndex': usrAccount.optionIndex};
+        dummyVars.hintAnswer = {'text': usrAccount.hintAnswer};
+        dummyVars.phoneNumber = {'text': usrAccount.phoneNumber};
 
         // open registration page
         openRegPage().done(function(){
