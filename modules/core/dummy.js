@@ -798,7 +798,7 @@ var Dummy = function(usrService)
     this.runSchema = function(schema)
     {
         clearSandboxResultStack();
-        
+
         if (typeof schema != 'object') {
             throw 'Schema for "dummy" is not an object';
         }
