@@ -495,7 +495,7 @@ var Mail = function(configObj)
             def.reject(obj.createErrorObject(5, 'Hint answer is not a string'));  
             return def.promise();
         }    
-        console.log(typeof usrAccount.phoneNumber);
+
         if (usrAccount.phoneNumber === undefined) {
             usrAccount.phoneNumber = '';
         }
@@ -520,20 +520,39 @@ var Mail = function(configObj)
         openRegPage().done(function(){
             obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Entering account data...');
        
+            // page change callback
+            obj.pushPageLoadFunc(function(status){     
+                obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Form submited...');
+                
+                if (status == 'success') {  
+                    obj.validatePageBySchema('yandex/schemas/sandbox/mail/validation/mailtoptoolbar.js', 'yandex', 'mailTopToolbar', 'plain-objects', ['sandbox/utils.js']).done(function(result){
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'New email account registered, main toolbar found...');
+                        def.resolve(result);
+                    }).fail(function(error){
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Fail to register new email account, main toolbar not found...');
+                        def.reject(error);
+                    });                          
+                                                     
+                } else {
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Error while trying to register new email...');
+                    def.reject(obj.createErrorObject(3, 'Error while trying to register new email'));
+                }                                          
+            });        
+       
+       
             // enter account data
             var schema = require('../schemas/dummy/mail/enterregdata').schema;
 
             // fill registration data
             obj.runDummySchema(schema, dummyVars).done(function(){                             
                 obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', '"dummy" schema successfully processed...');
-                
+                //sandbox_schema: require('../../sandbox/mail/validation/invalidregformdata').schema 
             }).fail(function(error){
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema (registration data)...');
-                obj.takeSnapshot('jpeg', 'test', '', 1024, 768);
                 if (typeof error == 'object') {
-                   // def.reject(error);
+                    def.reject(error);
                 } else {
-                    //def.reject(obj.createErrorObject(4, error));
+                    def.reject(obj.createErrorObject(4, error));
                 }
             }).always(function(){
                 obj.takeSnapshot('jpeg', 'test', '', 1024, 768, 1000);
