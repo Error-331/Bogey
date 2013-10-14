@@ -184,22 +184,8 @@ exports.schema = {
         delay_before: 1000,
         delay_after: 2000
     },
-    
+         
     step13: {
-        type: 'dummy',
-        op: 'click',
-                
-        left: '$submitBtn.left',
-        top: '$submitBtn.top',
-        
-        offset_left: 5,
-        offset_top: 5,
-                
-        delay_before: 1000,
-        delay_after: 3000   
-    },    
-     
-    step14: {
         type: 'dummy',
         op: 'fillTextInput',  
         
@@ -236,7 +222,7 @@ exports.schema = {
         delay_after: 2000        
     },
     
-    step15: {
+    step14: {
         type: 'dummy',
         op: 'click',
                 
@@ -248,5 +234,5 @@ exports.schema = {
                 
         delay_before: 1000,
         delay_after: 3000   
-    }  
+    } 
 }
