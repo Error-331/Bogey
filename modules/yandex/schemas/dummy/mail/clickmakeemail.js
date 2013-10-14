@@ -22,7 +22,6 @@ exports.schema = {
         offset_left: 3,
         offset_top: 3,
         
-        delay_before: 1000,
-        delay_after: 2000
+        delay_before: 1000
     }           
 }
