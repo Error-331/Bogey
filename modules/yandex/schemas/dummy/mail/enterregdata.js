@@ -198,16 +198,8 @@ exports.schema = {
         delay_before: 1000,
         delay_after: 3000   
     },    
-    
+     
     step14: {
-        type: 'sandbox',
-        format: 'plain-objects',
-        scripts: ['sandbox/utils.js'],
-        
-        sandbox_schema: require('../../sandbox/mail/validation/invalidregformdata').schema     
-    },    
-    
-    step15: {
         type: 'dummy',
         op: 'fillTextInput',  
         
@@ -244,7 +236,7 @@ exports.schema = {
         delay_after: 2000        
     },
     
-    step16: {
+    step15: {
         type: 'dummy',
         op: 'click',
                 
@@ -256,5 +248,5 @@ exports.schema = {
                 
         delay_before: 1000,
         delay_after: 3000   
-    }
+    }  
 }
