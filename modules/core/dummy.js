@@ -656,7 +656,7 @@ var Dummy = function(usrService)
                     }).fail(function(error){
                         def.reject(error);
                     });
-                } else {
+                } else {                   
                     def.resolve();
                 }                
             }).fail(function(error){
@@ -831,9 +831,10 @@ var Dummy = function(usrService)
                         
         var loopFunc = function() {          
             if (keys[i] == undefined) {
+                var dumVars = dummySchemaVarsStack;
                 clearDummySchemaVarsStack();
                 
-                def.resolve();
+                def.resolve(dumVars);
                 return;
             }
             
