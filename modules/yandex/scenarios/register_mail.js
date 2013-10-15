@@ -57,10 +57,16 @@ var RegisterMail = function()
         curAntigate = antigate.create(options);
         curYandexMail = yandexMail.create(options);
         
-        curYandexMail.registerMailAccount(options).done(function(data){
-            
-        }).fail(function(err){
-            obj.stop();
+        curYandexMail.registerMailAccount(options).done(function(data){           
+            curYandexMail.takeSnapshot('jpeg', 'test', 'snapshots', 1024, 768).always(function(){
+                obj.sendResponse(data);
+                obj.stop();
+            });
+        }).fail(function(err){          
+            curYandexMail.takeSnapshot('jpeg', 'test', 'snapshots', 1024, 768).always(function(){
+                obj.sendErrorResponse(err);
+                obj.stop();
+            });
         });
     }  
     
