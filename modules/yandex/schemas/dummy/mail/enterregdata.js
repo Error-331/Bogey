@@ -93,6 +93,20 @@ exports.schema = {
             this.setDummyVar('suggest', data[Math.floor((Math.random() * data.length)+1)]);
         },
         
+        func_after: function(elm) {
+            var obj = this;
+            var def = deferred.create();
+               
+            var service = this.getService();
+            var dumVar = this.getDummyVar('login');
+
+            dumVar.text = service.fetchInputValue('input#login');            
+            obj.setDummyVar('login', dumVar);
+            def.resolve();
+            
+            return def.promise();
+        },
+        
         delay_before: 1000,
         delay_after: 1000        
     },
