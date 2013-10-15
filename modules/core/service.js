@@ -1155,6 +1155,44 @@ var Service = function(configObj, usrServiceName)
              
         return dummyObj.runSchema(schema);
     }
+    
+    /**
+     * Fetches value of the input element from the current page using a supplied query selector.
+     *
+     * Object evaluates current page and passes a query selector to it. On page script seeks for the element and returns its value.
+     *
+     * @access privileged
+     * 
+     * @param string query selector
+     *  
+     * @return string|null value.
+     * 
+     * @throws string 
+     * 
+     */     
+    
+    this.fetchInputValue = function(sel)
+    {
+        if (sel === undefined) {
+            throw 'Query for the input element is not set';
+        }
+        
+        if (typeof sel !== 'string') {
+            throw 'Query for the input element must be string';
+        }
+        
+        
+        // evalute page
+        return curPage.evaluate(function(usrSel, format) {
+            var selRes = document.querySelectorAll(usrSel);     
+            
+            if (selRes. length <= 0) {
+                return;
+            } else {
+                return selRes.item(0).value;
+            }
+        }, sel);           
+    }
         
     /* Privileged core methods ends here */
     
