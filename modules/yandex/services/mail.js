@@ -443,6 +443,7 @@ var Mail = function(configObj)
     {
         var def = deferred.create();  
         var dummyVars = {};
+        var regVars;
         
         var recheckTimeout;
         
@@ -457,8 +458,8 @@ var Mail = function(configObj)
                                     
             if (status == 'success') {  
                 obj.validatePageBySchema('yandex/schemas/sandbox/mail/validation/mailtoptoolbar.js', 'yandex', 'mailTopToolbar', 'plain-objects', ['sandbox/utils.js']).done(function(result){
-                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'New email account registered, main toolbar found...');
-                    def.resolve(result);
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'New email account registered, main toolbar found...');                                        
+                    def.resolve(regVars);
                 }).fail(function(error){
                     obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Fail to register new email account, main toolbar not found...');
                     def.reject(error);
@@ -554,18 +555,19 @@ var Mail = function(configObj)
             obj.logProcess(obj.getCurPageURL(), 'processing', 'unknown', 'unknown', 'Entering account data...');
        
             // page change callback
-            //obj.pushPageLoadFunc(onLoadCallbackFunc);        
+            obj.pushPageLoadFunc(onLoadCallbackFunc);        
            
             // enter account data
             var schema = require('../schemas/dummy/mail/enterregdata').schema;
 
             // fill registration data
-            obj.runDummySchema(schema, dummyVars).done(function(){                             
+            obj.runDummySchema(schema, dummyVars).done(function(resVars){                             
                 obj.logProcess(obj.getCurPageURL(), 'processing', 'unknown', 'unknown', '"dummy" schema successfully processed...');
-
+                
+                regVars = resVars;
+                
                 // recheck registration form after timeout
                 recheckTimeout = setTimeout(function(){
-                    //obj.takeSnapshot('jpeg', 'test', '', 1024, 768);
                     obj.logProcess(obj.getCurPageURL(), 'processing', 'unknown', 'unknown', 'Rechecking entered data...');
  
                     obj.validatePageBySchema('yandex/schemas/sandbox/mail/validation/invalidregformdata.js', 'yandex', 'invalidRegFormData', 'plain-objects', ['sandbox/utils.js']).done(function(result){
