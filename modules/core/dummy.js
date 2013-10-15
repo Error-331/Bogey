@@ -645,7 +645,20 @@ var Dummy = function(usrService)
             }        
         
             subDef.done(function(){
-                def.resolve();
+                // check 'func_after'
+                if (elm.func_after !== undefined) {
+                    if (typeof elm.func_before != 'function') {
+                        def.reject('Property "func_after" must be function');
+                    }
+            
+                    deferred.when(elm.func_after.call(obj, elm)).done(function(){
+                        def.resolve();
+                    }).fail(function(error){
+                        def.reject(error);
+                    });
+                } else {
+                    def.resolve();
+                }                
             }).fail(function(error){
                 def.reject(error);
             });
