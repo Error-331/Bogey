@@ -54,6 +54,8 @@ var RegisterMail = function()
         
         options.scenario = obj;
         
+        options.ping = parseInt(options.ping);
+        
         curAntigate = antigate.create(options);
         curYandexMail = yandexMail.create(options);
         
