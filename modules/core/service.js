@@ -191,7 +191,14 @@ var Service = function(configObj, usrServiceName)
      * @var bool property that indicates whether current object must relogin to the service every time it is started
      */      
     
-    var reloginOnStart = false;    
+    var reloginOnStart = false;  
+  
+    /**
+     * @access private
+     * @var int possible ping in milliseconds
+     */  
+
+    var ping = 0;
     
     /* Private members ends here */
     
@@ -255,7 +262,11 @@ var Service = function(configObj, usrServiceName)
         
         if (configObj.reloginOnStart !== undefined) {
             obj.setReloginOnStart(configObj.reloginOnStart);
-        }        
+        }      
+        
+        if (configObj.ping !== undefined) {
+            obj.setPing(configObj.ping);     
+        }
         
         // set viewport size
         curPage.viewportSize = {width: viewportWidth, height: viewportHeight};
@@ -1375,6 +1386,22 @@ var Service = function(configObj, usrServiceName)
     this.getReloginOnStart = function()
     {
         return reloginOnStart;
+    }
+    
+    /**
+     * Method that returns value of the current ping in milliseconds.
+     *
+     * Simple method that returns value of the current ping in milliseconds.
+     *
+     * @access privileged
+     * 
+     * @return int value of the ping in milliseconds.
+     * 
+     */    
+    
+    this.getPing = function()
+    {
+        return ping;
     }    
           
     /* Privileged get methods ends here */
@@ -1657,7 +1684,29 @@ var Service = function(configObj, usrServiceName)
         }
         
         reloginOnStart = usrRelogin;
-    }    
+    } 
+    
+    /**
+     * Method that sets value for the possible ping.
+     *
+     * Simple method that sets value for the possible ping.
+     *
+     * @access privileged
+     * 
+     * @param int usrPing ping in milliseconds
+     * 
+     * @throws string 
+     * 
+     */    
+    
+    this.setPing = function(usrPing)
+    {
+        if (typeof usrPing != 'number') {
+            throw 'Property "ping" must be number';
+        }
+        
+        ping = usrPing;
+    }
   
     /* Privileged set methods ends here */  
 
