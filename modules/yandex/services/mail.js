@@ -169,14 +169,15 @@ var Mail = function(configObj)
         var curPageName = obj.getCurPageName();
         
         var def = deferred.create();
-        
+        var curPing = obj.getPing();
+
         // reject if timeout
         setTimeout(function(){
             if (!def.isProcessed()) {
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Opening main page takes too long...');
                 def.reject(obj.createErrorObject(1, 'Main page open timeout'));
             }
-        }, openMainPageTimeout);      
+        }, openMainPageTimeout + curPing);      
                 
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Opening main page...'); 
         
@@ -220,6 +221,7 @@ var Mail = function(configObj)
         var curPageName = obj.getCurPageName();
         
         var def = deferred.create();  
+        var curPing = obj.getPing();
          
         // reject if timeout
         setTimeout(function(){
@@ -227,7 +229,7 @@ var Mail = function(configObj)
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Opening registration page takes too long...');
                 def.reject(obj.createErrorObject(1, 'Registration page open timeout'));
             }
-        }, openRegPageTimeout);      
+        }, openRegPageTimeout + curPing);      
         
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Opening registration page...'); 
         
@@ -369,7 +371,9 @@ var Mail = function(configObj)
     function logOut()
     {
         var curPage = obj.getPage();
-        var def = deferred.create();   
+        var def = deferred.create();  
+        
+        var curPing = obj.getPing();
         
         // reject if timeout
         setTimeout(function(){
@@ -377,7 +381,7 @@ var Mail = function(configObj)
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Logout takes too long...');
                 def.reject(obj.createErrorObject(1, 'Logout timeout'));
             }
-        }, logOutTimeout);   
+        }, logOutTimeout + curPing);   
         
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting logout process...');
         
@@ -446,6 +450,7 @@ var Mail = function(configObj)
         var regVars;
         
         var recheckTimeout;
+        var curPing = obj.getPing();
         
         var onLoadCallbackFunc = function(status){   
             if (obj.getCurPageURL() == 'https://passport.yandex.ru/registration/simple/') {
@@ -477,7 +482,7 @@ var Mail = function(configObj)
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Mail account registration takes too long...');
                 def.reject(obj.createErrorObject(1, 'Logout timeout'));
             }
-        }, registerMailAccountTimeout);   
+        }, registerMailAccountTimeout + curPing);   
         
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting mail account registration process...'); 
         
@@ -576,7 +581,7 @@ var Mail = function(configObj)
                         obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Entered data is not valid...');
                         def.reject(error);
                     });  
-                }, recheckRegisterFromTimeout);             
+                }, recheckRegisterFromTimeout + curPing);             
             }).fail(function(error){
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'fail', 'Cannot run "dummy" schema (registration data)...');
                 if (typeof error == 'object') {
