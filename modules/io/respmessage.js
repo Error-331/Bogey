@@ -38,6 +38,7 @@
 
 var RespMessage = function(scenario, isError, data)
 {
+    this.type = 'resp_message';
     this.setScenario(scenario);
     this.setIsError(isError);
     this.setData(data);

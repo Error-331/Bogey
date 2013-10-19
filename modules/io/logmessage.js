@@ -38,6 +38,7 @@
 
 var LogMessage = function(service, url, status, pageStatus, operationStatus, description)
 {
+    this.type = 'log_message';
     this.setService(service);
     this.setURL(url);
     this.setStatus(status);
