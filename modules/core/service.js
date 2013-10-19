@@ -200,6 +200,13 @@ var Service = function(configObj, usrServiceName)
 
     var ping = 0;
     
+    /**
+     * @access private
+     * @var string name of the directory where all the logging snapshots will be stored
+     */     
+    
+    var logSnapDir;    
+    
     /* Private members ends here */
     
     /* Private core methods starts here */
@@ -266,6 +273,10 @@ var Service = function(configObj, usrServiceName)
         
         if (configObj.ping !== undefined) {
             obj.setPing(configObj.ping);     
+        }
+        
+        if (configObj.logsnapdir !== undefined){
+            obj.setLogSnapDir(configObj.logsnapdir);
         }
         
         // set viewport size
@@ -772,9 +783,9 @@ var Service = function(configObj, usrServiceName)
             if (path === undefined || (typeof path == 'string' && path.length == 0)) {
                 dirPath = '';
             } else {
-                if (fileUtils.isPathWritable(path)) {    
+                if (fileUtils.isPathWritable(path)) {                   
                     dirPath = fileUtils.addSeparator(path);
-                }
+                }                                                   
             }
         } catch (e) {
             def.reject(e);
@@ -1402,7 +1413,23 @@ var Service = function(configObj, usrServiceName)
     this.getPing = function()
     {
         return ping;
-    }    
+    }
+
+    /**
+     * Returns directory where logging snapshots will be stored.
+     *
+     * Simple method that returns directory where logging snapshots will be stored.
+     *
+     * @access privileged
+     *
+     * @return string relative path to directory.
+     * 
+     */    
+    
+    this.getLogSnapDir = function()
+    {
+        return logSnapDir;
+    }
           
     /* Privileged get methods ends here */
     
@@ -1707,6 +1734,28 @@ var Service = function(configObj, usrServiceName)
         
         ping = usrPing;
     }
+    
+    /**
+     * Sets directory where logging snapshots will be stored.
+     *
+     * Simple method that sets directory where logging snapshots will be stored.
+     *
+     * @access privileged
+     *
+     * @param string usrDir relative path to the directory
+     * 
+     * @throws string 
+     * 
+     */    
+    
+    this.setLogSnapDir = function(usrDir)
+    {
+        if (typeof usrDir != 'string') {
+            throw 'Property "logSnapDir" must be string';
+        }        
+        
+        logSnapDir = usrDir;
+    }    
   
     /* Privileged set methods ends here */  
 
