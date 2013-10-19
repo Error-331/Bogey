@@ -143,6 +143,7 @@ exports.addSeparator = function(path)
     } else {
         if (sep < (path.length - 1)) {
             path = path + fs.separator;
+            return path;
         } else {
             return path;
         }
