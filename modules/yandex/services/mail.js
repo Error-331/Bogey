@@ -102,7 +102,7 @@ var Mail = function(configObj)
      */       
     
     var recheckRegisterFromTimeout = 10000;
-      
+       
     /* Private members ends here */
     
     /* Private core methods starts here */ 
@@ -459,28 +459,34 @@ var Mail = function(configObj)
             }
                 
             obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Form submited...');
-            clearTimeout(recheckTimeout);              
-                                    
-            if (status == 'success') {  
-                obj.validatePageBySchema('yandex/schemas/sandbox/mail/validation/mailtoptoolbar.js', 'yandex', 'mailTopToolbar', 'plain-objects', ['sandbox/utils.js']).done(function(result){
-                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'New email account registered, main toolbar found...');                                        
-                    def.resolve(regVars);
-                }).fail(function(error){
-                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Fail to register new email account, main toolbar not found...');
-                    def.reject(error);
-                });                          
-                                                     
-            } else {
-                obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Error while trying to register new email...');
-                def.reject(obj.createErrorObject(3, 'Error while trying to register new email'));
-            }                                          
+            clearTimeout(recheckTimeout);      
+            
+            obj.takeSnapshot('jpeg', 'submit_click_redirect', obj.getLogSnapDir()).always(function(){
+                if (status == 'success') {  
+                    obj.validatePageBySchema('yandex/schemas/sandbox/mail/validation/mailtoptoolbar.js', 'yandex', 'mailTopToolbar', 'plain-objects', ['sandbox/utils.js']).done(function(result){
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'New email account registered, main toolbar found...');                                        
+                        def.resolve(regVars);
+                    }).fail(function(error){
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Fail to register new email account, main toolbar not found...');
+                        def.reject(error);
+                    });                                                                    
+                } else {
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Error while trying to register new email...');
+                    def.reject(obj.createErrorObject(3, 'Error while trying to register new email'));
+                } 
+            });                                                                               
         }
         
         // reject if timeout
         setTimeout(function(){
             if (!def.isProcessed()) {
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Mail account registration takes too long...');
-                def.reject(obj.createErrorObject(1, 'Logout timeout'));
+                  
+                obj.takeSnapshot('jpeg', 'register_timeout', obj.getLogSnapDir()).always(function(){
+                    def.reject(obj.createErrorObject(1, 'Mail registration timeout'));
+                });
+                                             
+                def.reject(obj.createErrorObject(1, 'Mail registration timeout'));
             }
         }, registerMailAccountTimeout + curPing);   
         
@@ -579,7 +585,10 @@ var Mail = function(configObj)
                         obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'unknown', 'Entered data is valid...');
                     }).fail(function(error){
                         obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Entered data is not valid...');
-                        def.reject(error);
+                        
+                        obj.takeSnapshot('jpeg', 'invalid_enter_data', obj.getLogSnapDir()).always(function(){
+                            def.reject(error);
+                        });                       
                     });  
                 }, recheckRegisterFromTimeout + curPing);             
             }).fail(function(error){
@@ -615,7 +624,7 @@ var Mail = function(configObj)
      */     
     
     this.configureService = function(configObj) 
-    {
+    {        
         if (typeof configObj != 'object') {
             return;
         }
@@ -716,8 +725,8 @@ var Mail = function(configObj)
         return def.promise();
     }
     
-    /* Privileged event handlers ends here */
-    
+    /* Privileged event handlers ends here */    
+ 
     this.configureService(configObj);
 }
 
