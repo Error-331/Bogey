@@ -5,6 +5,8 @@ var deferred = require('../../async/deferred');
 var yandexMail = require('../services/mail');
 var antigate = require('../../antigate/services/antigate');
 
+var fileUtils = require('../../utils/fileutils');
+
 var RegisterMail = function()
 { 
     //scenario.constFunc.call(this, 'register_mail');
@@ -47,6 +49,7 @@ var RegisterMail = function()
     this.start = function() 
     {      
         var options = obj.getOptions();
+        var yanSnapDir;
         
         if (options.optionIndex != undefined) {
             options.optionIndex = parseInt(options.optionIndex);
@@ -55,17 +58,24 @@ var RegisterMail = function()
         options.scenario = obj;
         
         options.ping = parseInt(options.ping);
+        options.logsnapdir = 'snapshots' + fileUtils.getDirSeparator() + Date.now();
         
         curAntigate = antigate.create(options);
         curYandexMail = yandexMail.create(options);
-        
+         
+        yanSnapDir = curYandexMail.getLogSnapDir();
+         
         curYandexMail.registerMailAccount(options).done(function(data){           
-            curYandexMail.takeSnapshot('jpeg', 'test', 'snapshots', 1024, 768).always(function(){
+            curYandexMail.takeSnapshot('jpeg', 'scenario_resolve', yanSnapDir, 1024, 768).always(function(){
+                data.snapDir = yanSnapDir;
+                
                 obj.sendResponse(data);
                 obj.stop();
             });
         }).fail(function(err){          
-            curYandexMail.takeSnapshot('jpeg', 'test', 'snapshots', 1024, 768).always(function(){
+            curYandexMail.takeSnapshot('jpeg', 'scenario_reject', yanSnapDir, 1024, 768).always(function(){
+                err.snapDir = yanSnapDir;
+                
                 obj.sendErrorResponse(err);
                 obj.stop();
             });
