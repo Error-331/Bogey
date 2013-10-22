@@ -248,5 +248,5 @@ exports.schema = {
                 
         delay_before: 1000,
         delay_after: 3000   
-    } 
+    }
 }
