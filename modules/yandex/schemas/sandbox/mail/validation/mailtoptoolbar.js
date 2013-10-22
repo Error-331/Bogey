@@ -16,8 +16,14 @@ Bogey.yandex.schemas.mailTopToolbar = {
                                         
         sub: {
             elm1: {
-                sel: 'div.b-mail-dropdown__content:nth-of-type(1)'
+                sel: 'div.b-mail-dropdown__content:nth-of-type(1)',
+                func: 'Bogey.utils.findOffset'
             }
         }
     }
 };
+
+// export for dummy schema
+if (typeof exports != 'undefined') {
+    exports.schema = Bogey.yandex.schemas.mailTopToolbar;
+} 
