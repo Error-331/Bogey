@@ -71,7 +71,7 @@ var Dummy = function(usrService)
     }
     
     function clearDummySchemaVarsStack()
-    {
+    { 
         dummySchemaVarsStack = new Array();
     }
     
@@ -821,7 +821,7 @@ var Dummy = function(usrService)
         var key = '';
         var keys = new Array();
         var i = 0;
-        
+
         var page = service.getPage();
                 
         // get schema keys
@@ -833,7 +833,7 @@ var Dummy = function(usrService)
             if (keys[i] == undefined) {
                 var dumVars = dummySchemaVarsStack;
                 clearDummySchemaVarsStack();
-                
+
                 def.resolve(dumVars);
                 return;
             }
