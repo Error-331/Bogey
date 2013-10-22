@@ -177,7 +177,7 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
         }    
         
         // check 'func' property
-        if (usrScheme.func != undefined) {
+        if (usrScheme.func !== undefined) {
             funcRes = runFuncParam(usrScheme, rootElm);        
         } else {
             funcRes = {};
@@ -198,7 +198,12 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
         // check 'sub' property
         if (usrScheme.sub != undefined) {
             if (typeof usrScheme.sub == 'object') {
-                result.push(traverse(usrScheme.sub, rootElm));
+                try {
+                    subRes = traverse(usrScheme.sub, rootElm);
+                    result.push(subRes);
+                } catch(error) {
+                    return false;
+                }
             } else {
                 throwError(usrScheme, '"sub" property must be object');  
             }
@@ -251,7 +256,7 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
             } else {
                 selRes = rootElm.querySelectorAll(usrScheme[elm].sel);
             }
-                
+
             result = new Array();    
             
             if (invert == true) {
@@ -297,7 +302,7 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
                 globResult.push(result);   
             }                                                     
         }
-        
+
         return globResult;
     }    
     
