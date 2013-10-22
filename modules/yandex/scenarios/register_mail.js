@@ -9,7 +9,7 @@ var fileUtils = require('../../utils/fileutils');
 
 var RegisterMail = function()
 { 
-    //scenario.constFunc.call(this, 'register_mail');
+    scenario.constFunc.call(this, 'register_mail');
     
     /* Private members starts here */
     
@@ -68,7 +68,7 @@ var RegisterMail = function()
         curYandexMail.registerMailAccount(options).done(function(data){           
             curYandexMail.takeSnapshot('jpeg', 'scenario_resolve', yanSnapDir, 1024, 768).always(function(){
                 data.snapDir = yanSnapDir;
-                
+                                
                 obj.sendResponse(data);
                 obj.stop();
             });
