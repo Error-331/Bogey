@@ -4,18 +4,7 @@ exports.schema = {
         format: 'plain-objects',
         scripts: ['sandbox/utils.js'],
         
-        sandbox_schema: { 
-            elm1: {
-                sel: 'div.b-mail-dropdown:nth-of-type(1)',
-                                        
-                sub: {
-                    elm1: {
-                        sel: 'div.b-mail-dropdown__content:nth-of-type(1)',
-                        func: 'Bogey.utils.findOffset'  
-                    }
-                }
-            }           
-        }      
+        sandbox_schema: require('../../sandbox/mail/validation/mailtoptoolbar').schema      
     },
     
     step2: {
@@ -61,7 +50,5 @@ exports.schema = {
         offset_top: 3,
         
         delay_before: 1000
-    },    
-    
-    
+    }        
 }
