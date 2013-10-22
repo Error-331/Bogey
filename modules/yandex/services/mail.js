@@ -102,6 +102,13 @@ var Mail = function(configObj)
      */       
     
     var recheckRegisterFromTimeout = 10000;
+ 
+    /**
+     * @access private
+     * @var int delay before main page (while logged in) is checked
+     */      
+ 
+    var logedInPageCheckDelay = 5000;
        
     /* Private members ends here */
     
@@ -229,7 +236,7 @@ var Mail = function(configObj)
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Opening registration page takes too long...');
                 def.reject(obj.createErrorObject(1, 'Registration page open timeout'));
             }
-        }, openRegPageTimeout + curPing);      
+        }, openRegPageTimeout + logedInPageCheckDelay + curPing);      
         
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Opening registration page...'); 
         
@@ -339,19 +346,23 @@ var Mail = function(configObj)
             result = obj.validatePageBySchema('yandex/schemas/sandbox/mail/validation/mailtoptoolbar.js', 'yandex', 'mailTopToolbar', 'plain-objects', ['sandbox/utils.js']).done(function(result){
                 def.resolve(result);
             }).fail(function(error){
-                def.reject(error);
+                def.reject(error);   
             });              
         }
 
         // check if any page is open
         if (curURL == '' || curURL == 'about:blank') {
             openMainPage().done(function(){
-                validate();                           
+                setTimeout(function(){
+                    validate(); 
+                }, logedInPageCheckDelay);                                 
             }).fail(function(error){
                 def.reject(error);
             });
         } else {
-            validate();         
+            setTimeout(function(){
+                validate(); 
+            }, logedInPageCheckDelay);            
         }
         
         return def.promise();
@@ -381,14 +392,14 @@ var Mail = function(configObj)
                 obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Logout takes too long...');
                 def.reject(obj.createErrorObject(1, 'Logout timeout'));
             }
-        }, logOutTimeout + curPing);   
+        }, logOutTimeout + logedInPageCheckDelay + curPing);   
         
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting logout process...');
         
         // checking top toolbar
         obj.validatePageBySchema('yandex/schemas/sandbox/mail/validation/mailtoptoolbar.js', 'yandex', 'mailTopToolbar', 'plain-objects', ['sandbox/utils.js']).done(function(result){
             obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Top toolbar found, trying to log out...');
-                      
+     
             // page change callback
             obj.pushPageLoadFunc(function(status){                   
                 if (status == 'success') {
@@ -452,6 +463,8 @@ var Mail = function(configObj)
         var recheckTimeout;
         var curPing = obj.getPing();
         
+        var key;
+        
         var onLoadCallbackFunc = function(status){   
             if (obj.getCurPageURL() == 'https://passport.yandex.ru/registration/simple/') {
                 obj.pushPageLoadFunc(onLoadCallbackFunc);
@@ -462,14 +475,16 @@ var Mail = function(configObj)
             clearTimeout(recheckTimeout);      
             
             obj.takeSnapshot('jpeg', 'submit_click_redirect', obj.getLogSnapDir()).always(function(){
-                if (status == 'success') {  
-                    obj.validatePageBySchema('yandex/schemas/sandbox/mail/validation/mailtoptoolbar.js', 'yandex', 'mailTopToolbar', 'plain-objects', ['sandbox/utils.js']).done(function(result){
-                        obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'New email account registered, main toolbar found...');                                        
-                        def.resolve(regVars);
-                    }).fail(function(error){
-                        obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Fail to register new email account, main toolbar not found...');
-                        def.reject(error);
-                    });                                                                    
+                if (status == 'success') {                    
+                    setTimeout(function(){
+                        obj.validatePageBySchema('yandex/schemas/sandbox/mail/validation/mailtoptoolbar.js', 'yandex', 'mailTopToolbar', 'plain-objects', ['sandbox/utils.js']).done(function(result){
+                            obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'New email account registered, main toolbar found...');                                        
+                            def.resolve(regVars);
+                        }).fail(function(error){
+                            obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Fail to register new email account, main toolbar not found...');
+                            def.reject(error);
+                        });   
+                    }, logedInPageCheckDelay);                                                                                                       
                 } else {
                     obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Error while trying to register new email...');
                     def.reject(obj.createErrorObject(3, 'Error while trying to register new email'));
@@ -488,7 +503,7 @@ var Mail = function(configObj)
                                              
                 def.reject(obj.createErrorObject(1, 'Mail registration timeout'));
             }
-        }, registerMailAccountTimeout + curPing);   
+        }, registerMailAccountTimeout + logedInPageCheckDelay + curPing);   
         
         obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting mail account registration process...'); 
         
@@ -575,7 +590,11 @@ var Mail = function(configObj)
             obj.runDummySchema(schema, dummyVars).done(function(resVars){                             
                 obj.logProcess(obj.getCurPageURL(), 'processing', 'unknown', 'unknown', '"dummy" schema successfully processed...');
                 
-                regVars = resVars;
+                regVars = new Array();
+
+                for (key in resVars) {
+                    regVars.push({'key': key, data: resVars[key]})
+                }
                 
                 // recheck registration form after timeout
                 recheckTimeout = setTimeout(function(){
