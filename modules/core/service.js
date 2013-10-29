@@ -238,7 +238,6 @@ var Service = function(configObj, usrServiceName)
         if (configObj.persistCookies !== undefined) {
             obj.setPersistCookies(configObj.persistCookies);
         }    
-        
         if (configObj.modulesPath !== undefined) {
             obj.setModulesPath(configObj.modulesPath);
         }
@@ -1594,7 +1593,9 @@ var Service = function(configObj, usrServiceName)
         if (typeof usrModulesPath != 'string') {
             throw '"modulesPath" must be string';
         }
-              
+         
+        usrModulesPath = fileUtils.getAbsolutePath(usrModulesPath);
+         
         fileUtils.isPathReadable(usrModulesPath);
         curPage.libraryPath = fileUtils.addSeparator(usrModulesPath);
         
