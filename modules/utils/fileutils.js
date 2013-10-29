@@ -211,3 +211,12 @@ exports.getCurWorkDir = function()
 {
     return fs.workingDirectory;
 }
+
+exports.getAbsolutePath = function(path)
+{
+    if (typeof path != 'string') {
+        throw 'Path must be string';
+    }
+    
+    return fs.absolute(path);
+}
