@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Box token refresh</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+
+<body>
+
+<form method="post" action="https://www.box.com/api/oauth2/token" enctype="application/x-www-form-urlencoded" id="mainForm">
+    <input type="hidden" name="grant_type" id="grantType" value="authorization_code">
+
+    <input type="hidden" name="code" id="code" value="">
+    <input type="hidden" name="client_id" id="clientId" value="">
+    <input type="hidden" name="client_secret" id="clientSecret" value="">
+
+    <input type="submit" id="submitBtn" value="загрузить и получить токены">
+</form>
+
+</body>
+</html>
