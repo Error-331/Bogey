@@ -17,7 +17,7 @@ var Box = function(configObj)
 
     var obj = this;
 
-    var loginPageUrl = 'https://app.box.com/api/oauth2/authorize?response_type=code&client_id={clientId}&state=authenticated';
+    var loginPageUrl = 'https://advisory.app.box.com/api/oauth2/authorize?response_type=code&client_id={clientId}&state=authenticated';
 
     var openLoginPageTimeout = 5000;
 
@@ -264,7 +264,7 @@ var Box = function(configObj)
                     var sql = "MERGE INTO ES_DATA.BOX_PARAMETERS BP using dual ON (BP.BOX_PARAMETER_SK = "+ curOptions.clientBoxParamSk + ")"
                     sql += " WHEN MATCHED THEN UPDATE SET BP.ACCESS_TOKEN = '" + data.access_token + "', BP.REFRESH_TOKEN = '" + data.refresh_token + "', EXPIRES_IN = " + data.expires_in + ", REFRESH_TIME = SYSDATE"
                     sql += " WHEN NOT MATCHED THEN INSERT (BP.BOX_PARAMETER_SK, BP.CLIENT_ID, BP.CLIENT_SECRET, BP.ACCESS_TOKEN, BP.REFRESH_TOKEN, BP.EXPIRES_IN, REFRESH_TIME)"
-                    sql += " VALUES (" + curOptions.clientBoxParamSk + ", '" + curOptions.clientId + "', '" + curOptions.clientId + "', '" + curOptions.clientSecret + "', '" + data.refresh_token + "', " + data.expires_in +", SYSDATE);"
+                    sql += " VALUES (" + curOptions.clientBoxParamSk + ", '" + curOptions.clientId + "', '" + curOptions.clientSecret + "', '" + data.access_token + "', '" + data.refresh_token + "', " + data.expires_in +", SYSDATE);"
                     sql += " COMMIT;"
 
                     def.resolve(sql);
@@ -280,7 +280,7 @@ var Box = function(configObj)
 
         var onAdvisoryLoginSubmit = function(status){
             if (status == 'success') {
-                if (obj.getCurPageURL().indexOf('https://app.box.com') === -1) {
+                if (obj.getCurPageURL().indexOf('https://advisory.app.box.com') === -1) {
                     obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Redirect...');
                     obj.pushPageLoadFunc(onAdvisoryLoginSubmit);
                 } else {
