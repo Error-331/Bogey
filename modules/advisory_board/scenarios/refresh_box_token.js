@@ -40,8 +40,10 @@ var RefreshBoxToken = function()
         curBox = box.create(options);
 
         curBox.refreshBoxToken().done(function(data){
+            obj.sendResponse(data);
             obj.stop();
         }).fail(function(err){
+            obj.sendErrorResponse(err);
             obj.stop();
         });
     }
