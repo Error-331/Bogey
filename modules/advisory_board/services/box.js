@@ -15,22 +15,88 @@ var Box = function(configObj)
 
     var obj = this;
 
+    var loginPageUrl = 'https://app.box.com/api/oauth2/authorize?response_type=code&client_id={clientId}&state=authenticated';
+
+    var openLoginPageTimeout = 5000;
+
     /**
      * @access private
-     * @var string main URL of the service
+     * @var int timeout (in milliseconds) for operation which is responsible for token refreshing
      */
 
-    var mainPageURL = 'http://www.odnoklassniki.ru/';
+    var tokenRefreshingTimeout = 30000;
 
     /* Private members ends here */
 
     /* Private core methods starts here */
 
+    function openLoginPage()
+    {
+        var curPage = obj.getPage();
+        var curOptions = obj.getScenario().getOptions();
+        var def = deferred.create();
+
+        // check options
+        if (typeof curOptions !== 'object' || curOptions.clientId === undefined) {
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot find clientId option...');
+            def.reject(obj.createErrorObject(5, 'ClientId not found'));
+        }
+
+        loginPageUrl = loginPageUrl.replace('{clientId}', curOptions.clientId);
+
+        // reject if timeout
+        setTimeout(function(){
+            if (!def.isProcessed()) {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Opening login page takes too long...');
+                def.reject(obj.createErrorObject(1, 'Login page open timeout'));
+            }
+        }, openLoginPageTimeout);
+
+        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Opening login page...');
+
+        curPage.open(loginPageUrl, function(status) {
+            if (status == 'success' && !def.isProcessed()) {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'success', 'Login page successfuly opened...');
+
+                obj.takeSnapshot('jpeg', 'login_page_open', obj.getLogSnapDir()).always(function(){
+                    obj.setCurPageName('loginPage');
+                    def.resolve();
+                });
+            } else {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Cannot open login page...');
+                def.reject(obj.createErrorObject(3, 'Login page cannot be opened'));
+            }
+        });
+
+        return def.promise();
+    }
+
     function refreshBoxToken()
     {
         var def = deferred.create();
 
-        def.resolve();
+        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting token refresh process...');
+
+        // reject if timeout
+        setTimeout(function(){
+            if (!def.isProcessed()) {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Token refreshing takes too long...');
+
+                obj.takeSnapshot('jpeg', 'refresh_timeout', obj.getLogSnapDir()).always(function(){
+                    def.reject(obj.createErrorObject(1, 'Token refreshing timeout'));
+                });
+
+                def.reject(obj.createErrorObject(1, 'Token refreshing timeout'));
+            }
+        }, tokenRefreshingTimeout);
+
+        openLoginPage().done(function(){
+
+        }).fail(function(error){
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot refresh token...');
+            def.reject(error);
+        });
+
 
         return def.promise();
     }
