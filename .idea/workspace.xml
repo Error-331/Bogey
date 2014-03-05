@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="82b95185-fd02-4f1f-8472-53580d603d4d" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scenes/refresh_box_token/index.js" afterPath="$PROJECT_DIR$/scenes/refresh_box_token/index.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/advisory_board/services/html/box_refresh_token.html" afterPath="$PROJECT_DIR$/modules/advisory_board/services/html/box_refresh_token.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scenes/refresh_box_token/testcook.txt" afterPath="$PROJECT_DIR$/scenes/refresh_box_token/testcook.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Bogey.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -25,77 +27,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="index.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/scenes/refresh_box_token/index.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="4" column="124" selection-start="231" selection-end="231" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="150">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="box.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/advisory_board/services/box.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="52" column="0" selection-start="1436" selection-end="1436" vertical-scroll-proportion="-30.0" vertical-offset="0" max-vertical-offset="6315">
+            <state line="19" column="40" selection-start="443" selection-end="451" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="6315">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="confirmaccess.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/advisory_board/schemas/dummy/box/confirmaccess.js">
+      <file leaf-file-name="box_refresh_token.html" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/modules/advisory_board/services/html/box_refresh_token.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="22" column="1" selection-start="448" selection-end="448" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="420">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="mail.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/yandex/services/mail.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="480" column="28" selection-start="19212" selection-end="19338" vertical-scroll-proportion="0.0" vertical-offset="6542" max-vertical-offset="11130">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="antigate.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/antigate/services/antigate.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="489" column="24" selection-start="18871" selection-end="18871" vertical-scroll-proportion="-13.692307" vertical-offset="6979" max-vertical-offset="17745">
-              <folding>
-                <element signature="n#!!doc" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="service.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/core/service.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="1280" column="22" selection-start="34982" selection-end="35000" vertical-scroll-proportion="-11.538462" vertical-offset="18900" max-vertical-offset="26700">
-              <folding>
-                <element signature="n#!!doc" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="refresh_box_token.js" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/modules/advisory_board/scenarios/refresh_box_token.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="46" column="12" selection-start="1060" selection-end="1060" vertical-scroll-proportion="0.67672414" vertical-offset="62" max-vertical-offset="1170">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="register_mail.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/yandex/scenarios/register_mail.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="78" column="16" selection-start="2355" selection-end="2382" vertical-scroll-proportion="0.0" vertical-offset="1112" max-vertical-offset="2040">
+            <state line="13" column="22" selection-start="452" selection-end="452" vertical-scroll-proportion="0.32231405" vertical-offset="0" max-vertical-offset="605">
               <folding />
             </state>
           </provider>
@@ -128,10 +72,10 @@
         <option value="$PROJECT_DIR$/modules/advisory_board/schemas/dummy/box/fillsubmitadvisoryloginform.js" />
         <option value="$PROJECT_DIR$/modules/advisory_board/schemas/sandbox/box/validation/accessconfirm.js" />
         <option value="$PROJECT_DIR$/modules/advisory_board/schemas/dummy/box/confirmaccess.js" />
-        <option value="$PROJECT_DIR$/modules/advisory_board/services/html/box_refresh_token.html" />
         <option value="$PROJECT_DIR$/modules/advisory_board/scenarios/refresh_box_token.js" />
-        <option value="$PROJECT_DIR$/modules/advisory_board/services/box.js" />
         <option value="$PROJECT_DIR$/scenes/refresh_box_token/index.js" />
+        <option value="$PROJECT_DIR$/modules/advisory_board/services/box.js" />
+        <option value="$PROJECT_DIR$/modules/advisory_board/services/html/box_refresh_token.html" />
       </list>
     </option>
   </component>
@@ -167,7 +111,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -482,6 +425,32 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="services" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="html" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Bogey" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Bogey" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="modules" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="advisory_board" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="schemas" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -540,11 +509,13 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="FullScreen" value="false" />
     <property name="DefaultHtmlFileTemplate" value="Html5" />
   </component>
   <component name="RecentsManager">
@@ -554,14 +525,6 @@
     </key>
   </component>
   <component name="RunManager">
-    <configuration default="true" type="DartUnitRunConfigurationType" factoryName="DartUnit">
-      <option name="VMOptions" />
-      <option name="arguments" />
-      <option name="filePath" />
-      <option name="scope" value="ALL" />
-      <option name="testName" />
-      <method />
-    </configuration>
     <configuration default="true" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application">
       <option name="VMOptions" />
       <option name="arguments" />
@@ -570,6 +533,21 @@
       <option name="saveOutputToFile" value="false" />
       <option name="showConsoleOnStdErr" value="false" />
       <option name="showConsoleOnStdOut" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="DartUnitRunConfigurationType" factoryName="DartUnit">
+      <option name="VMOptions" />
+      <option name="arguments" />
+      <option name="filePath" />
+      <option name="scope" value="ALL" />
+      <option name="testName" />
+      <method />
+    </configuration>
+    <configuration default="true" type="JSTestDriver:ConfigurationType" factoryName="JsTestDriver">
+      <setting name="configLocationType" value="CONFIG_FILE" />
+      <setting name="settingsFile" value="" />
+      <setting name="serverType" value="INTERNAL" />
+      <setting name="preferredDebugBrowser" value="CHROME" />
       <method />
     </configuration>
     <configuration default="true" type="JavaScriptTestRunnerKarma" factoryName="Karma" singleton="true" config-file="">
@@ -628,24 +606,28 @@
       <created>1394028836644</created>
       <updated>1394028836645</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Change URLs.&#10;">
+      <created>1394035520513</created>
+      <updated>1394035520513</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="1985" y="24" width="1855" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32960325" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24959569" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -654,6 +636,11 @@
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
     </layout>
+  </component>
+  <component name="Vcs.Log.UiProperties">
+    <option name="RECENTLY_FILTERED_USERS">
+      <collection />
+    </option>
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
@@ -671,7 +658,10 @@
     <MESSAGE value="Add 'access confirm' validation scheme." />
     <MESSAGE value="Add 'advisory login form' validation scheme." />
     <MESSAGE value="Add 'sign in form' validation scheme." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add 'sign in form' validation scheme." />
+    <MESSAGE value="Change URL." />
+    <MESSAGE value="Change URLs.&#10;" />
+    <MESSAGE value="Change URLs." />
+    <option name="LAST_COMMIT_MESSAGE" value="Change URLs." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -679,25 +669,12 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/modules/sandbox/schemavalidator.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="239" column="26" selection-start="7510" selection-end="7510" vertical-scroll-proportion="0.43103448" vertical-offset="3185" max-vertical-offset="5955">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/core/service.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="1280" column="22" selection-start="34982" selection-end="35000" vertical-scroll-proportion="-11.538462" vertical-offset="18900" max-vertical-offset="26700">
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
-        </state>
+        <state line="239" column="26" selection-start="7510" selection-end="7510" vertical-scroll-proportion="0.43103448" vertical-offset="3185" max-vertical-offset="5955" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/advisory_board/schemas/dummy/box/fillsubmitadvisoryloginform.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="27" column="0" selection-start="0" selection-end="935" vertical-scroll-proportion="0.4364224" vertical-offset="0" max-vertical-offset="928">
-          <folding />
-        </state>
+        <state line="27" column="0" selection-start="0" selection-end="935" vertical-scroll-proportion="0.4364224" vertical-offset="0" max-vertical-offset="928" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/advisory_board/schemas/dummy/box/fillsubmitsigninform.js">
@@ -709,53 +686,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/advisory_board/schemas/sandbox/box/validation/advisoryloginform.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="40" selection-start="465" selection-end="465" vertical-scroll-proportion="0.30711207" vertical-offset="0" max-vertical-offset="928">
-          <folding />
-        </state>
+        <state line="19" column="40" selection-start="465" selection-end="465" vertical-scroll-proportion="0.30711207" vertical-offset="0" max-vertical-offset="928" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/advisory_board/schemas/sandbox/box/validation/signinform.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="24" column="44" selection-start="532" selection-end="544" vertical-scroll-proportion="0.38793105" vertical-offset="0" max-vertical-offset="928">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/antigate/services/html/antigate_upload_form.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="7" selection-start="0" selection-end="975" vertical-scroll-proportion="0.51194537" vertical-offset="0" max-vertical-offset="879">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/yandex/services/mail.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="480" column="28" selection-start="19212" selection-end="19338" vertical-scroll-proportion="0.0" vertical-offset="6542" max-vertical-offset="11130">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/advisory_board/services/html/box_refresh_token.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="62" selection-start="541" selection-end="553" vertical-scroll-proportion="0.23230088" vertical-offset="0" max-vertical-offset="904">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/antigate/services/antigate.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="489" column="24" selection-start="18871" selection-end="18871" vertical-scroll-proportion="-13.692307" vertical-offset="6979" max-vertical-offset="17745">
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
-        </state>
+        <state line="24" column="44" selection-start="532" selection-end="544" vertical-scroll-proportion="0.38793105" vertical-offset="0" max-vertical-offset="928" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/advisory_board/schemas/sandbox/box/validation/accessconfirm.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="46" selection-start="319" selection-end="319" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="435">
-          <folding />
-        </state>
+        <state line="14" column="46" selection-start="319" selection-end="319" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="435" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/yandex/scenarios/register_mail.js">
@@ -765,30 +706,65 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/advisory_board/services/box.js">
+    <entry file="file://$PROJECT_DIR$/modules/advisory_board/scenarios/refresh_box_token.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="52" column="0" selection-start="1436" selection-end="1436" vertical-scroll-proportion="-30.0" vertical-offset="0" max-vertical-offset="6315">
+        <state line="46" column="12" selection-start="1060" selection-end="1060" vertical-scroll-proportion="0.67672414" vertical-offset="62" max-vertical-offset="1170">
           <folding />
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/modules/core/service.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1280" column="22" selection-start="34982" selection-end="35000" vertical-scroll-proportion="0.33259425" vertical-offset="18900" max-vertical-offset="26700">
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/antigate/services/antigate.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="489" column="24" selection-start="18871" selection-end="18871" vertical-scroll-proportion="0.40044993" vertical-offset="6979" max-vertical-offset="17745">
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/yandex/services/mail.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="480" column="28" selection-start="19212" selection-end="19338" vertical-scroll-proportion="0.39125684" vertical-offset="6542" max-vertical-offset="11130" />
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/modules/advisory_board/schemas/dummy/box/confirmaccess.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="1" selection-start="448" selection-end="448" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="420">
+        <state line="22" column="1" selection-start="448" selection-end="448" vertical-scroll-proportion="0.35560346" vertical-offset="0" max-vertical-offset="928">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/scenes/refresh_box_token/index.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="4" column="124" selection-start="231" selection-end="231" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="150">
+        <state line="4" column="124" selection-start="231" selection-end="231" vertical-scroll-proportion="0.06557377" vertical-offset="0" max-vertical-offset="915" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/antigate/services/html/antigate_upload_form.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="19" column="49" selection-start="739" selection-end="739" vertical-scroll-proportion="0.30678147" vertical-offset="0" max-vertical-offset="929">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/advisory_board/scenarios/refresh_box_token.js">
+    <entry file="file://$PROJECT_DIR$/modules/advisory_board/services/box.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="46" column="12" selection-start="1060" selection-end="1060" vertical-scroll-proportion="0.67672414" vertical-offset="62" max-vertical-offset="1170">
+        <state line="19" column="40" selection-start="443" selection-end="451" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="6315">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/advisory_board/services/html/box_refresh_token.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="22" selection-start="452" selection-end="452" vertical-scroll-proportion="0.32231405" vertical-offset="0" max-vertical-offset="605">
           <folding />
         </state>
       </provider>
