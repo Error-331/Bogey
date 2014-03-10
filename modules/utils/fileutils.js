@@ -220,3 +220,19 @@ exports.getAbsolutePath = function(path)
     
     return fs.absolute(path);
 }
+
+/**
+ * Method returns absolute path to modules directory.
+ *
+ * Simple method that returns absolute path to modules directory that is located in framework directory.
+ *
+ * @access public
+ *
+ * @return string absolute path to modules directory.
+ *
+ */
+
+exports.getModulesDir = function()
+{
+    return (fs.workingDirectory.substr(0, fs.workingDirectory.indexOf('Bogey') + 5) + fs.separator + 'modules' + fs.separator);
+}
