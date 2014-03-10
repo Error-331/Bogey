@@ -226,12 +226,12 @@ var Service = function(configObj, usrServiceName)
      */      
     
     function configureService(configObj)
-    {       
+    {
         if (typeof configObj != 'object') {
             return;
         }
 
-        if (configObj.scenario !== undefined) {   
+        if (configObj.scenario !== undefined) {
             obj.setScenario(configObj.scenario);
         }
 
@@ -240,6 +240,8 @@ var Service = function(configObj, usrServiceName)
         }    
         if (configObj.modulesPath !== undefined) {
             obj.setModulesPath(configObj.modulesPath);
+        } else {
+            obj.setModulesPath(fileUtils.getModulesDir());
         }
         
         if (configObj.libraryPath !== undefined) {
