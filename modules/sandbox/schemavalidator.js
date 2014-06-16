@@ -164,7 +164,7 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
                 }
             } else if (typeof usrScheme.text == 'object') {
                 if (typeof usrScheme.text[0] == 'function' && typeof usrScheme.text[1] == 'string') {
-                    subRes = usrScheme.text[0](rootElm.innerHTML);
+                    subRes = usrScheme.text[0](rootElm.textContent);
                     if (subRes != usrScheme.text[1]) {
                         return false;
                     }
@@ -241,7 +241,7 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
             if (elm.toLowerCase() == 'params') {
                 continue;
             }
-            
+
             // check 'sel' property
             if (usrScheme[elm].sel === undefined) {
                 throwError(usrScheme[elm], '"sel" property is not present');         
@@ -250,7 +250,7 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
             if (typeof usrScheme[elm].sel != 'string') {
                 throwError(usrScheme[elm], '"sel" property is not a string');   
             }
-                
+
             if (rootElm == undefined) {
                 selRes = document.querySelectorAll(usrScheme[elm].sel);
             } else {
@@ -258,7 +258,7 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
             }
 
             result = new Array();    
-            
+
             if (invert == true) {
                 if (selRes.length <= 0) {
                     // check 'defValue' property
@@ -292,7 +292,7 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
                                 result.push([usrScheme[elm].defData]);
                             }
                         }                  
-                    }                                 
+                    }
                 }
                
                 if (result.length <= 0) {
