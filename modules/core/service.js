@@ -750,7 +750,7 @@ var Service = function(configObj, usrServiceName)
     /**
      * Method that renders page (or part of the page) into the image file.
      *
-     * Method accepts a bunch of optional parameters used to tune image snapshot process.
+     * Method accepts a bunch of optional parameters used to tune image snapshot process. If delay is set to '0' the screenshot will be taken immediately.
      *
      * @access privileged
      * 
@@ -771,8 +771,18 @@ var Service = function(configObj, usrServiceName)
         var imgName = 'untitled';
         var dirPath = '';
         var curDelay = 0;
-        
+
         var def = deferred.create();
+
+        var renderCallback = function() {
+            curPage.render(dirPath + imgName + '.' + imgFormat);
+
+            if (width !== undefined && height !== undefined) {
+                curPage.viewportSize = obj.popViewportSize();
+            }
+
+            def.resolve(dirPath + imgName + '.' + imgFormat);
+        };
         
         try {
             if (format !== undefined) {
@@ -815,17 +825,13 @@ var Service = function(configObj, usrServiceName)
         if (width !== undefined && height !== undefined) {
             obj.pushViewportSize(curPage.viewportSize);       
             curPage.viewportSize = {'width': width, 'height': height};         
-        }        
-        
-        setTimeout(function() {
-            curPage.render(dirPath + imgName + '.' + imgFormat);
-            
-            if (width !== undefined && height !== undefined) {
-                curPage.viewportSize = obj.popViewportSize();
-            }
-            
-            def.resolve(dirPath + imgName + '.' + imgFormat);
-        }, curDelay);
+        }
+
+        if (curDelay === 0) {
+            renderCallback();
+        } else {
+            setTimeout(renderCallback, curDelay);
+        }
         
         return def;
     }
