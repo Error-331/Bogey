@@ -234,5 +234,5 @@ exports.getAbsolutePath = function(path)
 
 exports.getModulesDir = function()
 {
-    return (fs.workingDirectory.substr(0, fs.workingDirectory.indexOf('Bogey') + 5) + fs.separator + 'modules' + fs.separator);
+    return (fs.workingDirectory.substr(0, fs.workingDirectory.toLocaleLowerCase().indexOf('bogey') + 5) + fs.separator + 'modules' + fs.separator);
 }
