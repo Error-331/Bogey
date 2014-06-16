@@ -237,13 +237,15 @@ var Service = function(configObj, usrServiceName)
 
         if (configObj.persistCookies !== undefined) {
             obj.setPersistCookies(configObj.persistCookies);
-        }    
+        }
+
         if (configObj.modulesPath !== undefined) {
             obj.setModulesPath(configObj.modulesPath);
         } else {
+            console.log(fileUtils.getModulesDir());
             obj.setModulesPath(fileUtils.getModulesDir());
         }
-        
+
         if (configObj.libraryPath !== undefined) {
             if (typeof configObj.libraryPath != 'string') {
                 throw '"libraryPath" parameter must be string';
