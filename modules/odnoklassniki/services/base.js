@@ -331,7 +331,7 @@ var Base = function(configObj)
            obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Already loged in...');  
            
            // check reloginOnStart
-           if (reloginOnStart === true) {
+           if (obj.getReloginOnStart() === true) {
                 obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Already loged in, trying to logout...'); 
                
                 // trying to logout
