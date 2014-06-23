@@ -41,7 +41,14 @@ var Base = function(configObj)
      * @var int timeout (in milliseconds) for operation which is responsible for opening main page of the service
      */          
     
-    var openMainPageTimeout = 5000; 
+    var openMainPageTimeout = 5000;
+
+    /**
+     * @access private
+     * @var int timeout (in milliseconds) for operation which is responsible for opening group page of the service
+     */
+
+    var openGroupTimeout = 10000;
    
     /**
      * @access private
@@ -118,7 +125,75 @@ var Base = function(configObj)
         }
                 
         return def.promise();
-    }    
+    }
+
+    /**
+     * Method that is responsible for group page of the service.
+     *
+     * Simple method that tries to open group page of the service.
+     *
+     * @access private
+     *
+     * @param int|string pathId group ID or group path
+     *
+     * @return object operation promise.
+     */
+
+    function openGroupPage(pathId)
+    {
+        var curPage = obj.getPage();
+        var def = deferred.create();
+
+        var path;
+
+        // check params
+        if (typeof pathId !== 'string' && typeof pathId !== 'number') {
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Invalid group ID or path...');
+            def.reject(obj.createErrorObject(5, 'Option check error'));
+
+            return def.promise();
+        }
+
+        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Opening group page...');
+
+        // reject if timeout
+        setTimeout(function(){
+            if (!def.isProcessed()) {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Opening group page takes too long...');
+                def.reject(obj.createErrorObject(1, 'Group page timeout'));
+            }
+        }, openGroupTimeout);
+
+        logIn().done(function(){
+            if (typeof pathId === 'string') {
+                obj.logProcess(obj.getCurPageURL(), 'processing', 'unknown', 'unknown', 'Opening group page by URL...');
+                path = pathId;
+            } else {
+                obj.logProcess(obj.getCurPageURL(), 'processing', 'unknown', 'unknown', 'Opening group page by ID...');
+                path = '/group/' + pathId
+            }
+
+            obj.openPageRel(pathId).done(function(){
+                obj.logProcess(obj.getCurPageURL(), 'processing', 'unknown', 'unknown', 'Page opened...');
+
+                result = obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/groupmain.js', 'odnoklassniki', 'groupMain', 'plain-objects', ['sandbox/utils.js']).done(function(result){
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Group page opened successfully...');
+                    def.resolve(result);
+                }).fail(function(error){
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot open group page...');
+                    def.reject(error);
+                });
+            }).fail(function(){
+                obj.logProcess(obj.getCurPageURL(), 'processing', 'unknown', 'fail', 'Cannot open group page...');
+                def.reject(obj.createErrorObject(3, 'Cannot open group page'));
+            });
+        }).fail(function(){
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot open group page...');
+            def.reject(obj.createErrorObject(3, 'Cannot open group page'));
+        });
+
+        return def.promise();
+    }
 
     function openLoginPage()
     {
@@ -328,7 +403,7 @@ var Base = function(configObj)
                 
         // check if already loged in
         isLogedIn().done(function(result){
-           obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Already loged in...');  
+           obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Already loged in...');
            
            // check reloginOnStart
            if (obj.getReloginOnStart() === true) {
@@ -350,7 +425,6 @@ var Base = function(configObj)
                 });    
            } else {
                obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Already loged in...');
-               
                // add cookies
                obj.addCookies(curPage.cookies);
                def.resolve(result);   
@@ -504,6 +578,7 @@ schemaVars['gender'] = {'left': 500, 'top': 0};
      * @access privileged
      *
      * @return object operation promise.
+     *
      */      
     
     this.openMainPage = function()
@@ -513,7 +588,29 @@ schemaVars['gender'] = {'left': 500, 'top': 0};
         } catch(e) {
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "openMainPage"...');
         }           
-    }   
+    }
+
+    /**
+     * Operation method that starts (or puts to the stack) operation 'openGroupPage'.
+     *
+     * Method that starts operation that tries to open group page of the service.
+     *
+     * @access privileged
+     *
+     * @param int|string pathId group ID or group path
+     *
+     * @return object operation promise.
+     *
+     */
+
+    this.openGroupPage = function(pathId)
+    {
+        try {
+            return obj.startOp(openGroupPage, pathId);
+        } catch(e) {
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "openGroupPage...');
+        }
+    }
 
     /**
      * Method that starts operation 'searchPeopleByCriteria'.
