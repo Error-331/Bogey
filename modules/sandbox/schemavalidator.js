@@ -193,8 +193,15 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
             result.push(funcRes);
         } else {
             result.push(funcRes);
-        }          
-         
+        }
+
+        // check 'excludeFromSet' property
+        if (usrScheme.excludeFromSet !== undefined && usrScheme.excludeFromSet === true) {
+            funcRes.excludeFromSet = true;
+        } else {
+            funcRes.excludeFromSet = false;
+        }
+
         // check 'sub' property
         if (usrScheme.sub != undefined) {
             if (typeof usrScheme.sub == 'object') {
@@ -298,7 +305,7 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
                 if (result.length <= 0) {
                     throw 'Schema validation fail';
                 }
-                
+
                 globResult.push(result);   
             }                                                     
         }
@@ -340,15 +347,28 @@ Bogey.SchemaValidator = function(usrSchema, usrFormat)
     /* Privileged core methods starts here */
     
     this.checkElementsBySchema = function()
-    {           
+    {
+        var res;
+        var subres = [];
+
         // format
         switch(format) {
             case 'raw':
                 return traverse(schema, undefined);
                 break;
             case 'plain':
-            case 'plain-objects':  
-                return formatPlain(traverse(schema, undefined));
+            case 'plain-objects':
+                res = formatPlain(traverse(schema, undefined));
+
+                for (var i = 0; i < res.length; i++) {
+                    if (res[i].excludeFromSet !== undefined && res[i].excludeFromSet === true) {
+                        continue;
+                    } else {
+                        subres.push(res[i]);
+                    }
+                }
+
+                return subres;
                 break;
             default:
                 throw 'Unrecognised format: "' + format + '"';
