@@ -308,8 +308,9 @@ var Base = function(configObj)
                 
                 result[0].text = serviceLogin;
                 result[1].text = servicePassword;
-                
+
                 schema = obj.mergeDataAndDummySchema(schema, result);
+
                 obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Running "dummy" schema for login form...');
                         
                 obj.runDummySchema(schema).done(function(){  
