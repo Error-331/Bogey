@@ -1238,6 +1238,115 @@ var Service = function(configObj, usrServiceName)
             }
         }, sel);           
     }
+
+    /**
+     * Method that opens page by its URL.
+     *
+     * @access privileged
+     *
+     * @param string url of the page
+     *
+     * @return object promise.
+     *
+     */
+
+    this.openPage = function(url)
+    {
+        var def = deferred.create();
+        var curPage = obj.getPage();
+
+        var URLpattern = /^(https?|ftp|file):\/\/.+$/;
+
+        // check for type
+        if (typeof url !== 'string') {
+            def.reject(this.createErrorObject(5, '"URL" parameter must be string'));
+            return def.promise();
+        }
+
+        // check for length
+        if (url.length === 0) {
+            def.reject(this.createErrorObject(5, '"URL" parameter length must be greater than zero'));
+            return def.promise();
+        }
+
+        // validate URL
+        if (!URLpattern.test(url)) {
+            def.reject(this.createErrorObject(5, '"URL" is invalid'));
+            return def.promise();
+        }
+
+        if (url[url.length - 1] !== '/') {
+            url += '/';
+        }
+
+        curPage.open(url, function(status) {
+            if (status === 'success') {
+                def.resolve();
+            } else {
+                def.reject(obj.createErrorObject(3, 'Page cannot be opened'));
+            }
+        });
+
+        return def.promise();
+    }
+
+    /**
+     * Method that opens page by the provided path (relative to the current domain).
+     *
+     * @access privileged
+     *
+     * @param string path part of the URL
+     *
+     * @return object promise.
+     *
+     */
+
+    this.openPageRel = function(path)
+    {
+        var def = deferred.create();
+        var curPage = obj.getPage();
+
+        var hostPattern = /^[a-z][a-z0-9+\-.]*:\/\/([a-z0-9\-._~%!$&'()*+,;=]+@)?([a-z0-9\-._~%]+|\[[a-f0-9:.]+\]|\[v[a-f0-9][a-z0-9\-._~%!$&'()*+,;=:]+\])(:[0-9]+)?(\/[a-z0-9\-._~%!$&'()*+,;=:@]+)*\/?(\?[a-z0-9\-._~%!$&'()*+,;=:@\/?]*)?(#[a-z0-9\-._~%!$&'()*+,;=:@/?]*)?$/;
+        var matchRes;
+
+        // check for type
+        if (typeof path !== 'string') {
+            def.reject(this.createErrorObject(5, '"Path" parameter must be string'));
+            return def.promise();
+        }
+
+        // check for length
+        if (path.length === 0) {
+            def.reject(this.createErrorObject(5, '"Path" parameter length must be greater than zero'));
+            return def.promise();
+        }
+
+        if (curPage.url === 'about:blank') {
+            def.reject(this.createErrorObject(5, 'No domain found'));
+            return def.promise();
+        }
+
+        matchRes = curPage.url.match(hostPattern);
+
+        if (matchRes === null || matchRes.length === 0) {
+            def.reject(this.createErrorObject(5, 'No domain found'));
+            return def.promise();
+        }
+
+        if (matchRes[0][matchRes[0].length - 1] !== '/') {
+            matchRes[0] += '/';
+        }
+
+        matchRes[0] += path;
+
+        this.openPage(matchRes[0]).done(function(){
+            def.resolve();
+        }).fail(function(error){
+            def.reject(error);
+        });
+
+        return def.promise();
+    }
         
     /* Privileged core methods ends here */
     
