@@ -446,8 +446,8 @@ var Dummy = function(usrService)
     function fillTextInput(elm)
     {
         var def = deferred.create();
-        var page = service.getPage();  
-        
+        var page = service.getPage();
+
         var execFunc = function(){
             page.sendEvent('mousemove', elm.left, elm.top, 'left');
             page.sendEvent('click');   
