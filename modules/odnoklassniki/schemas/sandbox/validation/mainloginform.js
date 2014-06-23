@@ -12,15 +12,17 @@ if (Bogey.odnoklassniki.schemas == undefined) {
 
 Bogey.odnoklassniki.schemas.mainLoginForm = {
     elm1: {
-        sel: '#loginPanel',
+        sel: '.anonym_login',
                     
         is_single: true,
         sub_is_single: true,
+
+        excludeFromSet: true,
                     
         sub: {
             elm1: {
-                sel: 'h2',
-                text: [Bogey.utils.trim, 'Log in']
+                sel: '.anonym_login_it',
+                excludeFromSet: true
             },
             elm2: {
                 sel: '#field_email',
@@ -31,7 +33,7 @@ Bogey.odnoklassniki.schemas.mainLoginForm = {
                 func: Bogey.utils.findOffset
             },
             elm4: {
-                sel: '#hook_FormButton_button_go',
+                sel: '.anonym_login_btn',
                 func: Bogey.utils.findOffset
             }
         }
