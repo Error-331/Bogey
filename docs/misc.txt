@@ -1,0 +1,17 @@
+Command line params (PhantomJS)
+===============================
+
+--cookies-file=testcook.txt
+
+Command line params (Bogey)
+==========================
+
+debugSandbox=true|false
+modulesPath=/var/www/Bogey/modules/
+reloginOnStart=true|false
+snapshotOnLog=true|false
+
+Validation schema
+=================
+
+excludeFromSet = true|false (plain objects only)
