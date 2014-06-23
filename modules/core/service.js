@@ -205,7 +205,14 @@ var Service = function(configObj, usrServiceName)
      * @var string name of the directory where all the logging snapshots will be stored
      */     
     
-    var logSnapDir;    
+    var logSnapDir;
+
+    /**
+     * @access private
+     * @var bool property that indicates whether to make screenshot on every log message or not
+     */
+
+    var snapshotOnLog = false;
     
     /* Private members ends here */
     
@@ -242,7 +249,6 @@ var Service = function(configObj, usrServiceName)
         if (configObj.modulesPath !== undefined) {
             obj.setModulesPath(configObj.modulesPath);
         } else {
-            console.log(fileUtils.getModulesDir());
             obj.setModulesPath(fileUtils.getModulesDir());
         }
 
@@ -280,6 +286,10 @@ var Service = function(configObj, usrServiceName)
         
         if (configObj.logsnapdir !== undefined){
             obj.setLogSnapDir(configObj.logsnapdir);
+        }
+
+        if (configObj.snapshotOnLog !== undefined){
+            obj.setSnapshotOnLog(configObj.snapshotOnLog);
         }
         
         // set viewport size
@@ -554,6 +564,10 @@ var Service = function(configObj, usrServiceName)
     
     this.logProcess = function(url, status, pageStatus, operationStatus, description)
     {
+        if (snapshotOnLog === true) {
+            obj.takeSnapshot('jpeg', description.replace(/\ /gi, "_"), obj.getLogSnapDir());
+        }
+
         var resp = logmessage.create(serviceName, url, status, pageStatus, operationStatus, description);
         console.log(JSON.stringify(resp)); 
     }
@@ -1178,7 +1192,7 @@ var Service = function(configObj, usrServiceName)
             if (typeof variables != 'object') {
                 throw 'Variables for dummy schema must presented as array';
             }
-            
+
             for (key in variables) {
                 dummyObj.addDummySchemaVar(key, variables[key]);
             }
@@ -1716,7 +1730,7 @@ var Service = function(configObj, usrServiceName)
      */     
    
     this.setReloginOnStart = function(usrRelogin)
-    {        
+    {
         if (typeof usrRelogin != 'boolean') {
             throw 'Property "reloginOnStart" must be boolean';
         }
@@ -1766,7 +1780,28 @@ var Service = function(configObj, usrServiceName)
         }        
         
         logSnapDir = usrDir;
-    }    
+    }
+
+    /**
+     * Sets parameter that indicates whether to take screenshot on every log message.
+     *
+     * @access privileged
+     *
+     * @param boolean usrVal true or false
+     *
+     * @throws string
+     *
+     */
+
+
+    this.setSnapshotOnLog = function(usrVal)
+    {
+        if (typeof usrVal != 'boolean') {
+            throw 'Property "snapshotOnLog" must be boolean';
+        }
+
+        snapshotOnLog = usrVal;
+    }
   
     /* Privileged set methods ends here */  
 

@@ -134,6 +134,7 @@ var Scenario = function(usrScenarioName)
                     break;
                 case 'debugSandbox':
                 case 'reloginOnStart':
+                case 'snapshotOnLog':
                     val = val.toLowerCase();
                     if (val == 'true') {
                         options[prop] = true;
