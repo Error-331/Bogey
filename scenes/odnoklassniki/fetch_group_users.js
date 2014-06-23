@@ -1,0 +1,1 @@
+var newScenario = require('../../modules/odnoklassniki/scenarios/fetchgroupusers').create().start();
