@@ -1,12 +1,12 @@
-if (Bogey == undefined){
+if (Bogey === undefined){
     var Bogey = {};
 }
 
-if (Bogey.yandex == undefined) {
+if (Bogey.yandex === undefined) {
     Bogey.yandex = {};
 }
 
-if (Bogey.yandex.schemas == undefined) {
+if (Bogey.yandex.schemas === undefined) {
     Bogey.yandex.schemas = {};
 }
 
@@ -69,6 +69,6 @@ Bogey.yandex.schemas.regForm = {
 };
 
 // export for dummy schema
-if (typeof exports != 'undefined') {
+if (typeof exports !== 'undefined') {
     exports.schema = Bogey.yandex.schemas.regForm;
 } 
