@@ -45,6 +45,7 @@ var srError = require('../error/serviceerror');
 var deferred = require('../async/deferred');
 
 var fileUtils = require('../utils/fileutils');
+var stringUtils = require('../utils/stringutils');
 var dummy = require('../core/dummy');
 
 var Service = function(configObj, usrServiceName)
@@ -134,6 +135,13 @@ var Service = function(configObj, usrServiceName)
      */     
     
     var pageCreatedFuncStack = new Array();
+
+    /**
+     * @access private
+     * @var array of objects that stores deferred object and process id of the sandbox function being executed
+     */
+
+    var sandboxFuncDefStack = new Array();
     
     /**
      * @access private
@@ -227,6 +235,19 @@ var Service = function(configObj, usrServiceName)
      */
 
     var validatePageBySchemaUntilRecInterval = 1000;
+
+    /**
+     * @access private
+     * @var array of paths to all sandbox scripts of the current framework
+     */
+
+    var bogeySandboxScriptsList = [
+            'sandbox/debug.js',
+            'sandbox/promise.js',
+            'sandbox/deferred.js',
+            'sandbox/schemavalidator.js',
+            'sandbox/utils.js'
+    ];
     
     /* Private members ends here */
     
@@ -417,6 +438,34 @@ var Service = function(configObj, usrServiceName)
     {
         return opFuncArgsStack.pop();
     }
+
+    /**
+     * Method that stores object that contains deferred object and process id of the sandbox function being executed.
+     *
+     * @access private
+     *
+     * @param object usrDef deferred object
+     * @param string usrProcId id of the process
+     *
+     * @throws string
+     *
+     */
+
+    function pushSandBoxFuncDeferred(usrDef, usrProcId)
+    {
+        if (!(usrDef instanceof deferred.constFunc)) {
+            throw 'Invalid deferred object of the sandbox process';
+        }
+
+        if (typeof usrProcId !== 'string' || usrProcId.length === 0) {
+            throw 'Invalid sandbox process ID';
+        }
+
+        sandboxFuncDefStack.push({
+            id: usrProcId,
+            def: usrDef
+        });
+    }
         
     /**
      * Method that executes first operation from the stack.
@@ -453,6 +502,78 @@ var Service = function(configObj, usrServiceName)
             });            
         }
     }
+    /**
+     * Method injects script to the current page.
+     *
+     * @access private
+     *
+     * @param string path to the script
+     *
+     * @throws string
+     *
+     */
+
+    function injectScript(script)
+    {
+        var curPage = obj.getPage();
+        var tmpLibraryPath = curPage.libraryPath;
+
+        curPage.libraryPath = obj.getModulesPath();
+
+        if (!curPage.injectJs(script)) {
+            curPage.libraryPath = tmpLibraryPath;
+            throw 'Cannot inject: "' + script + '"';
+        }
+
+        curPage.libraryPath = tmpLibraryPath;
+    }
+
+    /**
+     * Method injects additional scripts to the current page.
+     *
+     * User can inject all the sandbox scripts of the current framework if the 'bogey_all' value is passed.
+     *
+     * @access private
+     *
+     * @param string|array additionalScripts array of paths to scripts or single path to the script or special keyword ('bogey_all')
+     *
+     * @throws string
+     *
+     */
+
+    function injectScripts(additionalScripts)
+    {
+        var script = null;
+
+        if (additionalScripts !== undefined) {
+            if (typeof additionalScripts === 'string') {
+                additionalScripts = [additionalScripts];
+            }
+
+            if (typeof additionalScripts !== 'object') {
+                throw 'Additional scripts files must be provided as array';
+            }
+
+            for (script in additionalScripts) {
+                if (typeof additionalScripts[script] !== 'string') {
+                    throw 'Additional script file name must be string';
+                }
+
+                // check for special keywords
+                switch (additionalScripts[script].toLowerCase()) {
+                    case 'bogey_all':
+                        for (var i in bogeySandboxScriptsList) {
+                            injectScript(bogeySandboxScriptsList[i]);
+                        }
+
+                        break;
+                    default:
+                        injectScript(additionalScripts[script]);
+                        break;
+                }
+            }
+        }
+    }
     
     /* Pirvate core methods ends here */
     
@@ -467,6 +588,8 @@ var Service = function(configObj, usrServiceName)
      * @access private
      * 
      * @param string targetUrl current page URL
+     *
+     * @throws string
      * 
      * @see getCurPageURL()
      * @see pushURLChangeFunc()
@@ -537,6 +660,38 @@ var Service = function(configObj, usrServiceName)
     curPage.onPageCreated = function(page) {
         if (pageCreatedFuncStack.length > 0) {
             obj.popPageCreatedFunc()(page);
+        }
+    }
+
+    /**
+     * PhantomJS event handler method that is called when the server is called from sandbox.
+     *
+     * Method will try to find the process deferred object and reject/resolve it based on data received from the sandbox.
+     *
+     * @access private
+     *
+     * @param object data sent from the sandbox
+     *
+     * @see pushSandBoxFuncDeferred()
+     *
+     */
+
+    curPage.onCallback = function(data) {
+        var stackVal;
+
+        for (var i = 0; i < sandboxFuncDefStack.length; i++) {
+            if (data.id === sandboxFuncDefStack[i].id) {
+                stackVal = sandboxFuncDefStack[i];
+                sandboxFuncDefStack.splice(i, 1);
+
+                if (data.error === true) {
+                    stackVal.def.reject(obj.createErrorObject(6, data.message));
+                } else {
+                    stackVal.def.resolve(data.data);
+                }
+
+                break;
+            }
         }
     }
     
@@ -1001,9 +1156,9 @@ var Service = function(configObj, usrServiceName)
      * @param string serviceNamespace namespace of the current service in sandbox mode
      * @param string schemaNamespace namespace of the current schema in sandbox mode
      * @param string format of the output data
-     * @param array additionalScripts array of strings which points to the additional files which will be injected
+     * @param array|string additionalScripts array of strings which points to the additional files which will be injected
      *
-     * @return object deferred object.
+     * @return object promise.
      * 
      */      
     
@@ -1028,45 +1183,16 @@ var Service = function(configObj, usrServiceName)
         }
         
         var curPage = obj.getPage();
-        var tmpLibraryPath = curPage.libraryPath;
-        
-        curPage.libraryPath = obj.getModulesPath();
-                  
-        // inject validator class
-        if (!curPage.injectJs('sandbox/schemavalidator.js')) {
-            def.reject(obj.createErrorObject(5, 'Cannot inject schema validator class'));
-            return def.promise();
-        }
 
         // inject additional scripts
-        if (additionalScripts != undefined) {
-            if (typeof additionalScripts != 'object') {
-                def.reject(obj.createErrorObject(5, 'Additional scripts files must be provided as array'));
-                return def.promise();
-            }
-            
-            var script = null;
-            
-            for (script in additionalScripts) {
-                if (typeof additionalScripts[script] != 'string') {
-                    def.reject(obj.createErrorObject(5, 'Additional script file name must be string'));
-                    return def.promise();
-                }
-
-                if (!curPage.injectJs(additionalScripts[script])) {
-                    def.reject(obj.createErrorObject(5, 'Cannot inject: "' + additionalScripts[script] + '"'));
-                    return def.promise();
-                }                
-            }
-        } 
-
-        // inject schema
-        if (!curPage.injectJs(schmePath)) {
-            def.reject(obj.createErrorObject(5, 'Cannot inject: "' + schmePath + '"'));
+        try {
+            injectScript('sandbox/schemavalidator.js');
+            injectScripts(additionalScripts);
+            injectScript(schmePath);
+        } catch(error) {
+            def.reject(obj.createErrorObject(5, error));
             return def.promise();
         }
-
-        curPage.libraryPath = tmpLibraryPath;
 
         // evalute
         var result = JSON.parse(curPage.evaluate(function(service, schema, format) {
@@ -1094,14 +1220,13 @@ var Service = function(configObj, usrServiceName)
             def.resolve(result);
         }
         
-        return def;
+        return def.promise();
     }
 
     /**
      * Method that recursively validates page against defined schema.
      *
-     * Method injects file with validator class (and other necessary files) into the current page, injects user defined schema and
-     * validates page against this schema while in sandbox mode. Method will recursively validate the page until the page will be valid or until timeout (useful for onepage sites).
+     * Method will recursively validate the page until the page will be valid or until timeout (useful for onepage sites).
      *
      * @access privileged
      *
@@ -1109,11 +1234,11 @@ var Service = function(configObj, usrServiceName)
      * @param string serviceNamespace namespace of the current service in sandbox mode
      * @param string schemaNamespace namespace of the current schema in sandbox mode
      * @param string format of the output data
-     * @param array additionalScripts array of strings which points to the additional files which will be injected
+     * @param array|string additionalScripts array of strings which points to the additional files which will be injected
      * @param int timeout for the validation purpose (if not set - default timeout will be used)
      * @param int interval between each iteration of the validation purpose (if not set - default interval will be used)
      *
-     * @return object deferred object.
+     * @return object promise.
      *
      */
 
@@ -1197,8 +1322,7 @@ var Service = function(configObj, usrServiceName)
     {
         var def = deferred.create();
         var curPage = obj.getPage();
-        
-        var tmpLibraryPath = curPage.libraryPath;
+
         var format = 'raw';
         
         var script = null;
@@ -1218,33 +1342,16 @@ var Service = function(configObj, usrServiceName)
             
             format = schema.format.toLowerCase();
         }
-        
-        curPage.libraryPath = obj.getModulesPath();
-        
-        // inject validator class
-        if (!curPage.injectJs('sandbox/schemavalidator.js')) {
-            throw 'Cannot inject schema validator class';
-        }   
-        
-        // inject additional scripts 
-        if (schema.scripts != undefined) {
-            if (typeof schema.scripts != 'object') {
-                throw 'Additional scripts files must be provided as array';
-            }
-            
-            for (script in schema.scripts) {
-                if (typeof schema.scripts[script] != 'string') {
-                    throw 'Additional script file name must be string';
-                }
 
-                if (!curPage.injectJs(schema.scripts[script])) {
-                    throw 'Cannot inject: "' + schema.scripts[script] + '"';
-                }                
-            }                  
+        // inject additional scripts
+        try {
+            injectScript('sandbox/schemavalidator.js');
+            injectScripts(schema.scripts);
+        } catch(error) {
+            def.reject(obj.createErrorObject(5, error));
+            return def.promise();
         }
-        
-        curPage.libraryPath = tmpLibraryPath;
-                         
+
         // evalute page
         var result = JSON.parse(curPage.evaluate(function(schema, format) {
             try {     
@@ -1266,7 +1373,86 @@ var Service = function(configObj, usrServiceName)
             def.resolve(result);
         }        
         
-        return def;
+        return def.promise();
+    }
+
+    /**
+     * Method that asynchronously executes function in sandbox.
+     *
+     * @access privileged
+     *
+     * @param function usrFunc function to execute
+     * @param array|string additionalScripts additional scripts that will be injected to the sandbox
+     *
+     * @throws string
+     *
+     * @return object promise.
+     *
+     */
+
+    this.executeSandboxFunc = function(usrFunc, additionalScripts)
+    {
+        var def = deferred.create();
+
+        // validation
+        if (typeof usrFunc !== 'function') {
+            def.reject(obj.createErrorObject(5, 'Invalid sandbox function'));
+        }
+
+        if (additionalScripts === undefined) {
+            additionalScripts = 'bogey_all';
+        }
+
+        // inject scripts
+        try {
+            injectScripts(additionalScripts);
+        } catch(error) {
+            def.reject(obj.createErrorObject(5, error));
+        }
+
+        // create id
+        var procId = stringUtils.genRandStringRec(5);
+
+        // store process data
+        pushSandBoxFuncDeferred(def, procId);
+
+        // evalute page
+        curPage.evaluate(function(func, curId) {
+            try {
+                var res = func();
+
+                if (res instanceof Bogey.async.classes.Promise || res instanceof Bogey.async.classes.Deferred) {
+                    res.done(function(usrData){
+                        window.callPhantom({
+                            error: false,
+                            data: usrData,
+                            id: curId
+                        });
+                    }).fail(function(error){
+                        window.callPhantom({
+                            error: true,
+                            message: error,
+                            id: curId
+                        });
+                    });
+                } else {
+                    window.callPhantom({
+                        error: false,
+                        data: res,
+                        id: curId
+                    });
+                }
+            } catch(e) {
+                window.callPhantom({
+                    error: true,
+                    message: e,
+                    id: curId
+                });
+            }
+
+        }, usrFunc, procId);
+
+        return def.promise();
     }
     
     /**
