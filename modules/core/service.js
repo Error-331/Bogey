@@ -243,8 +243,8 @@ var Service = function(configObj, usrServiceName)
 
     var bogeySandboxScriptsList = [
             'sandbox/debug.js',
-            'sandbox/promise.js',
-            'sandbox/deferred.js',
+            'sandbox/async/promise.js',
+            'sandbox/async/deferred.js',
             'sandbox/schemavalidator.js',
             'sandbox/utils.js'
     ];
