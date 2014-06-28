@@ -213,6 +213,20 @@ var Service = function(configObj, usrServiceName)
      */
 
     var snapshotOnLog = false;
+
+    /**
+     * @access private
+     * @var int default timeout in milliseconds for validatePageBySchemaUntilRec() method
+     */
+
+    var validatePageBySchemaUntilRecTimeout = 10000;
+
+    /**
+     * @access private
+     * @var int default interval in milliseconds before each iteration in validatePageBySchemaUntilRec() method
+     */
+
+    var validatePageBySchemaUntilRecInterval = 1000;
     
     /* Private members ends here */
     
@@ -988,9 +1002,7 @@ var Service = function(configObj, usrServiceName)
      * @param string schemaNamespace namespace of the current schema in sandbox mode
      * @param string format of the output data
      * @param array additionalScripts array of strings which points to the additional files which will be injected
-     * 
-     * @throws string 
-     * 
+     *
      * @return object deferred object.
      * 
      */      
@@ -1001,15 +1013,18 @@ var Service = function(configObj, usrServiceName)
         
         // validation
         if (typeof schmePath != 'string') {
-            throw 'Invalid path to schema file';
+            def.reject(obj.createErrorObject(5, 'Invalid path to schema file'));
+            return def.promise();
         }
  
         if (typeof schemaNamespace != 'string') {
-            throw 'Invalid service namespace type'
+            def.reject(obj.createErrorObject(5, 'Invalid service namespace type'));
+            return def.promise();
         } 
  
         if (typeof schemaNamespace != 'string') {
-            throw 'Invalid schema namespace type'
+            def.reject(obj.createErrorObject(5, 'Invalid schema namespace type'));
+            return def.promise();
         }
         
         var curPage = obj.getPage();
@@ -1019,39 +1034,52 @@ var Service = function(configObj, usrServiceName)
                   
         // inject validator class
         if (!curPage.injectJs('sandbox/schemavalidator.js')) {
-            throw 'Cannot inject schema validator class';
+            def.reject(obj.createErrorObject(5, 'Cannot inject schema validator class'));
+            return def.promise();
         }
 
         // inject additional scripts
         if (additionalScripts != undefined) {
             if (typeof additionalScripts != 'object') {
-                throw 'Additional scripts files must be provided as array';
+                def.reject(obj.createErrorObject(5, 'Additional scripts files must be provided as array'));
+                return def.promise();
             }
             
             var script = null;
             
             for (script in additionalScripts) {
                 if (typeof additionalScripts[script] != 'string') {
-                    throw 'Additional script file name must be string';
+                    def.reject(obj.createErrorObject(5, 'Additional script file name must be string'));
+                    return def.promise();
                 }
 
                 if (!curPage.injectJs(additionalScripts[script])) {
-                    throw 'Cannot inject: "' + additionalScripts[script] + '"';
+                    def.reject(obj.createErrorObject(5, 'Cannot inject: "' + additionalScripts[script] + '"'));
+                    return def.promise();
                 }                
             }
         } 
 
         // inject schema
         if (!curPage.injectJs(schmePath)) {
-            throw 'Cannot inject: "' + schmePath + '"';
+            def.reject(obj.createErrorObject(5, 'Cannot inject: "' + schmePath + '"'));
+            return def.promise();
         }
 
         curPage.libraryPath = tmpLibraryPath;
 
         // evalute
         var result = JSON.parse(curPage.evaluate(function(service, schema, format) {
-            try {                
-                var validator = new Bogey.SchemaValidator(Bogey[service]['schemas'][schema], format);
+            try {
+                schema = schema.split('.');
+
+                var schemaObj = Bogey[service]['schemas'][schema[0]];
+
+                for (var i = 1; i < schema.length; i++) {
+                    schemaObj = schemaObj[schema[i]]
+                }
+
+                var validator = new Bogey.SchemaValidator(schemaObj, format);
 
                 return JSON.stringify(validator.checkElementsBySchema());    
             } catch(e) {
@@ -1068,7 +1096,86 @@ var Service = function(configObj, usrServiceName)
         
         return def;
     }
-    
+
+    /**
+     * Method that recursively validates page against defined schema.
+     *
+     * Method injects file with validator class (and other necessary files) into the current page, injects user defined schema and
+     * validates page against this schema while in sandbox mode. Method will recursively validate the page until the page will be valid or until timeout (useful for onepage sites).
+     *
+     * @access privileged
+     *
+     * @param string schmePath path to the current schema
+     * @param string serviceNamespace namespace of the current service in sandbox mode
+     * @param string schemaNamespace namespace of the current schema in sandbox mode
+     * @param string format of the output data
+     * @param array additionalScripts array of strings which points to the additional files which will be injected
+     * @param int timeout for the validation purpose (if not set - default timeout will be used)
+     * @param int interval between each iteration of the validation purpose (if not set - default interval will be used)
+     *
+     * @return object deferred object.
+     *
+     */
+
+    this.validatePageBySchemaUntilRec = function(schmePath, serviceNamespace, schemaNamespace, format, additionalScripts, timeout, interval)
+    {
+        var def = deferred.create();
+
+        var intrevalInd;
+
+        var curTimeout;
+        var curInterval;
+
+        var callbackFunc = function(curInt){
+            intrevalInd = setTimeout(function(){
+                obj.validatePageBySchema(schmePath, serviceNamespace, schemaNamespace, format, additionalScripts).done(function(result){
+                    def.resolve(result);
+                }).fail(function(error){
+                    console.log(JSON.stringify(error));
+                    callbackFunc(curInterval);
+                });
+            }, curInt);
+        }
+
+        // validation
+        if (timeout !== undefined) {
+            if (typeof timeout !== 'number') {
+                def.reject(obj.createErrorObject(5, 'Timeout is not a number'));
+                return def.promise();
+            }
+
+            curTimeout = timeout;
+        } else {
+            curTimeout = validatePageBySchemaUntilRecTimeout;
+        }
+
+        if (interval !== undefined) {
+            if (typeof interval !== 'number') {
+                def.reject(obj.createErrorObject(5, 'Interval is not a number'));
+                return def.promise();
+            }
+
+            curInterval = interval;
+        } else {
+            curInterval = validatePageBySchemaUntilRecInterval;
+        }
+
+        // reject if timeout
+        setTimeout(function(){
+            if (intrevalInd !== undefined) {
+                clearTimeout(intrevalInd);
+            }
+
+            if (!def.isProcessed()) {
+                def.reject(obj.createErrorObject(1, 'Timeout of recursive validation by schema'));
+            }
+        }, curTimeout);
+
+        callbackFunc(0);
+
+        return def.promise();
+    }
+
     /**
      * Method that validates page against defined schema.
      *
