@@ -1256,7 +1256,6 @@ var Service = function(configObj, usrServiceName)
                 obj.validatePageBySchema(schmePath, serviceNamespace, schemaNamespace, format, additionalScripts).done(function(result){
                     def.resolve(result);
                 }).fail(function(error){
-                    console.log(JSON.stringify(error));
                     callbackFunc(curInterval);
                 });
             }, curInt);
