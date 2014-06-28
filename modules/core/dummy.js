@@ -619,6 +619,7 @@ var Dummy = function(usrService)
     function runDummySchemaElm(elm)
     {
         var def = deferred.create();
+        var sandBoxFuncDef = deferred.create();
         var subDef = null;
         var res;
         
@@ -634,45 +635,71 @@ var Dummy = function(usrService)
                     subDef = fillTextInput(elm);
                     break;
                 
-                case 'selectoption' :
+                case 'selectoption':
                     subDef = selectOption(elm);
                     break;
-            
+
                 default:
-                    def.reject('Unrecognised operation: "' + elm.op + '"');
-                    return def.promise();
+                    subDef = deferred.create();
+                    subDef.resolve();
                     break;
             }        
         
             subDef.done(function(){
-                // check 'func_after'
-                if (elm.func_after !== undefined) {
-                    if (typeof elm.func_before != 'function') {
-                        def.reject('Property "func_after" must be function');
-                    }
-            
-                    deferred.when(elm.func_after.call(obj, elm)).done(function(){
-                        def.resolve();
+                // check 'func_sandbox'
+                if (elm.func_sandbox !== undefined) {
+                    obj.getService().executeSandboxFunc(elm.func_sandbox).done(function(data){
+                        if (data !== undefined || data.dummyVars !== undefined) {
+                            for (var i in data.dummyVars) {
+                                obj.addDummySchemaVar(i, data.dummyVars[i]);
+                            }
+                        }
+
+                        sandBoxFuncDef.resolve();
                     }).fail(function(error){
-                        def.reject(error);
+                        sandBoxFuncDef.reject(error);
                     });
-                } else {                   
-                    def.resolve();
-                }                
+                } else {
+                    sandBoxFuncDef.resolve();
+                }
+
+                sandBoxFuncDef.done(function(){
+                    // check 'func_after'
+                    if (elm.func_after !== undefined) {
+                        if (typeof elm.func_before != 'function') {
+                            def.reject('Property "func_after" must be function');
+                        }
+
+                        deferred.when(elm.func_after.call(obj, elm)).done(function(){
+                            def.resolve();
+                        }).fail(function(error){
+                            def.reject(error);
+                        });
+                    } else {
+                        def.resolve();
+                    }
+                }).fail(function(error){
+                    def.reject(error);
+                });
             }).fail(function(error){
                 def.reject(error);
             });
         }
-        
-        if (typeof elm != 'object') {
+
+        // validation
+        if (typeof elm !== 'object') {
             def.reject('Schema element is not an object');
             return def.promise();
         }
-        
-        if (typeof elm.op != 'string') {
-            def.reject('Schema operation cannot be undefined');
-            return def.promise();
-        }  
+
+        if (elm.op === undefined) {
+            elm.op = '';
+        } else {
+            if (typeof elm.op !== 'string') {
+                def.reject('Schema operation cannot be undefined');
+                return def.promise();
+            }
+        }
         
         elm.op = elm.op.toLowerCase();
         
