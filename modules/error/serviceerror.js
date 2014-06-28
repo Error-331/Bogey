@@ -61,6 +61,7 @@ ServiceError.prototype.isError = true;
  * 3 - cannot open page
  * 4 - dummy schema error
  * 5 - service error
+ * 6 - sandbox error
  * 
  */  
 
