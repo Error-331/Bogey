@@ -11,7 +11,24 @@ modulesPath=/var/www/Bogey/modules/
 reloginOnStart=true|false
 snapshotOnLog=true|false
 
+viewportWidth=1024
+viewportHeight=2000
+
 Validation schema
 =================
 
 excludeFromSet = true|false (plain objects only)
+
+Dummy schems options
+====================
+
+func_sandbox
+
+
+Sandbox data formats
+====================
+
+{error: true, message: e}
+{error: true, message: e, id: curId}
+
+{dummyVars:{'z1': '1', 'z2': '2'}} - should return from sandbox function
