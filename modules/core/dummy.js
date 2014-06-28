@@ -649,7 +649,7 @@ var Dummy = function(usrService)
                 // check 'func_sandbox'
                 if (elm.func_sandbox !== undefined) {
                     obj.getService().executeSandboxFunc(elm.func_sandbox).done(function(data){
-                        if (data !== undefined || data.dummyVars !== undefined) {
+                        if (data !== undefined && data.dummyVars !== undefined) {
                             for (var i in data.dummyVars) {
                                 obj.addDummySchemaVar(i, data.dummyVars[i]);
                             }
