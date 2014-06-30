@@ -76,14 +76,14 @@ var Base = function(configObj)
      * @var string login for odnoklassniki
      */      
     
-    var serviceLogin = 'SergeySel331';
+    var serviceLogin = '';
     
     /**
      * @access private
      * @var string password for odnoklassniki
      */       
 
-    var servicePassword = 'sad213CXZ';
+    var servicePassword = '';
         
     /* Private members ends here */
       
@@ -613,7 +613,15 @@ schemaVars['gender'] = {'left': 500, 'top': 0};
     {
         if (typeof configObj != 'object') {
             return;
-        }       
+        }
+
+        if (configObj.serviceLogin !== undefined) {
+            this.setServiceLogin(configObj.serviceLogin);
+        }
+
+        if (configObj.servicePassword !== undefined) {
+            this.setServicePassword(configObj.servicePassword);
+        }
     } 
     
     this.logIn = function()
@@ -725,7 +733,48 @@ schemaVars['gender'] = {'left': 500, 'top': 0};
     /* Privileged get methods starts here */    
     /* Privileged get methods ends here */
     
-    /* Privileged set methods starts here */    
+    /* Privileged set methods starts here */
+
+    /**
+     * Method that sets login for current service.
+     *
+     * @access privileged
+     *
+     * @param string usrLogin login string
+     *
+     * @throws string
+     *
+     */
+
+    this.setServiceLogin = function(usrLogin)
+    {
+        if (typeof usrLogin !== 'string') {
+            throw 'Service login must be string';
+        }
+
+        serviceLogin = usrLogin;
+    }
+
+    /**
+     * Method that sets password for current service.
+     *
+     * @access privileged
+     *
+     * @param string usrPassword password string
+     *
+     * @throws string
+     *
+     */
+
+    this.setServicePassword = function(usrPassword)
+    {
+        if (typeof usrPassword !== 'string') {
+            throw 'Service password must be string';
+        }
+
+        servicePassword = usrPassword;
+    }
+
     /* Privileged set methods ends here */    
     
     this.configureService(configObj);
