@@ -59,3 +59,12 @@ Bogey.utils.trim = function(str)
     
     return str.replace(/^\s+|\s+$/g, "");
 }
+
+Bogey.utils.deleteWhitespaces = function(str)
+{
+    if (typeof str != 'string') {
+        throw 'Provided user data is not a string';
+    }
+
+    return str.replace(/\s/g, '');;
+}
