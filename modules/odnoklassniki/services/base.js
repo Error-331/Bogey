@@ -63,6 +63,13 @@ var Base = function(configObj)
      */     
     
     var searchPeopleByCriteriaTimeout = 300000;
+
+    /**
+     * @access private
+     * @var int timeout (in milliseconds) for operation which is responsible for fetching users IDs from the group
+     */
+
+    var fetchGroupUsersIdsTimeout = 600000;
     
     /**
      * @access private
@@ -114,8 +121,8 @@ var Base = function(configObj)
         } else {         
             // open main page
             curPage.open(mainPageURL, function(status) {
-                if (status == 'success' && !def.isProcessed()) {
-                    obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'success', 'Main page successfuly opened...'); 
+                if (status === 'success' && !def.isProcessed()) {
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'success', 'Main page successfuly opened...');
                     def.resolve();
                 } else {
                     obj.logProcess(obj.getCurPageURL(), 'finishing', status, 'fail', 'Cannot open main page...'); 
@@ -176,7 +183,7 @@ var Base = function(configObj)
             obj.openPageRel(pathId).done(function(){
                 obj.logProcess(obj.getCurPageURL(), 'processing', 'unknown', 'unknown', 'Page opened...');
 
-                result = obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/groupmain.js', 'odnoklassniki', 'groupMain', 'plain-objects', ['sandbox/utils.js']).done(function(result){
+                result = obj.validatePageBySchema('odnoklassniki/schemas/sandbox/validation/group/main.js', 'odnoklassniki', 'group.main', 'plain-objects', ['sandbox/utils.js']).done(function(result){
                     obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Group page opened successfully...');
                     def.resolve(result);
                 }).fail(function(error){
@@ -451,6 +458,63 @@ var Base = function(configObj)
         
         return def.promise();
     }
+
+    function fetchGroupUsersIds(pathId)
+    {
+        var curPage = obj.getPage();
+        var def = deferred.create();
+
+        var curPing = obj.getPing();
+
+        // reject if timeout
+        setTimeout(function(){
+            if (!def.isProcessed()) {
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Fetching users IDs of the group takes too long...');
+                def.reject(obj.createErrorObject(1, 'Login timeout'));
+            }
+        }, fetchGroupUsersIdsTimeout + curPing);
+
+        obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Starting process of fetching user IDs of the group...');
+
+        openGroupPage(pathId).done(function(){
+            obj.logProcess(obj.getCurPageURL(), 'starting', 'unknown', 'unknown', 'Trying to open users page...');
+
+            // run dummy schema (click 'All members' button)
+            var schema = require('../schemas/dummy/group/clickshowgroupmembers').schema;
+            obj.runDummySchema(schema).done(function(){
+                obj.logProcess(obj.getCurPageURL(), 'processing', 'unknown', 'unknown', '"dummy" schema successfully processed...');
+
+                obj.validatePageBySchemaUntilRec('odnoklassniki/schemas/sandbox/validation/group/memberslist.js', 'odnoklassniki', 'group.memberList', 'plain-objects', ['sandbox/utils.js']).done(function(){
+                    obj.logProcess(obj.getCurPageURL(), 'processing', 'success', 'unknown', 'Members list page successfully opened...');
+
+                    schema = require('../schemas/dummy/group/fetchmembersids').schema;
+                    obj.runDummySchema(schema).done(function(data){
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', 'success', 'success', 'Members list successfully retrieved...');
+                        def.resolve(data);
+                    }).fail(function(err){
+                        obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot retreive members list...');
+                        def.reject(err);
+                    });
+
+                }).fail(function(error){
+                    obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot open members list page...');
+                    def.reject(obj.createErrorObject(error));
+                });
+
+
+            }).fail(function(error){
+                obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot run "dummy" schema for "click show group members"...');
+                def.reject(obj.createErrorObject(4, error));
+            });
+
+
+        }).fail(function(error){
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'fail', 'fail', 'Cannot fetch user IDs of the group...');
+            def.reject(error);
+        });
+
+        return def.promise();
+    }
     
     function searchPeopleByCriteria(criteria)
     {
@@ -609,6 +673,28 @@ schemaVars['gender'] = {'left': 500, 'top': 0};
             return obj.startOp(openGroupPage, pathId);
         } catch(e) {
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "openGroupPage...');
+        }
+    }
+
+    /**
+     * Operation method that starts (or puts to the stack) operation 'fetchGroupUsersIds'.
+     *
+     * Method that starts operation that tries to fetch IDs of the users of the specific group.
+     *
+     * @access privileged
+     *
+     * @param int|string pathId group ID or group path
+     *
+     * @return object operation promise.
+     *
+     */
+
+    this.fetchGroupUsersIds = function(pathId)
+    {
+        try {
+            return obj.startOp(fetchGroupUsersIds, pathId);
+        } catch(e) {
+            obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "fetchGroupUsersIds...');
         }
     }
 
