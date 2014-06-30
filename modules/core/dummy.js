@@ -790,7 +790,7 @@ var Dummy = function(usrService)
         if (key.length == 0) {
             throw 'Dummy schema variable key length cannot be zero';
         }
-                
+
         dummySchemaVarsStack[key] = val;
     }
     
