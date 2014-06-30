@@ -459,7 +459,7 @@ var Base = function(configObj)
         return def.promise();
     }
 
-    function fetchGroupUsersIds(pathId)
+    function fetchAvailableGroupUsersIds(pathId)
     {
         var curPage = obj.getPage();
         var def = deferred.create();
@@ -687,7 +687,7 @@ schemaVars['gender'] = {'left': 500, 'top': 0};
     /**
      * Operation method that starts (or puts to the stack) operation 'fetchGroupUsersIds'.
      *
-     * Method that starts operation that tries to fetch IDs of the users of the specific group.
+     * Method that starts operation that tries to fetch IDs of the users of the specific group (until service limit is reached).
      *
      * @access privileged
      *
@@ -697,10 +697,10 @@ schemaVars['gender'] = {'left': 500, 'top': 0};
      *
      */
 
-    this.fetchGroupUsersIds = function(pathId)
+    this.fetchAvailableGroupUsersIds = function(pathId)
     {
         try {
-            return obj.startOp(fetchGroupUsersIds, pathId);
+            return obj.startOp(fetchAvailableGroupUsersIds, pathId);
         } catch(e) {
             obj.logProcess(obj.getCurPageURL(), 'finishing', 'unknown', 'fail', 'Cannot start operation "fetchGroupUsersIds...');
         }
