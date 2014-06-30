@@ -39,13 +39,19 @@ var FetchGroupUsers = function()
 
         curBase = odnoklassniki.create(options);
 
-        curBase.openGroupPage('pro.jenshin.mujchin').done(function(){
+        curBase.fetchAvailableGroupUsersIds(options.group).done(function(data){
+            var respData = {
+                membersData: data['membersData'],
+                membersFound: data['membersFound'],
+                membersCnt: data['membersCnt']
+            };
 
-        }).fail(function(){
-
+            obj.sendResponse(respData);
+            obj.stop();
+        }).fail(function(error){
+            obj.sendErrorResponse(error);
+            obj.stop();
         });
-
-
     }
 
     /**
